@@ -1,7 +1,7 @@
-package applicationMovieland.controller.Celebrity;
+package it.unipi.movieland.controller.Celebrity;
 
-import applicationMovieland.model.Celebrity.Celebrity;
-import applicationMovieland.service.Celebrity.CelebrityService;
+import it.unipi.movieland.model.Celebrity.Celebrity;
+import it.unipi.movieland.service.Celebrity.CelebrityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

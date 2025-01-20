@@ -1,7 +1,7 @@
-package applicationMovieland.controller.User;
+package it.unipi.movieland.controller.User;
 
-import applicationMovieland.model.User.RecentReview;
-import applicationMovieland.service.RecentReviewService;
+import it.unipi.movieland.model.User.RecentReview;
+import it.unipi.movieland.service.RecentReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,7 +1,7 @@
-package applicationMovieland.controller.User;
+package it.unipi.movieland.controller.User;
 
-import applicationMovieland.model.User.FollowedCelebrity;
-import applicationMovieland.service.FollowedCelebrityService;
+import it.unipi.movieland.model.User.FollowedCelebrity;
+import it.unipi.movieland.service.FollowedCelebrityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

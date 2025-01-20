@@ -1,8 +1,8 @@
-package applicationMovieland.repository.User;
+package it.unipi.movieland.repository.User;
 
-import applicationMovieland.model.User.FollowedCelebrity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import it.unipi.movieland.model.User.FollowedCelebrity;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface FollowedCelebrityRepository extends JpaRepository<FollowedCelebrity, Integer> {
+public interface FollowedCelebrityRepository extends MongoRepository<FollowedCelebrity, Integer> {
     // Query personalizzate
 }

@@ -1,6 +1,6 @@
-package applicationMovieland.repository.Comment;
+package it.unipi.movieland.repository.Comment;
 
-import applicationMovieland.model.Comment.Comment;
+import it.unipi.movieland.model.Comment.Comment;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

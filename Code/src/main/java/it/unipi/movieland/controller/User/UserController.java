@@ -1,9 +1,9 @@
-package applicationMovieland.controller.User;
+package it.unipi.movieland.controller.User;
 
-import applicationMovieland.model.User.User;
-import applicationMovieland.model.User.LikedMovie;
-import applicationMovieland.model.User.WatchlistItem;
-import applicationMovieland.service.UserService;
+import it.unipi.movieland.model.User.User;
+import it.unipi.movieland.model.User.LikedMovie;
+import it.unipi.movieland.model.User.WatchlistItem;
+import it.unipi.movieland.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

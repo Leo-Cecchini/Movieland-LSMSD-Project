@@ -1,7 +1,7 @@
-package applicationMovieland.service.Celebrity;
+package it.unipi.movieland.service.Celebrity;
 
-import applicationMovieland.model.Celebrity.Celebrity;
-import applicationMovieland.repository.Celebrity.CelebrityRepository;
+import it.unipi.movieland.model.Celebrity.Celebrity;
+import it.unipi.movieland.repository.Celebrity.CelebrityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

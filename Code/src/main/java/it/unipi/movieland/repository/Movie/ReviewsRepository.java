@@ -1,4 +1,4 @@
-package applicationMovieland.repository.Movie;
+package it.unipi.movieland.repository.Movie;
 
 public class ReviewsRepository {
 }

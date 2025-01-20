@@ -1,7 +1,7 @@
-package applicationMovieland.service.User;
+package it.unipi.movieland.service.User;
 
-import applicationMovieland.model.User.LikedMovie;
-import applicationMovieland.repository.User.LikedMovieRepository;
+import it.unipi.movieland.model.User.LikedMovie;
+import it.unipi.movieland.repository.User.LikedMovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

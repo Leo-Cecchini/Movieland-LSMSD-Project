@@ -1,7 +1,7 @@
-package applicationMovieland.service.Movie;
+package it.unipi.movieland.service.Movie;
 
-import applicationMovieland.model.Movie.Keyword;
-import applicationMovieland.repository.Movie.KeywordRepository;
+import it.unipi.movieland.model.Movie.Keyword;
+import it.unipi.movieland.repository.Movie.KeywordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

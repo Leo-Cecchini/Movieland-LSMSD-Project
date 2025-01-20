@@ -1,6 +1,6 @@
-package applicationMovieland.repository.Movie;
+package it.unipi.movieland.repository.Movie;
 
-import applicationMovieland.model.Movie.Genre;
+import it.unipi.movieland.model.Movie.Genre;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

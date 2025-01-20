@@ -1,7 +1,7 @@
-package applicationMovieland.service.Post;
+package it.unipi.movieland.service.Post;
 
-import applicationMovieland.model.Post.Post;
-import applicationMovieland.repository.Post.PostRepository;
+import it.unipi.movieland.model.Post.Post;
+import it.unipi.movieland.repository.Post.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

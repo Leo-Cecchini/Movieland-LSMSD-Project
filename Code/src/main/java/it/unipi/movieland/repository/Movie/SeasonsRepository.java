@@ -1,6 +1,6 @@
-package applicationMovieland.repository.Movie;
+package it.unipi.movieland.repository.Movie;
 
-import applicationMovieland.model.Movie.Seasons;
+import it.unipi.movieland.model.Movie.Seasons;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

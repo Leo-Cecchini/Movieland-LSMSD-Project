@@ -1,7 +1,7 @@
-package applicationMovieland.service.User;
+package it.unipi.movieland.service.User;
 
-import applicationMovieland.model.User.WatchlistItem;
-import applicationMovieland.repository.User.WatchlistItemRepository;
+import it.unipi.movieland.model.User.WatchlistItem;
+import it.unipi.movieland.repository.User.WatchlistItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

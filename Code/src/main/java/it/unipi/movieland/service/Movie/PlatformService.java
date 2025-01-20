@@ -1,7 +1,7 @@
-package applicationMovieland.service.Movie;
+package it.unipi.movieland.service.Movie;
 
-import applicationMovieland.model.Movie.Platform;
-import applicationMovieland.repository.Movie.PlatformRepository;
+import it.unipi.movieland.model.Movie.Platform;
+import it.unipi.movieland.repository.Movie.PlatformRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

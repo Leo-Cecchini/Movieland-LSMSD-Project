@@ -1,8 +1,8 @@
-package applicationMovieland.repository.User;
+package it.unipi.movieland.repository.User;
 
-import applicationMovieland.model.User.LikedMovie;
-import org.springframework.data.jpa.repository.JpaRepository;
+import it.unipi.movieland.model.User.LikedMovie;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface LikedMovieRepository extends JpaRepository<LikedMovie, String> {
+public interface LikedMovieRepository extends MongoRepository<LikedMovie, String> {
     // Query personalizzate
 }

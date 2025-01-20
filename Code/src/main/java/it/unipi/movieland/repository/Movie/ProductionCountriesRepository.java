@@ -1,6 +1,6 @@
-package applicationMovieland.repository.Movie;
+package it.unipi.movieland.repository.Movie;
 
-import applicationMovieland.model.Movie.ProductionCountries;
+import it.unipi.movieland.model.Movie.ProductionCountries;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

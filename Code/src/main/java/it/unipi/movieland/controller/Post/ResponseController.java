@@ -1,7 +1,7 @@
-package applicationMovieland.controller.Post;
+package it.unipi.movieland.controller.Post;
 
-import applicationMovieland.model.Post.Response;
-import applicationMovieland.service.Post.ResponseService;
+import it.unipi.movieland.model.Post.Response;
+import it.unipi.movieland.service.Post.ResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

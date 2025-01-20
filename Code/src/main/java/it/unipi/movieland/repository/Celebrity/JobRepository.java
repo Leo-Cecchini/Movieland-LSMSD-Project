@@ -1,6 +1,6 @@
-package applicationMovieland.repository.Celebrity;
+package it.unipi.movieland.repository.Celebrity;
 
-import applicationMovieland.model.Celebrity.Job;
+import it.unipi.movieland.model.Celebrity.Job;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

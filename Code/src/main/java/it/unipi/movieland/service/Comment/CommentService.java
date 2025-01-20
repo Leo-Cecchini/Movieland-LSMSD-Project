@@ -1,7 +1,7 @@
-package applicationMovieland.service.Comment;
+package it.unipi.movieland.service.Comment;
 
-import applicationMovieland.model.Comment.Comment;
-import applicationMovieland.repository.Comment.CommentRepository;
+import it.unipi.movieland.model.Comment.Comment;
+import it.unipi.movieland.repository.Comment.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

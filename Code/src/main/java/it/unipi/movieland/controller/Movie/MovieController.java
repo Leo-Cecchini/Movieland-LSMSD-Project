@@ -1,7 +1,7 @@
-package applicationMovieland.controller.Movie;
+package it.unipi.movieland.controller.Movie;
 
-import applicationMovieland.model.Movie.Movie;
-import applicationMovieland.service.Movie.MovieService;
+import it.unipi.movieland.model.Movie.Movie;
+import it.unipi.movieland.service.Movie.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

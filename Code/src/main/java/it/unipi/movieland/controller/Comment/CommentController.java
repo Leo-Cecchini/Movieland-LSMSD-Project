@@ -1,7 +1,7 @@
-package applicationMovieland.controller.Comment;
+package it.unipi.movieland.controller.Comment;
 
-import applicationMovieland.model.Comment.Comment;
-import applicationMovieland.service.Comment.CommentService;
+import it.unipi.movieland.model.Comment.Comment;
+import it.unipi.movieland.service.Comment.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

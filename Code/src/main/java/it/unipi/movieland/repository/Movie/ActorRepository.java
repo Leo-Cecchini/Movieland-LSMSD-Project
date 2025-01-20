@@ -1,11 +1,11 @@
-package applicationMovieland.repository.Movie;
+package it.unipi.movieland.repository.Movie;
 
-import applicationMovieland.model.Movie.Actor;
-import org.springframework.data.jpa.repository.JpaRepository;
+import it.unipi.movieland.model.Movie.Actor;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ActorRepository extends JpaRepository<Actor, Integer> {
+public interface ActorRepository extends MongoRepository<Actor, Integer> {
 
     // Puoi aggiungere metodi personalizzati per gestire gli attori
     // Ad esempio, per trovare un attore per nome:
