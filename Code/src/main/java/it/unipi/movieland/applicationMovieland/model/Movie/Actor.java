@@ -1,4 +1,4 @@
-package applicationMovieland.model.Movie;
+package it.unipi.movieland.applicationMovieland.model.Movie;
 
 public class Actor {
     private int id;

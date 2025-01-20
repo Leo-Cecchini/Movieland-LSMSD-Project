@@ -1,4 +1,4 @@
-package applicationMovieland.model.User;
+package it.unipi.movieland.applicationMovieland.model.User;
 
 public class LikedMovie {
     private String filmId;

@@ -1,4 +1,4 @@
-package applicationMovieland.model.Celebrity;
+package it.unipi.movieland.applicationMovieland.model.Celebrity;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package applicationMovieland.model.User;
+package it.unipi.movieland.applicationMovieland.model.User;
 
 import java.util.Date;
 import java.util.List;
