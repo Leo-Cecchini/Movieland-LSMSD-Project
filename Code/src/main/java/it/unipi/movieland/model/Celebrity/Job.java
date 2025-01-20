@@ -1,4 +1,4 @@
-package it.unipi.movieland.applicationMovieland.model.Celebrity;
+package it.unipi.movieland.model.Celebrity;
 
 public class Job {
     private String role;

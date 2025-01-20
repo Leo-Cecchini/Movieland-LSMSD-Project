@@ -1,4 +1,4 @@
-package it.unipi.movieland.applicationMovieland.model.User;
+package it.unipi.movieland.model.User;
 
 public class FollowedCelebrity {
     private int personId;

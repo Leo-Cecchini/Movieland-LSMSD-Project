@@ -1,4 +1,4 @@
-package it.unipi.movieland.applicationMovieland.model.Comment;
+package it.unipi.movieland.model.Comment;
 
 import java.util.Objects;
 

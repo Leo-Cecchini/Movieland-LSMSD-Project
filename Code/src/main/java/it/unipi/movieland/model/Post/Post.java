@@ -1,7 +1,6 @@
-package it.unipi.movieland.applicationMovieland.model.Post;
+package it.unipi.movieland.model.Post;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Post {
     private String _id;

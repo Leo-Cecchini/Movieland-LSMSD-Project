@@ -1,17 +1,18 @@
-package it.unipi.movieland.applicationMovieland.model.User;
+package it.unipi.movieland.model.User;
 
-public class LikedMovie {
+public class WatchlistItem {
     private String filmId;
     private String title;
     private String poster;
 
-    public LikedMovie(String filmId, String title, String poster) {
+    public WatchlistItem(String filmId, String title, String poster) {
         this.filmId = filmId;
         this.title = title;
         this.poster = poster;
     }
 
     // Getter e Setter
+
     public String getFilmId() {
         return filmId;
     }
@@ -38,7 +39,7 @@ public class LikedMovie {
 
     @Override
     public String toString() {
-        return "LikedMovie{" +
+        return "WatchlistItem{" +
                 "filmId=" + filmId +
                 "title=" + title +
                 "poster=" + poster +

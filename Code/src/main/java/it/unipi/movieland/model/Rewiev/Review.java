@@ -1,4 +1,4 @@
-package it.unipi.movieland.applicationMovieland.model.Rewiev;
+package it.unipi.movieland.model.Rewiev;
 
 import java.time.LocalDateTime;
 

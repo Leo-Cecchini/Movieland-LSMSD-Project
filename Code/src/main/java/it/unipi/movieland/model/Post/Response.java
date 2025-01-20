@@ -1,4 +1,4 @@
-package it.unipi.movieland.applicationMovieland.model.Post;
+package it.unipi.movieland.model.Post;
 
 public class Response {
     private String responseId;
