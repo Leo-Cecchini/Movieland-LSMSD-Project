@@ -1,6 +1,6 @@
 package it.unipi.movieland.controller.Review;
 
-import it.unipi.movieland.model.Rewiev.Review;
+import it.unipi.movieland.model.Review.Review;
 import it.unipi.movieland.service.Review.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package it.unipi.movieland.repository.Review;
 
-import it.unipi.movieland.model.Rewiev.Review;
+import it.unipi.movieland.model.Review.Review;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
