@@ -1,7 +1,7 @@
 package it.unipi.movieland.controller.User;
 
 import it.unipi.movieland.model.User.FollowedCelebrity;
-import it.unipi.movieland.service.FollowedCelebrityService;
+import it.unipi.movieland.service.User.FollowedCelebrityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

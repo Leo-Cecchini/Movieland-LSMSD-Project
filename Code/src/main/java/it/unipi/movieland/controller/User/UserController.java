@@ -3,7 +3,7 @@ package it.unipi.movieland.controller.User;
 import it.unipi.movieland.model.User.User;
 import it.unipi.movieland.model.User.LikedMovie;
 import it.unipi.movieland.model.User.WatchlistItem;
-import it.unipi.movieland.service.UserService;
+import it.unipi.movieland.service.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
