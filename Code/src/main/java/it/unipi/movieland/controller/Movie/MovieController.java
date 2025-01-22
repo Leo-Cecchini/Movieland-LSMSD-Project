@@ -26,6 +26,7 @@ public class MovieController {
     @GetMapping("/{movieId}")
     public ResponseEntity<Movie> getMovieById(@PathVariable String movieId) {
         Optional<Movie> movie = movieService.getMovieById(movieId);
+        System.out.println(movie.toString());
         return movie.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -39,8 +40,8 @@ public class MovieController {
 
     // Endpoint per aggiornare un film esistente
     @PutMapping("/{movieId}")
-    public ResponseEntity<Movie> updateMovie(@PathVariable String movieId, @RequestBody Movie updatedMovie) {
-        Movie movie = movieService.updateMovie(movieId, updatedMovie);
+    public ResponseEntity<Movie> updateMovie(@RequestBody Movie updatedMovie) {
+        Movie movie = movieService.updateMovie(updatedMovie);
         return ResponseEntity.ok(movie);
     }
 

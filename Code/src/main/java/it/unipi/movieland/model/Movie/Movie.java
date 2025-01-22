@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+
 @Document(collection = "Movies")
 public class Movie {
     @Id
@@ -11,45 +12,44 @@ public class Movie {
     private String title;
     private String type;
     private String description;
-    private int releaseYear;
-    private Genre genres;
-    private Keyword keywords;
-    private ProductionCountries productionCountries;
-    private int runtime;
-    private String posterPath;
-    private double imdbScore;
-    private double imdbVotes;
-    private Platform platform;
+    private Integer release_year;
+    private List<String> genres;
+    private List<String> keywords;
+    private List<String> production_countries;
+    private Integer runtime;
+    private String poster_path;
+    private Integer imdb_score;
+    private Integer imdb_votes;
+    private List<String> platform;
     private List<Actor> actors;
-    private Reviews reviews;
+    //private Reviews reviews;
     private Double revenue;
     private Double budget;
-    private String ageCertification;
-    private Seasons seasons;
+    private String age_certification;
+    private Integer seasons;
 
     // Costruttore
-    public Movie(String _id, String title, String type, String description, int releaseYear, Genre genres,
-                 Keyword keywords, ProductionCountries productionCountries, int runtime, String posterPath,
-                 double imdbScore, double imdbVotes, Platform platform, List<Actor> actors, Reviews reviews,
-                 Double revenue, Double budget, String ageCertification, Seasons seasons) {
+    public Movie(String _id, String title, String type, String description, Integer release_year, List<String> genres,
+                 List<String> keywords, List<String> production_countries, Integer runtime, String poster_path,
+                 Integer imdb_score, Integer imdb_votes, List<String> platform, List<Actor> actors,
+                 Double revenue, Double budget, String age_certification, Integer seasons) {
         this._id = _id;
         this.title = title;
         this.type = type;
         this.description = description;
-        this.releaseYear = releaseYear;
+        this.release_year = release_year;
         this.genres = genres;
         this.keywords = keywords;
-        this.productionCountries = productionCountries;
+        this.production_countries = production_countries;
         this.runtime = runtime;
-        this.posterPath = posterPath;
-        this.imdbScore = imdbScore;
-        this.imdbVotes = imdbVotes;
+        this.poster_path = poster_path;
+        this.imdb_score = imdb_score;
+        this.imdb_votes = imdb_votes;
         this.platform = platform;
         this.actors = actors;
-        this.reviews = reviews;
         this.revenue = revenue;
         this.budget = budget;
-        this.ageCertification = ageCertification;
+        this.age_certification = age_certification;
         this.seasons = seasons;
     }
 
@@ -86,75 +86,75 @@ public class Movie {
         this.description = description;
     }
 
-    public int getReleaseYear() {
-        return releaseYear;
+    public int getrelease_year() {
+        return release_year;
     }
 
-    public void setReleaseYear(int releaseYear) {
-        this.releaseYear = releaseYear;
+    public void setrelease_year(Integer release_year) {
+        this.release_year = release_year;
     }
 
-    public Genre getGenres() {
+    public List<String> getGenre() {
         return genres;
     }
 
-    public void setGenres(Genre genres) {
-        this.genres = genres;
+    public void setGenre(List<String> genre) {
+        this.genres = genre;
     }
 
-    public Keyword getKeywords() {
+    public List<String> getKeywords() {
         return keywords;
     }
 
-    public void setKeywords(Keyword keywords) {
+    public void setKeywords(List<String> keywords) {
         this.keywords = keywords;
     }
 
-    public ProductionCountries getProductionCountries() {
-        return productionCountries;
+    public List<String> getProduction_countries() {
+        return production_countries;
     }
 
-    public void setProductionCountries(ProductionCountries productionCountries) {
-        this.productionCountries = productionCountries;
+    public void setProduction_countries(List<String> production_countries) {
+        this.production_countries = production_countries;
     }
 
     public int getRuntime() {
         return runtime;
     }
 
-    public void setRuntime(int runtime) {
+    public void setRuntime(Integer runtime) {
         this.runtime = runtime;
     }
 
-    public String getPosterPath() {
-        return posterPath;
+    public String getPoster_path() {
+        return poster_path;
     }
 
-    public void setPosterPath(String posterPath) {
-        this.posterPath = posterPath;
+    public void setPoster_path(String poster_path) {
+        this.poster_path = poster_path;
     }
 
-    public double getImdbScore() {
-        return imdbScore;
+    public double getimdb_score() {
+        return imdb_score;
     }
 
-    public void setImdbScore(double imdbScore) {
-        this.imdbScore = imdbScore;
+    public void setimdb_score(Integer imdb_score) {
+        this.imdb_score = imdb_score;
     }
 
-    public double getImdbVotes() {
-        return imdbVotes;
+    public double getimdb_votes() {
+        return imdb_votes;
     }
 
-    public void setImdbVotes(double imdbVotes) {
-        this.imdbVotes = imdbVotes;
+    public void setimdb_votes(Integer imdb_votes) {
+        this.imdb_votes = imdb_votes;
     }
 
-    public Platform getPlatform() {
+    public List<String> getPlatform() {
         return platform;
     }
 
-    public void setPlatform(Platform platform) {
+    public void setPlatform(List<String> platform) {
         this.platform = platform;
     }
 
@@ -164,14 +164,6 @@ public class Movie {
 
     public void setActors(List<Actor> actors) {
         this.actors = actors;
-    }
-
-    public Reviews getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(Reviews reviews) {
-        this.reviews = reviews;
     }
 
     public Double getRevenue() {
@@ -190,19 +182,19 @@ public class Movie {
         this.budget = budget;
     }
 
-    public String getAgeCertification() {
-        return ageCertification;
+    public String getage_certification() {
+        return age_certification;
     }
 
-    public void setAgeCertification(String ageCertification) {
-        this.ageCertification = ageCertification;
+    public void setage_certification(String age_certification) {
+        this.age_certification = age_certification;
     }
 
-    public Seasons getSeasons() {
+    public Integer getSeasons() {
         return seasons;
     }
 
-    public void setSeasons(Seasons seasons) {
+    public void setSeasons(Integer seasons) {
         this.seasons = seasons;
     }
 
@@ -214,20 +206,19 @@ public class Movie {
                 ", title='" + title + '\'' +
                 ", type='" + type + '\'' +
                 ", description='" + description + '\'' +
-                ", releaseYear=" + releaseYear +
+                ", release_year=" + release_year +
                 ", genres=" + genres +
                 ", keywords=" + keywords +
-                ", productionCountries=" + productionCountries +
+                ", production_countries=" + production_countries +
                 ", runtime=" + runtime +
-                ", posterPath='" + posterPath + '\'' +
-                ", imdbScore=" + imdbScore +
-                ", imdbVotes=" + imdbVotes +
+                ", poster_path='" + poster_path + '\'' +
+                ", imdb_score=" + imdb_score +
+                ", imdb_votes=" + imdb_votes +
                 ", platform=" + platform +
                 ", actors=" + actors +
-                ", reviews=" + reviews +
                 ", revenue=" + revenue +
                 ", budget=" + budget +
-                ", ageCertification='" + ageCertification + '\'' +
+                ", age_certification='" + age_certification + '\'' +
                 ", seasons=" + seasons +
                 '}';
     }

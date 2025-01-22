@@ -16,26 +16,26 @@ public class MovieService {
 
     // Ottieni tutti i film
     public List<Movie> getAllMovies() {
-        return movieRepository.getAllMovies();
+        return movieRepository.findAll();
     }
 
     // Ottieni un film tramite ID
     public Optional<Movie> getMovieById(String movieId) {
-        return movieRepository.getMovieById(movieId);
+        return movieRepository.findById(movieId);
     }
 
     // Aggiungi un nuovo film
     public Movie addMovie(Movie movie) {
-        return movieRepository.addMovie(movie);
+        return movieRepository.insert(movie);
     }
 
     // Modifica un film esistente
-    public Movie updateMovie(String movieId, Movie updatedMovie) {
-        return movieRepository.updateMovie(movieId, updatedMovie);
+    public Movie updateMovie(Movie updatedMovie) {
+        return movieRepository.save(updatedMovie);
     }
 
     // Elimina un film tramite ID
     public void deleteMovie(String movieId) {
-        movieRepository.deleteMovie(movieId);
+        movieRepository.deleteById(movieId);
     }
 }
