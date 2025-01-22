@@ -1,8 +1,13 @@
 package it.unipi.movieland.model.Post;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.ArrayList;
 import java.util.List;
-
+@Document(collection = "Posts")
 public class Post {
+    @Id
     private String _id;
     private String datetime;
     private String text;

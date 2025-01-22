@@ -1,8 +1,12 @@
 package it.unipi.movieland.model.Comment;
 
-import java.util.Objects;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Objects;
+@Document(collection = "Comments")
 public class Comment {
+    @Id
     private String _id;
     private String datetime;
     private String text;
