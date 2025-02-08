@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import it.unipi.movieland.dto.CelebrityNeo4JDTO;
 import org.springframework.data.domain.Pageable;
 
-//
+
 @RestController
 @RequestMapping("/api/celebrities")
 public class CelebrityController {

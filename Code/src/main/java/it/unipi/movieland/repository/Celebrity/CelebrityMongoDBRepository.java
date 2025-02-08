@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.Aggregation;
 import java.util.List;
 
-//
 @Repository
 public interface CelebrityMongoDBRepository extends MongoRepository<CelebrityMongoDB, Integer> {
 

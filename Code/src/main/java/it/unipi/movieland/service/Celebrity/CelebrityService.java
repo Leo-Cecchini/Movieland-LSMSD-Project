@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 
 import java.util.Map;
 
-//
 @Service
 public class CelebrityService {
 
