@@ -3,6 +3,7 @@ package it.unipi.movieland;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+//
 @SpringBootApplication
 public class MovielandApplication {
 

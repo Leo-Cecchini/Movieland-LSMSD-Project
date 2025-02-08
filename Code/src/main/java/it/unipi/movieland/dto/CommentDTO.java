@@ -1,5 +1,6 @@
 package it.unipi.movieland.dto;
 
+//
 public class CommentDTO {
 
     private String text;

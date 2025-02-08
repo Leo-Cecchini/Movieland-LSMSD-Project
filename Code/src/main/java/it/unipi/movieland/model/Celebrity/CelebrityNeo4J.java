@@ -3,6 +3,7 @@ package it.unipi.movieland.model.Celebrity;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Id;
 
+//
 @Node("Celebrity")
 public class CelebrityNeo4J {
 

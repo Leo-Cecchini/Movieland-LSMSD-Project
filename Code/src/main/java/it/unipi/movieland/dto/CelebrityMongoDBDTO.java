@@ -4,6 +4,7 @@ package it.unipi.movieland.dto;
 import it.unipi.movieland.model.Celebrity.Job;
 import java.util.List;
 
+//
 public class CelebrityMongoDBDTO {
     private int id;  // ID come int per MongoDB
     private String name;

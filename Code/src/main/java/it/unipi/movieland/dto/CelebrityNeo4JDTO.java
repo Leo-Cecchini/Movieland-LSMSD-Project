@@ -3,6 +3,7 @@ package it.unipi.movieland.dto;
 import it.unipi.movieland.model.Celebrity.Job;
 import java.util.List;
 
+//
 public class CelebrityNeo4JDTO {
     private String person_id;  // ID come String per Neo4j
     private String name;
