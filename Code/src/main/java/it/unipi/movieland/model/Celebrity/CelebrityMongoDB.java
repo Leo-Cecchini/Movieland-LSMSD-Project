@@ -1,34 +1,37 @@
 package it.unipi.movieland.model.Celebrity;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.ArrayList;
 @Document(collection = "Celebrities")
-public class Celebrity {
-    @Id
-    private int id;
-    private String name;
-    private List<Job> jobs;
-    private int followers;
-    private String poster;
+public class CelebrityMongoDB {
 
-    // Costruttore
-    public Celebrity(int id, String name, List<Job> jobs, int followers, String poster) {
-        this.id = id;
-        this.name = name;
-        this.jobs = jobs;
-        this.followers = followers;
-        this.poster = poster;
+    private int _id;
+    private String name;
+    private List <Job> jobs;
+    private int followers;
+    private String Poster;
+
+    public CelebrityMongoDB() {
     }
 
-    // Getter e Setter
+    //Costruttore parametrizzato
+    public CelebrityMongoDB(int id, String name, String poster) {
+        this._id = id;
+        this.name = name;
+        this.jobs = new ArrayList<>();
+        this.followers = 0;
+        this.Poster = poster;
+    }
+
+    //Getters e Setters
     public int getId() {
-        return id;
+        return _id;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this._id = id;
     }
 
     public String getName() {
@@ -56,21 +59,21 @@ public class Celebrity {
     }
 
     public String getPoster() {
-        return poster;
+        return Poster;
     }
 
     public void setPoster(String poster) {
-        this.poster = poster;
+        this.Poster = poster;
     }
 
     @Override
     public String toString() {
         return "Celebrity{" +
-                "id=" + id +
+                "id=" + _id +
                 ", name='" + name + '\'' +
                 ", jobs=" + jobs +
                 ", followers=" + followers +
-                ", poster='" + poster + '\'' +
+                ", poster='" + Poster + '\'' +
                 '}';
     }
 }
