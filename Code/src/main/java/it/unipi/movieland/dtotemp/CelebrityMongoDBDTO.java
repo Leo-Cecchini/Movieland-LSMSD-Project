@@ -1,4 +1,4 @@
-package it.unipi.movieland.dto;
+package it.unipi.movieland.dtotemp;
 
 
 import it.unipi.movieland.model.Celebrity.Job;
