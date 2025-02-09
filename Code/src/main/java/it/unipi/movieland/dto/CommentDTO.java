@@ -1,4 +1,4 @@
-package it.unipi.movieland.dtotemp;
+package it.unipi.movieland.dto;
 
 public class CommentDTO {
 
