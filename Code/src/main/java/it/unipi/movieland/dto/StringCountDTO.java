@@ -1,4 +1,4 @@
-package it.unipi.movieland.DTO;
+package it.unipi.movieland.dto;
 
 import lombok.*;
 

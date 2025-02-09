@@ -1,7 +1,7 @@
 package it.unipi.movieland.repository.Movie;
 
 import com.mongodb.client.result.UpdateResult;
-import it.unipi.movieland.DTO.*;
+import it.unipi.movieland.dto.*;
 import it.unipi.movieland.model.Movie.Actor;
 import it.unipi.movieland.model.Movie.Movie;
 import it.unipi.movieland.model.PlatformEnum;
@@ -152,8 +152,7 @@ public class Movie_mongoDB_repo {
         return movie_mongoDB_interface.save(movie);
     }
 
-    public void deleteTitle(String id) {
-        movie_mongoDB_interface.deleteById(id);
+    public void deleteTitle(String id) {movie_mongoDB_interface.deleteById(id);
     }
 
     public int addRole(String movie_id, Integer actor_id, String name, String character) {

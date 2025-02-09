@@ -31,7 +31,9 @@ public class CommentController {
             @RequestParam String text,
             @RequestParam String author) {
 
-        Comment comment = new Comment(text, author);
+        Comment comment = new Comment();
+        comment.setText(text);
+        comment.setAuthor(author);
 
         return commentService.createComment(comment);
     }

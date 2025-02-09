@@ -2,7 +2,7 @@ package it.unipi.movieland.service.Movie;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import it.unipi.movieland.DTO.*;
+import it.unipi.movieland.dto.*;
 import it.unipi.movieland.model.Movie.Movie;
 import it.unipi.movieland.model.Movie.MovieNeo4j;
 import it.unipi.movieland.model.PlatformEnum;

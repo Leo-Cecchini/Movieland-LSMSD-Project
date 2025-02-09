@@ -1,4 +1,4 @@
-package it.unipi.movieland.DTO;
+package it.unipi.movieland.dto;
 
 public class ResponseWrapper<T> {
     private String message;
