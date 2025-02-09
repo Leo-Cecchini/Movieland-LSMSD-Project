@@ -28,6 +28,27 @@ public class Movie {
     private String age_certification;
     private Integer seasons;
 
+    //empty constructor
+    public Movie() {}
+
+    // constructor for creating the title from the json object return by the mdblist api
+    public Movie(String title, Integer release_year, String description, Integer runtime, String _id, String type,
+                 Integer imdb_score, Integer imdb_votes, List<String> genres, List<String> production_countries,
+                 String age_certification, String poster_path) {
+        this.title = title;
+        this.release_year = release_year;
+        this.description = description;
+        this.runtime = runtime;
+        this._id = _id;
+        this.type = type;
+        this.imdb_score = imdb_score;
+        this.imdb_votes = imdb_votes;
+        this.genres = genres;
+        this.production_countries = production_countries;
+        this.age_certification = age_certification;
+        this.poster_path = poster_path;
+    }
+
     // Costruttore
     public Movie(String _id, String title, String type, String description, Integer release_year, List<String> genres,
                  List<String> keywords, List<String> production_countries, Integer runtime, String poster_path,

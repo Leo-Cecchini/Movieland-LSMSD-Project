@@ -1,27 +1,25 @@
 package it.unipi.movieland.model.Post;
 
 public class Response {
-    private String responseId;
+    private String response_id;
 
-    // Costruttore
-    public Response(String responseId) {
-        this.responseId = responseId;
+    public Response(String response_id) {
+        this.response_id = response_id;
     }
 
-    // Getter e Setter
-    public String getResponseId() {
-        return responseId;
-    }
 
-    public void setResponseId(String responseId) {
-        this.responseId = responseId;
+    public String getResponse_id() {
+        return response_id;
+    }
+    public void setResponse_id(String response_id) {
+        this.response_id = response_id;
     }
 
     // Override di toString
     @Override
     public String toString() {
         return "Response{" +
-                "responseId='" + responseId + '\'' +
+                "responseId='" + response_id + '\'' +
                 '}';
     }
 }

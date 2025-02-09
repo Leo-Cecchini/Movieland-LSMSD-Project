@@ -2,26 +2,28 @@ package it.unipi.movieland.model.Post;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 @Document(collection = "Posts")
 public class Post {
     @Id
+    @GeneratedValue
     private String _id;
-    private String datetime;
+    private LocalDateTime datetime;
     private String text;
     private String author;
-    private String movieId;
+    private String movie_id;
     private List<Response> response;
 
     // Costruttore
-    public Post(String _id, String datetime, String text, String author, String movieId, List<Response> response) {
-        this._id = _id;
+    public Post( LocalDateTime datetime, String text, String author, String movie_id, List<Response> response) {
         this.datetime = datetime;
         this.text = text;
         this.author = author;
-        this.movieId = movieId;
+        this.movie_id = movie_id;
         this.response = response != null ? new ArrayList<>(response) : new ArrayList<>();
     }
 
@@ -34,11 +36,11 @@ public class Post {
         this._id = _id;
     }
 
-    public String getDatetime() {
+    public LocalDateTime getDatetime() {
         return datetime;
     }
 
-    public void setDatetime(String datetime) {
+    public void setDatetime(LocalDateTime datetime) {
         this.datetime = datetime;
     }
 
@@ -58,12 +60,12 @@ public class Post {
         this.author = author;
     }
 
-    public String getMovieId() {
-        return movieId;
+    public String getMovie_id() {
+        return movie_id;
     }
 
-    public void setMovieId(String movieId) {
-        this.movieId = movieId;
+    public void setMovie_id(String movie_id) {
+        this.movie_id = movie_id;
     }
 
     public List<Response> getResponse() {
@@ -74,7 +76,7 @@ public class Post {
         this.response = response != null ? new ArrayList<>(response) : new ArrayList<>();
     }
 
-    // Aggiungi una singola risposta
+    // Add a respose(comment) to the post
     public void addResponse(Response singleResponse) {
         if (singleResponse != null) {
             this.response.add(singleResponse);
@@ -89,7 +91,7 @@ public class Post {
                 ", datetime='" + datetime + '\'' +
                 ", text='" + text + '\'' +
                 ", author='" + author + '\'' +
-                ", movieId='" + movieId + '\'' +
+                ", movie_id='" + movie_id + '\'' +
                 ", response=" + response +
                 '}';
     }
