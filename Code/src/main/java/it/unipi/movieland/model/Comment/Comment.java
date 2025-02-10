@@ -1,9 +1,9 @@
 package it.unipi.movieland.model.Comment;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.annotation.Id;
+
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.security.SecureRandom;
+import org.springframework.data.annotation.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -16,33 +16,20 @@ public class Comment {
     private String text;
     private String author;
 
-    //GENERATORE DI ID ALFANUMERICO CASUALE
-    private static String generateRandomId(int length) {
-        String characters = "abcdefghijklmnopqrstuvwxyz0123456789";
-        SecureRandom random = new SecureRandom();
-        StringBuilder sb = new StringBuilder(length);
-
-        for (int i = 0; i < length; i++) {
-            sb.append(characters.charAt(random.nextInt(characters.length())));
-        }
-        return sb.toString();
-    }
-
-    //COSTRUTTORE PREDEFINITO
+    // Costruttore predefinito (senza generazione ID)
     public Comment() {
-        this.id = generateRandomId(7); // Puoi rimuoverlo se lasci a MongoDB la gestione dell'ID
         this.datetime = LocalDateTime.now();
     }
 
-    //COSTRUTTORE PARAMETRIZZATO
-    public Comment(String text, String author) {
-        this.id = generateRandomId(7);
+    // Costruttore parametrizzato
+    public Comment(String id, String text, String author) {
+        this.id = id; // L'ID viene generato da un servizio
         this.datetime = LocalDateTime.now();
         this.text = text;
         this.author = author;
     }
 
-    //METODI GET E SET
+    // Getter e Setter
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -55,14 +42,12 @@ public class Comment {
     public String getAuthor() { return author; }
     public void setAuthor(String author) { this.author = author; }
 
-    //METODO PER OTTENERE LA DATA COME STRINGA FORMATTATA
     @JsonIgnore
     public String getFormattedDatetime() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return datetime.format(formatter);
     }
 
-    //METODO TOSTRING PER IL DEBUG
     @Override
     public String toString() {
         return "Comment{" +
@@ -73,4 +58,3 @@ public class Comment {
                 '}';
     }
 }
-

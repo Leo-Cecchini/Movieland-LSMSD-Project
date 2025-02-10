@@ -1,5 +1,6 @@
 package it.unipi.movieland.model.Post;
 
+import it.unipi.movieland.model.Comment.Comment;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -16,15 +17,15 @@ public class Post {
     private String text;
     private String author;
     private String movie_id;
-    private List<Response> response;
+    private List<Comment> comment;
 
     // Costruttore
-    public Post( LocalDateTime datetime, String text, String author, String movie_id, List<Response> response) {
+    public Post( LocalDateTime datetime, String text, String author, String movie_id, List<Comment> comment) {
         this.datetime = datetime;
         this.text = text;
         this.author = author;
         this.movie_id = movie_id;
-        this.response = response != null ? new ArrayList<>(response) : new ArrayList<>();
+        this.comment = comment != null ? new ArrayList<>(comment) : new ArrayList<>();
     }
 
     // Getter e Setter
@@ -68,18 +69,18 @@ public class Post {
         this.movie_id = movie_id;
     }
 
-    public List<Response> getResponse() {
-        return new ArrayList<>(response);
+    public List<Comment> getResponse() {
+        return new ArrayList<>(comment);
     }
 
-    public void setResponse(List<Response> response) {
-        this.response = response != null ? new ArrayList<>(response) : new ArrayList<>();
+    public void setResponse(List<Comment> response) {
+        this.comment = response != null ? new ArrayList<>(response) : new ArrayList<>();
     }
 
     // Add a respose(comment) to the post
-    public void addResponse(Response singleResponse) {
+    public void addResponse(Comment singleResponse) {
         if (singleResponse != null) {
-            this.response.add(singleResponse);
+            this.comment.add(singleResponse);
         }
     }
 
@@ -92,7 +93,7 @@ public class Post {
                 ", text='" + text + '\'' +
                 ", author='" + author + '\'' +
                 ", movie_id='" + movie_id + '\'' +
-                ", response=" + response +
+                ", response=" + comment +
                 '}';
     }
 }

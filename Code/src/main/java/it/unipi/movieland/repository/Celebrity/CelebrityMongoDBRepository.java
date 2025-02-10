@@ -21,6 +21,5 @@ public interface CelebrityMongoDBRepository extends MongoRepository<CelebrityMon
             "{ $group: { _id: '$_id', name: { $first: '$name' }, jobs: { $push: '$jobs' }, followers: { $first: '$followers' }, poster: { $first: '$poster' } } }",
             "{ $limit: 10 }"
         })
-
     List<CelebrityMongoDB> searchActorsAndCharacters(String searchTerm);
 }

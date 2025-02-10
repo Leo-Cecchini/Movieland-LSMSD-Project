@@ -152,8 +152,7 @@ public class Movie_mongoDB_repo {
         return movie_mongoDB_interface.save(movie);
     }
 
-    public void deleteTitle(String id) {
-        movie_mongoDB_interface.deleteById(id);
+    public void deleteTitle(String id) {movie_mongoDB_interface.deleteById(id);
     }
 
     public int addRole(String movie_id, Integer actor_id, String name, String character) {
