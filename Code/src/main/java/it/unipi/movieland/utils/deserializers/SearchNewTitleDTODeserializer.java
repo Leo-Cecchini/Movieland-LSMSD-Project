@@ -1,7 +1,7 @@
 package it.unipi.movieland.utils.deserializers;
 
 import com.google.gson.*;
-import it.unipi.movieland.DTO.SearchNewTitleDTO;
+import it.unipi.movieland.dto.SearchNewTitleDTO;
 
 import java.lang.reflect.Type;
 

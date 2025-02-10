@@ -1,6 +1,6 @@
 package it.unipi.movieland.controller.Analytics;
 
-import it.unipi.movieland.DTO.*;
+import it.unipi.movieland.dto.*;
 import it.unipi.movieland.service.Movie.MovieService;
 import it.unipi.movieland.service.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;

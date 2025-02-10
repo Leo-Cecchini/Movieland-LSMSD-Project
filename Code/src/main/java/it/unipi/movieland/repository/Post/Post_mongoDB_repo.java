@@ -1,7 +1,7 @@
 package it.unipi.movieland.repository.Post;
 
-import it.unipi.movieland.DTO.PostActivityDTO;
-import it.unipi.movieland.DTO.UserInfluencerDTO;
+import it.unipi.movieland.dto.PostActivityDTO;
+import it.unipi.movieland.dto.UserInfluencerDTO;
 import it.unipi.movieland.model.Post.Post;
 import it.unipi.movieland.service.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;

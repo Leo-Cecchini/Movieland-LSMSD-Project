@@ -1,7 +1,7 @@
 package it.unipi.movieland.repository.Movie;
 
 import com.mongodb.client.result.UpdateResult;
-import it.unipi.movieland.DTO.*;
+import it.unipi.movieland.dto.*;
 import it.unipi.movieland.model.Movie.Actor;
 import it.unipi.movieland.model.Movie.Movie;
 import it.unipi.movieland.model.PlatformEnum;

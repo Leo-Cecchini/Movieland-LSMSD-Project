@@ -1,7 +1,7 @@
 package it.unipi.movieland.service.Post;
 
-import it.unipi.movieland.DTO.PostActivityDTO;
-import it.unipi.movieland.DTO.UserInfluencerDTO;
+import it.unipi.movieland.dto.PostActivityDTO;
+import it.unipi.movieland.dto.UserInfluencerDTO;
 import it.unipi.movieland.model.Post.Post;
 import it.unipi.movieland.repository.Post.Post_mongoDB_interface;
 import it.unipi.movieland.repository.Post.Post_mongoDB_repo;

@@ -1,7 +1,6 @@
-package it.unipi.movieland.DTO;
+package it.unipi.movieland.dto;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 public class SearchNewTitleDTO {
