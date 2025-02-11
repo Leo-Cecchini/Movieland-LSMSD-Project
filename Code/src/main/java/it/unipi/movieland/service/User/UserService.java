@@ -8,8 +8,8 @@ import it.unipi.movieland.model.User.UserMovie;
 import it.unipi.movieland.model.User.UserMongoDB;
 import it.unipi.movieland.model.User.UserNeo4J;
 import it.unipi.movieland.repository.Celebrity.CelebrityNeo4JRepository;
-import it.unipi.movieland.repository.Movie.Movie_mongoDB_interface;
-import it.unipi.movieland.repository.Movie.Movie_neo4j_interface;
+import it.unipi.movieland.repository.Movie.MovieMongoDBRepository;
+import it.unipi.movieland.repository.Movie.MovieNeo4jRepository;
 import it.unipi.movieland.repository.User.UserMongoDBRepository;
 import it.unipi.movieland.repository.User.UserNeo4JRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +43,10 @@ public class UserService {
     private UserNeo4JRepository neoRepository;
 
     @Autowired
-    private Movie_mongoDB_interface movieMongoRepository;
+    private MovieMongoDBRepository movieMongoRepository;
 
     @Autowired
-    private Movie_neo4j_interface movieNeoRepository;
+    private MovieNeo4jRepository movieNeoRepository;
 
     @Autowired
     private CelebrityNeo4JRepository celebrityNeoRepository;

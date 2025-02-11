@@ -2,7 +2,7 @@ package it.unipi.movieland.service.Review;
 
 import it.unipi.movieland.model.Review.ReviewMongoDB;
 import it.unipi.movieland.model.Review.ReviewNeo4J;
-import it.unipi.movieland.repository.Movie.Movie_mongoDB_interface;
+import it.unipi.movieland.repository.Movie.MovieMongoDBRepository;
 import it.unipi.movieland.repository.Review.ReviewMongoDBRepository;
 import it.unipi.movieland.repository.Review.ReviewNeo4JRepository;
 import it.unipi.movieland.repository.User.UserMongoDBRepository;
@@ -27,7 +27,7 @@ public class ReviewService {
     private UserMongoDBRepository userMongoDBRepository;
 
     @Autowired
-    private Movie_mongoDB_interface movieMongoDBRepository;
+    private MovieMongoDBRepository movieMongoDBRepository;
 
     public ReviewMongoDB addReview(String movieId, String userId, String txt, boolean sentiment) {
         if (!userMongoDBRepository.existsById(userId)) {
