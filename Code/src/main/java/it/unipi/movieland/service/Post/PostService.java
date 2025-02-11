@@ -3,8 +3,7 @@ package it.unipi.movieland.service.Post;
 import it.unipi.movieland.dto.PostActivityDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
 import it.unipi.movieland.model.Post.Post;
-import it.unipi.movieland.repository.Post.Post_mongoDB_interface;
-import it.unipi.movieland.repository.Post.Post_mongoDB_repo;
+import it.unipi.movieland.repository.Post.PostMongoDBRepository;
 import it.unipi.movieland.service.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,42 +18,40 @@ import java.util.Optional;
 public class PostService {
 
     @Autowired
-    private Post_mongoDB_repo postRepository;
-
-    @Autowired
-    private Post_mongoDB_interface post_mongoDB_interface;
+    private PostMongoDBRepository postMongoDBRepository;
 
     // Get post by id
     public Optional<Post> getPostById(String id) {
-        return post_mongoDB_interface.findById(id);
+        return postMongoDBRepository.findById(id);
     }
 
     // Add new post
     public Post addPost(Post post) {
-        return post_mongoDB_interface.save(post);
+        return postMongoDBRepository.save(post);
     }
 
     // Get posts by movieId
     public Page<Post> getPostsByMovieId(String movie_id, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        return post_mongoDB_interface.findbyMovieId(movie_id, pageRequest);
+        return postMongoDBRepository.findByMovieId(movie_id, pageRequest);
     }
 
     // Delete post
     public void deletePost(String id) {
-        post_mongoDB_interface.deleteById(id);
+        postMongoDBRepository.deleteById(id);
     }
 
-    public List<PostActivityDTO> getPostActivity() throws BusinessException {
-        return postRepository.getPostActivity();
+
+    public List<PostActivityDTO> getPostActivity() {
+        return postMongoDBRepository.getPostActivity();
     }
 
-    public List<UserInfluencerDTO> getInfluencersReport() throws BusinessException {
-        return postRepository.getInfluencersReport();
+    public List<UserInfluencerDTO> getInfluencersReport()  {
+        return postMongoDBRepository.getInfluencersReport();
     }
 
     public Page<Post> getCommentsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        return post_mongoDB_interface.findByDatetimeBetween(startDate, endDate, pageRequest);
+        return postMongoDBRepository.findByDatetimeBetween(startDate, endDate, pageRequest);
     }
 }

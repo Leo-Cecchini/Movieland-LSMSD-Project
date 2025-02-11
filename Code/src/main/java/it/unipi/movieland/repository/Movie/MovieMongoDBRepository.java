@@ -33,7 +33,6 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<ActorDTO> mostFrequentActorsSpecificGenres(List<String> genres);
 
-
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
             "{ $limit: 1000 }",
@@ -64,7 +63,6 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<StringCountDTO> mostVotedMoviesByGenres();
 
-
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
             "{ $limit: 100 }",
@@ -79,7 +77,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
             "{ $limit: 10 }",
             "{ $project: { " + "actor_id: '$_id', " + "name: 1, " + "poster: 1, " + "movieCount: 1 " + "} }"
     })
-    List<ActorDTO> mostPopularActors(); //*****
+    List<ActorDTO> mostPopularActors();
 
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
@@ -98,7 +96,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
                     "movieCount: '$movieCount' " +
                     "} }"
     })
-    List<ActorDTO> highesAverageActorsTop2000Movies(); //*****
+    List<ActorDTO> highesAverageActorsTop2000Movies();
 
     @Aggregation(pipeline = {
             "{ $unwind: '$platform' }",
