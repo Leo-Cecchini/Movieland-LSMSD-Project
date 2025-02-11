@@ -2,7 +2,6 @@ package it.unipi.movieland.service.Comment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import it.unipi.movieland.dto.CommentDTO;
 import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.repository.Comment.CommentMongoDBRepository;
 import org.springframework.data.domain.Page;
@@ -47,7 +46,7 @@ public class CommentService {
     // Metodo per creare un commento
     public Comment createComment(Comment comment) {
         // Genera un ID unico per il commento
-        String uniqueId = generateUniqueRandomId(10); // Scegli la lunghezza dell'ID
+        String uniqueId = generateUniqueRandomId(7); // Scegli la lunghezza dell'ID
         comment.setId(uniqueId);
 
         // Salva il commento nel database
@@ -73,7 +72,7 @@ public class CommentService {
     }
 
     // Metodo per aggiornare un commento esistente
-    public Comment updateComment(String id, CommentDTO updateDTO) {
+    public Comment updateComment(String id, String text) {
         Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Commento con ID " + id + " non trovato"));
 
@@ -81,7 +80,7 @@ public class CommentService {
         String originalId = existingComment.getId();
 
         existingComment.setDatetime(LocalDateTime.now());
-        existingComment.setText(updateDTO.getText());
+        existingComment.setText(text);
         existingComment.setAuthor(originalAuthor);
         existingComment.setId(originalId);
 

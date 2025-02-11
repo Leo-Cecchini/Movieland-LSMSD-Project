@@ -1,8 +1,10 @@
 package it.unipi.movieland.controller.Comment;
 
-import it.unipi.movieland.dto.CommentDTO;
 import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.service.Comment.CommentService;
+import it.unipi.movieland.model.Post.Post;
+import it.unipi.movieland.repository.Post.Post_mongoDB_interface;
+import it.unipi.movieland.repository.User.UserMongoDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
@@ -12,29 +14,45 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Parameter;
-
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/comments")
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserMongoDBRepository userRepository;
+    private final Post_mongoDB_interface postRepository;
 
     @Autowired
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, UserMongoDBRepository userRepository, Post_mongoDB_interface postRepository) {
         this.commentService = commentService;
+        this.userRepository = userRepository;
+        this.postRepository = postRepository;
     }
-
     //ENDPOINT PER CREARE UN COMMENTO (MONGODB)
     @PostMapping
-    public Comment createComment(
-            @RequestParam String text,
-            @RequestParam String author) {
+    public Comment createComment(@RequestParam String text,
+                                 @RequestParam String authorId,
+                                 @RequestParam String postId) {
+        // Verifica che l'autore esista
+        if (!userRepository.existsById(authorId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Autore non trovato nel database.");
+        }
 
+        // Verifica che il post esista
+        if (!postRepository.existsById(postId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post non trovato.");
+        }
+
+        // Crea il commento e associa l'ID del post
         Comment comment = new Comment();
         comment.setText(text);
-        comment.setAuthor(author);
+        comment.setAuthor(authorId);
+        comment.setId(postId); // Associa il commento al post
 
+        // Salva il commento
         return commentService.createComment(comment);
     }
 
@@ -61,9 +79,9 @@ public class CommentController {
 
     //ENDPOINT PER MODIFICARE UN COMMENTO PER ID (MONGODB)
     @PutMapping("/{id}")
-    public Comment updateComment(@PathVariable String id, @RequestBody CommentDTO updateDTO) {
+    public Comment updateComment(@PathVariable String id, @RequestParam String text) {
         // Passa solo il testo nel servizio
-        return commentService.updateComment(id, updateDTO);
+        return commentService.updateComment(id, text);
     }
 
     //ENDPOINT PER OTTENERE COMMENTI PER AUTORE CON PAGINAZIONE

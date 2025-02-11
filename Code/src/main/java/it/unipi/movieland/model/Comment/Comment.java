@@ -1,6 +1,5 @@
 package it.unipi.movieland.model.Comment;
 
-
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Id;
 import com.fasterxml.jackson.annotation.JsonIgnore;

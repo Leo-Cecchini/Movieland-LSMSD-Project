@@ -13,10 +13,6 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import java.util.List;
-import java.util.stream.Collectors;
-import it.unipi.movieland.dto.CelebrityNeo4JDTO;
-import org.springframework.data.domain.Pageable;
-
 
 @RestController
 @RequestMapping("/api/celebrities")
