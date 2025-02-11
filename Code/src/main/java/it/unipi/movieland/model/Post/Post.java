@@ -3,6 +3,7 @@ package it.unipi.movieland.model.Post;
 import it.unipi.movieland.model.Comment.Comment;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 
 import java.time.LocalDateTime;
@@ -16,15 +17,16 @@ public class Post {
     private LocalDateTime datetime;
     private String text;
     private String author;
-    private String movie_id;
+    @Field("movie_id")
+    private String movieId;
     private List<Comment> comment;
 
     // Costruttore
-    public Post( LocalDateTime datetime, String text, String author, String movie_id, List<Comment> comment) {
+    public Post( LocalDateTime datetime, String text, String author, String movieId, List<Comment> comment) {
         this.datetime = datetime;
         this.text = text;
         this.author = author;
-        this.movie_id = movie_id;
+        this.movieId = movieId;
         this.comment = comment != null ? new ArrayList<>(comment) : new ArrayList<>();
     }
 
@@ -61,12 +63,12 @@ public class Post {
         this.author = author;
     }
 
-    public String getMovie_id() {
-        return movie_id;
+    public String getMovieId() {
+        return movieId;
     }
 
-    public void setMovie_id(String movie_id) {
-        this.movie_id = movie_id;
+    public void setMovieId(String movieId) {
+        this.movieId = movieId;
     }
 
     public List<Comment> getResponse() {
@@ -92,7 +94,7 @@ public class Post {
                 ", datetime='" + datetime + '\'' +
                 ", text='" + text + '\'' +
                 ", author='" + author + '\'' +
-                ", movie_id='" + movie_id + '\'' +
+                ", movieId='" + movieId + '\'' +
                 ", response=" + comment +
                 '}';
     }

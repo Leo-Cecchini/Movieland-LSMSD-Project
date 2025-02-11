@@ -1,6 +1,7 @@
 package it.unipi.movieland.repository.Post;
 
 import it.unipi.movieland.dto.PostActivityDTO;
+import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
 import it.unipi.movieland.model.Post.Post;
 import org.springframework.data.domain.Page;
@@ -15,10 +16,11 @@ import java.util.List;
 
 @Repository
 public interface PostMongoDBRepository extends MongoRepository<Post, String> {
-    @Query("{ 'movie_id': ?0 }")
-    Page<Post> findByMovieId(String movie_id, Pageable pageable);
+    @Query(value = "{ 'movie_id': ?0 }", fields = "{ 'comment': 0 }")
+    Page<PostDTO> findByMovieId(String movieId, Pageable pageable);
 
-    Page<Post> findByDatetimeBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    @Query(fields = "{ 'comment': 0 }")
+    Page<PostDTO> findByDatetimeBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     @Aggregation(pipeline = {
             "{ $project: { hour: { $hour: { $dateFromString: { dateString: \"$datetime\" } } } } }",
@@ -29,7 +31,7 @@ public interface PostMongoDBRepository extends MongoRepository<Post, String> {
     List<PostActivityDTO> getPostActivity();
 
     @Aggregation(pipeline = {
-            "{ $group: { _id: \"$author\", totalPosts: { $count: {} }, totalComments: { $sum: { $size: \"comment\" } } } }",
+            "{ $group: { _id: \"$author\", totalPosts: { $count: {} }, totalComments: { $sum: { $size: \"$comment\" } } } }",
             "{ $addFields: { commentsPerPost: { $cond: { if: { $eq: [ \"$totalPosts\", 0 ] }, then: 0, else: { $divide: [ \"$totalComments\", \"$totalPosts\" ] } } } } }",
             "{ $sort: { totalComments: -1, totalPosts: -1, commentsPerPost: -1 } }",
             "{ $project: { username: \"$_id\", totalPosts: 1, totalComments: 1, commentsPerPost: 1 } }"

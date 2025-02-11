@@ -2,6 +2,7 @@ package it.unipi.movieland.controller.Post;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import it.unipi.movieland.dto.PostActivityDTO;
+import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
 import it.unipi.movieland.model.Post.Post;
 import it.unipi.movieland.service.Post.PostService;
@@ -25,7 +26,7 @@ public class PostController {
 
     // Get all post by movie_id
     @GetMapping("/movie/{movie_id}")
-    public Page<Post> getPostsByMovieId(
+    public Page<PostDTO> getPostsByMovieId(
             @PathVariable String movie_id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -75,7 +76,7 @@ public class PostController {
 
     // Get posts with date range
     @GetMapping("/byDateRange")
-    public Page<Post> getCommentsByDateRange(
+    public Page<PostDTO> getCommentsByDateRange(
             @Parameter(description = "Start data in format 'yyyy-MM-ddTHH:mm:ss'")
             @RequestParam String startDate,
 

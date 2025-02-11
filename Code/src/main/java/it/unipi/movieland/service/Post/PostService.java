@@ -1,10 +1,10 @@
 package it.unipi.movieland.service.Post;
 
 import it.unipi.movieland.dto.PostActivityDTO;
+import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
 import it.unipi.movieland.model.Post.Post;
 import it.unipi.movieland.repository.Post.PostMongoDBRepository;
-import it.unipi.movieland.service.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +31,7 @@ public class PostService {
     }
 
     // Get posts by movieId
-    public Page<Post> getPostsByMovieId(String movie_id, int page, int size) {
+    public Page<PostDTO> getPostsByMovieId(String movie_id, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         return postMongoDBRepository.findByMovieId(movie_id, pageRequest);
     }
@@ -50,7 +50,7 @@ public class PostService {
         return postMongoDBRepository.getInfluencersReport();
     }
 
-    public Page<Post> getCommentsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
+    public Page<PostDTO> getCommentsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         return postMongoDBRepository.findByDatetimeBetween(startDate, endDate, pageRequest);
     }
