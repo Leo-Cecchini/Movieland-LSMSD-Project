@@ -3,7 +3,7 @@ package it.unipi.movieland.controller.Comment;
 import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.service.Comment.CommentService;
 import it.unipi.movieland.model.Post.Post;
-import it.unipi.movieland.repository.Post.Post_mongoDB_interface;
+import it.unipi.movieland.repository.Post.PostMongoDBRepository;
 import it.unipi.movieland.repository.User.UserMongoDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +23,10 @@ public class CommentController {
 
     private final CommentService commentService;
     private final UserMongoDBRepository userRepository;
-    private final Post_mongoDB_interface postRepository;
+    private final PostMongoDBRepository postRepository;
 
     @Autowired
-    public CommentController(CommentService commentService, UserMongoDBRepository userRepository, Post_mongoDB_interface postRepository) {
+    public CommentController(CommentService commentService, UserMongoDBRepository userRepository, PostMongoDBRepository postRepository) {
         this.commentService = commentService;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
