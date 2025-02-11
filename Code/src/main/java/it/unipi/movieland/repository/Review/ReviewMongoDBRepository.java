@@ -1,0 +1,51 @@
+package it.unipi.movieland.repository.Review;
+
+import it.unipi.movieland.model.Review.ReviewMongoDB;
+import it.unipi.movieland.model.User.UserReview;
+import org.springframework.data.mongodb.repository.Aggregation;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.repository.Update;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface ReviewMongoDBRepository extends MongoRepository<ReviewMongoDB, String> {
+
+    @Aggregation(pipeline = {
+            "{ $match: { movie_id: ?0 } }",
+            "{ $sort: { timestamp: -1 } }"
+    })
+    List<ReviewMongoDB> findByMovieId(String movieId);
+
+    @Aggregation(pipeline = {
+            "{ $match: { username: ?0 } }",
+            "{ $sort: { timestamp: -1 } }"
+    })
+    List<ReviewMongoDB> findByUsername(String userId);
+
+    @Query("{ '_id': ?0 }")
+    @Update("{ $set: { review: ?1, sentiment: ?2, timestamp: ?3 } }")
+    void updateReview(String id, String txt, boolean sentiment, LocalDateTime timestamp);
+
+    @Query("{ '_id': ?0 }")
+    @Update("{ $inc: { num_likes: 1 }}")
+    void likeReview(String id);
+
+    @Query("{ '_id': ?0 }")
+    @Update("{ dec: { num_likes: 1 }}")
+    void unlikeReview(String id);
+
+    @Aggregation(pipeline = {
+            "{ $match: { 'username': ?0 } }",
+            "{ $sort: { 'timestamp': -1 } }",
+            "{ $limit: 1 }",
+            "{ $lookup: { from: 'Movies', localField: 'movie_id', foreignField: '_id', as: 'movie' } }",
+            "{ $unwind: '$movie' }",
+            "{ $project: { review_id: '$_id', movie_title: '$movie.title', sentiment: '$sentiment', content: '$review'} }"
+    })
+    Optional<UserReview> findMostRecentReviewWithMovie(String username);
+}
