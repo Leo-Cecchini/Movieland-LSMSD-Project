@@ -25,8 +25,11 @@ public class PostController {
 
     // Get all post by movie_id
     @GetMapping("/movie/{movie_id}")
-    public List<Post> getPostsByMovieId(@PathVariable String movie_id) {
-        return postService.getPostsByMovieId(movie_id);
+    public Page<Post> getPostsByMovieId(
+            @PathVariable String movie_id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return postService.getPostsByMovieId(movie_id, page, size);
     }
 
     // Get post by id
@@ -56,12 +59,14 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
+    //activty report
     @GetMapping("/activityReport")
     public ResponseEntity<List<PostActivityDTO>> getActivityReport() throws BusinessException {
         List<PostActivityDTO> activity = postService.getPostActivity();
         return ResponseEntity.ok(activity);
     }
 
+    //inlfuencer users
     @GetMapping("/influencersReport")
     public ResponseEntity<List<UserInfluencerDTO>> getInfluencersReport() throws BusinessException {
         List<UserInfluencerDTO> influencers = postService.getInfluencersReport();

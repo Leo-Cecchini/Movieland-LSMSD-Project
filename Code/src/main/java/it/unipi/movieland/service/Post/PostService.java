@@ -35,8 +35,9 @@ public class PostService {
     }
 
     // Get posts by movieId
-    public List<Post> getPostsByMovieId(String movie_id) {
-        return post_mongoDB_interface.findbyMovieId(movie_id);
+    public Page<Post> getPostsByMovieId(String movie_id, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return post_mongoDB_interface.findbyMovieId(movie_id, pageRequest);
     }
 
     // Delete post
@@ -54,6 +55,6 @@ public class PostService {
 
     public Page<Post> getCommentsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        return postRepository.findByDatetimeBetween(startDate, endDate, pageRequest);
+        return post_mongoDB_interface.findByDatetimeBetween(startDate, endDate, pageRequest);
     }
 }

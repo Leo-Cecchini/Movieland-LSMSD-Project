@@ -2,17 +2,13 @@ package it.unipi.movieland.repository.Post;
 
 import it.unipi.movieland.dto.PostActivityDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
-import it.unipi.movieland.model.Post.Post;
 import it.unipi.movieland.service.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -106,9 +102,4 @@ public class Post_mongoDB_repo {
             throw new BusinessException(e);
         }
     }
-
-    public Page<Post> findByDatetimeBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable){
-        return post_mongoDB_interface.findByDatetimeBetween(startDate, endDate, pageable);
-    }
-
 }
