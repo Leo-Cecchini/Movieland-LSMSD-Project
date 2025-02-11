@@ -2,7 +2,7 @@ package it.unipi.movieland.repository.Movie;
 
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.movieland.dto.*;
-import it.unipi.movieland.model.Movie.Actor;
+import it.unipi.movieland.model.Movie.MovieCelebrity;
 import it.unipi.movieland.model.Movie.Movie;
 import it.unipi.movieland.model.PlatformEnum;
 import it.unipi.movieland.model.TitleTypeEnum;
@@ -160,7 +160,7 @@ public class Movie_mongoDB_repo {
         Query query = new Query(Criteria.where("_id").is(movie_id));
 
         // Costruisci l'operazione di update
-        Update update = new Update().push("actors", new Actor(actor_id, name, character));
+        Update update = new Update().push("actors", new MovieCelebrity(actor_id, name, character));
 
         UpdateResult result = mongoTemplate.updateFirst(query, update, Movie.class);
 

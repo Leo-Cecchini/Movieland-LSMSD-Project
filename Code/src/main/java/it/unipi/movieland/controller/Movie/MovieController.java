@@ -25,7 +25,7 @@ public class MovieController {
     private MovieService movieService;
 
     // Search movie by id
-    @GetMapping("/{movieId}")
+    @GetMapping("/search/{movieId}")
     public ResponseEntity<Movie> getMovieById(@PathVariable String movieId) {
         Optional<Movie> movie = movieService.getMovieById(movieId);
         return movie.map(ResponseEntity::ok)
@@ -131,105 +131,18 @@ public class MovieController {
     }
 
     // Update title: general info
-    @PutMapping("/generalInfo/{movieId}")
-    public ResponseEntity<Movie> updateMovie(
-            @RequestParam String id,
-            @RequestParam Optional<String> title,
-            @RequestParam Optional<String> description,
-            @RequestParam Optional<Integer> release_year,
-            //@RequestParam Optional<List<String>> genres,
-            //@RequestParam Optional<List<String>> keywords,
-            //@RequestParam Optional<List<String>> production_countries,
-            @RequestParam Optional<Integer> runtime,
-            @RequestParam Optional<String> poster_path,
-            //@RequestParam Optional<List<String>> platform,
-            @RequestParam Optional<Double> revenue,
-            @RequestParam Optional<Double> budget,
-            @RequestParam Optional<String> age_certification,
-            @RequestParam Optional<Integer> seasons
+    @PutMapping("/updateTitle/{movieId}")
+    public ResponseEntity<Object> updateMovie(
+            @PathVariable String movieId,
+            @RequestBody UpdateTitleDTO movie
     ) {
-        Optional<Movie> optionalMovie = movieService.getMovieById(id);
-        if (optionalMovie.isPresent()) {
-
-            Movie movie = optionalMovie.get();
-            title.ifPresent(movie::setTitle);
-            description.ifPresent(movie::setDescription);
-            release_year.ifPresent(movie::setrelease_year);
-            runtime.ifPresent(movie::setRuntime);
-            poster_path.ifPresent(movie::setPoster_path);
-            revenue.ifPresent(movie::setRevenue);
-            budget.ifPresent(movie::setBudget);
-            age_certification.ifPresent(movie::setage_certification);
-            seasons.ifPresent(movie::setSeasons);
-
-            Movie movieUpdated = movieService.updateMovie(movie);
-            return ResponseEntity.ok(movieUpdated);
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
-
-    //Update title: genres
-    @PutMapping("/updateGenres/{movieId}")
-    public ResponseEntity<Movie> updateGenres(
-            @RequestParam String id,
-            @RequestParam List<String> genres
-    ) {
-        Optional<Movie> movie = movieService.getMovieById(id);
-        if (movie.isPresent()) {
-            movie.get().setGenre(genres);
-            Movie movieUpdated = movieService.updateMovie(movie.get());
-            return ResponseEntity.ok(movieUpdated);
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
-
-    //Update title: keywords
-    @PutMapping("/updateKeywords/{movieId}")
-    public ResponseEntity<Movie> updateKeywords(
-            @RequestParam String id,
-            @RequestParam List<String> keywords
-    ) {
-        Optional<Movie> movie = movieService.getMovieById(id);
-        if (movie.isPresent()) {
-            movie.get().setKeywords(keywords);
-            Movie movieUpdated = movieService.updateMovie(movie.get());
-            return ResponseEntity.ok(movieUpdated);
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
-
-    //Update title: production_countries
-    @PutMapping("/updateProductionCountries/{movieId}")
-    public ResponseEntity<Movie> updateProductionCountries(
-            @RequestParam String id,
-            @RequestParam List<String> production_countries
-    ) {
-        Optional<Movie> movie = movieService.getMovieById(id);
-        if (movie.isPresent()) {
-            movie.get().setKeywords(production_countries);
-            Movie movieUpdated = movieService.updateMovie(movie.get());
-            return ResponseEntity.ok(movieUpdated);
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
-
-    //Update title: platforms
-    @PutMapping("/updatePlatforms/{movieId}")
-    public ResponseEntity<Movie> updatePlatfoq(
-            @RequestParam String id,
-            @RequestParam List<String> platforms
-    ) {
-        Optional<Movie> movie = movieService.getMovieById(id);
-        if (movie.isPresent()) {
-            movie.get().setKeywords(platforms);
-            Movie movieUpdated = movieService.updateMovie(movie.get());
-            return ResponseEntity.ok(movieUpdated);
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        boolean isUpdated = movieService.updateMovie(movieId, movie);
+        if (isUpdated) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of("message", "Title updated successfully in both MongoDB and Neo4j"));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Title with movieId " + movieId + " not found in one or both databases"));
         }
     }
 

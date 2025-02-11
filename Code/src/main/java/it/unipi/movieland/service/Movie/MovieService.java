@@ -3,12 +3,9 @@ package it.unipi.movieland.service.Movie;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import it.unipi.movieland.dto.*;
-import it.unipi.movieland.model.Movie.Movie;
-import it.unipi.movieland.model.Movie.MovieNeo4j;
-import it.unipi.movieland.model.PlatformEnum;
-import it.unipi.movieland.model.TitleTypeEnum;
-import it.unipi.movieland.repository.Movie.Movie_mongoDB_repo;
-import it.unipi.movieland.repository.Movie.Movie_neo4j_repo;
+import it.unipi.movieland.model.Movie.*;
+import it.unipi.movieland.model.*;
+import it.unipi.movieland.repository.Movie.*;
 import it.unipi.movieland.service.exception.BusinessException;
 import it.unipi.movieland.utils.apiMDB.APIRequest;
 import it.unipi.movieland.utils.deserializers.SearchNewTitleDTODeserializer;
@@ -30,9 +27,13 @@ public class MovieService {
 
     @Autowired
     private Movie_mongoDB_repo movieMongoDBRepo;
+    @Autowired
+    private Movie_mongoDB_interface movieMongoDBInterface;
 
     @Autowired
     private Movie_neo4j_repo movieNeo4jRepo;
+    @Autowired
+    private Movie_neo4j_interface movieNeo4jInterface;
 
     // Get all movies
     public List<Movie> getAllMovies() {
@@ -133,6 +134,7 @@ public class MovieService {
                 .create();
         //create movie
         Movie movie = gson.fromJson(response, Movie.class);
+        movie.setType(movie.getType());
 
         MovieNeo4j movieNeo4j = new MovieNeo4j(movie.get_id(), movie.getTitle(), movie.getGenre());
 
@@ -145,8 +147,44 @@ public class MovieService {
     }
 
     // Update a movie
-    public Movie updateMovie(Movie movie) {
-        return movieMongoDBRepo.updateTitle(movie);
+    public boolean updateMovie(String movieId, UpdateTitleDTO movie){
+
+        Optional<Movie> movieMongo = movieMongoDBRepo.getTitleById(movieId);
+        if(movieMongo.isEmpty()){  //no movie with _id = movie_id in MongoDB
+            return false;
+        }
+
+        Optional<MovieNeo4j> movieNeo4j = movieNeo4jInterface.findByImdbId(movieId);
+        if(movieNeo4j.isEmpty()){ //no movie with _id = movie_id in Neo4j
+            return false;
+        }
+
+        //convert movie into movieNeo4j (imdb_id, title, genres)
+        movieNeo4j.get().setImdb_id(movieId);
+        movieNeo4j.get().setTitle(movie.getTitle());
+        movieNeo4j.get().setGenres((movie.getGenres()));
+
+        movieMongo.get().set_id(movieId);
+        movieMongo.get().setTitle(movie.getTitle());
+        movieMongo.get().setType(movie.getType());
+        movieMongo.get().setDescription(movie.getDescription());
+        movieMongo.get().setrelease_year(movie.getRelease_year());
+        movieMongo.get().setGenre(movie.getGenres());
+        movieMongo.get().setKeywords(movie.getKeywords());
+        movieMongo.get().setProduction_countries(movie.getProduction_countries());
+        movieMongo.get().setRuntime(movie.getRuntime());
+        movieMongo.get().setPoster_path(movie.getPoster_path());
+        movieMongo.get().setPlatform(movie.getPlatform());
+        movieMongo.get().setRevenue(movie.getRevenue());
+        movieMongo.get().setBudget(movie.getBudget());
+        movieMongo.get().setage_certification(movie.getAge_certification());
+        movieMongo.get().setSeasons(movie.getSeasons());
+
+        //update mongoDB
+        movieMongoDBInterface.save(movieMongo.get());
+        //update neo4j
+        movieNeo4jInterface.save(movieNeo4j.get());
+        return true;
     }
 
     public int addRole(String movie_id, Integer actor_id, String name, String character) {
