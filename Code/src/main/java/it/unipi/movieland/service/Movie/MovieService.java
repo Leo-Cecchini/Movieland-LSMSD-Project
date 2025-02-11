@@ -26,23 +26,21 @@ import java.util.Optional;
 public class MovieService {
 
     @Autowired
-    private Movie_mongoDB_repo movieMongoDBRepo;
+    private MovieMongoDBImplementation movieMongoDBRepo;
     @Autowired
-    private Movie_mongoDB_interface movieMongoDBInterface;
+    private MovieMongoDBRepository movieMongoDBInterface;
 
     @Autowired
-    private Movie_neo4j_repo movieNeo4jRepo;
-    @Autowired
-    private Movie_neo4j_interface movieNeo4jInterface;
+    private MovieNeo4jRepository movieNeo4jRepository;
 
     // Get all movies
     public List<Movie> getAllMovies() {
-        return movieMongoDBRepo.getAllMovies();
+        return movieMongoDBInterface.findAll();
     }
 
     // Search movie by id
     public Optional<Movie> getMovieById(String movieId) {
-        return movieMongoDBRepo.getTitleById(movieId);
+        return movieMongoDBInterface.findById(movieId);
     }
 
     // Search movie by name
@@ -107,7 +105,7 @@ public class MovieService {
     }
 
     public int addTitleById(TitleTypeEnum typeEnum, String id) throws IOException, InterruptedException {
-        Optional<Movie> title = movieMongoDBRepo.getTitleById(id);
+        Optional<Movie> title = movieMongoDBInterface.findById(id);
         if(title.isPresent())   //title already in the database
             return 1;
 
@@ -136,12 +134,12 @@ public class MovieService {
         Movie movie = gson.fromJson(response, Movie.class);
         movie.setType(movie.getType());
 
-        MovieNeo4j movieNeo4j = new MovieNeo4j(movie.get_id(), movie.getTitle(), movie.getGenre());
+        MovieNeo4j movieNeo4j = new MovieNeo4j(movie.get_id(), movie.getTitle(), movie.getGenres());
 
         //add movie to mongodb
-        movieMongoDBRepo.addTitle(movie);
+        movieMongoDBInterface.insert(movie);
         //add movie to neo4j
-        movieNeo4jRepo.addTitle(movieNeo4j);
+        movieNeo4jRepository.save(movieNeo4j);
 
         return 0;
     }
@@ -149,12 +147,12 @@ public class MovieService {
     // Update a movie
     public boolean updateMovie(String movieId, UpdateTitleDTO movie){
 
-        Optional<Movie> movieMongo = movieMongoDBRepo.getTitleById(movieId);
+        Optional<Movie> movieMongo = movieMongoDBInterface.findById(movieId);
         if(movieMongo.isEmpty()){  //no movie with _id = movie_id in MongoDB
             return false;
         }
 
-        Optional<MovieNeo4j> movieNeo4j = movieNeo4jInterface.findByImdbId(movieId);
+        Optional<MovieNeo4j> movieNeo4j = movieNeo4jRepository.findByImdbId(movieId);
         if(movieNeo4j.isEmpty()){ //no movie with _id = movie_id in Neo4j
             return false;
         }
@@ -168,8 +166,8 @@ public class MovieService {
         movieMongo.get().setTitle(movie.getTitle());
         movieMongo.get().setType(movie.getType());
         movieMongo.get().setDescription(movie.getDescription());
-        movieMongo.get().setrelease_year(movie.getRelease_year());
-        movieMongo.get().setGenre(movie.getGenres());
+        movieMongo.get().setRelease_year(movie.getRelease_year());
+        movieMongo.get().setGenres(movie.getGenres());
         movieMongo.get().setKeywords(movie.getKeywords());
         movieMongo.get().setProduction_countries(movie.getProduction_countries());
         movieMongo.get().setRuntime(movie.getRuntime());
@@ -177,13 +175,13 @@ public class MovieService {
         movieMongo.get().setPlatform(movie.getPlatform());
         movieMongo.get().setRevenue(movie.getRevenue());
         movieMongo.get().setBudget(movie.getBudget());
-        movieMongo.get().setage_certification(movie.getAge_certification());
+        movieMongo.get().setAge_certification(movie.getAge_certification());
         movieMongo.get().setSeasons(movie.getSeasons());
 
         //update mongoDB
         movieMongoDBInterface.save(movieMongo.get());
         //update neo4j
-        movieNeo4jInterface.save(movieNeo4j.get());
+        movieNeo4jRepository.save(movieNeo4j.get());
         return true;
     }
 
@@ -213,44 +211,48 @@ public class MovieService {
 
     // delete movie by ID
     public void deleteMovie(String movieId) {
-        movieMongoDBRepo.deleteTitle(movieId);
-        movieNeo4jRepo.deleteTitle(movieId);
+        movieMongoDBInterface.deleteById(movieId);
+        movieNeo4jRepository.deleteById(movieId);
     }
 
     public List<ActorDTO> mostFrequentActorsSpecificGenres(List<String> genres) throws BusinessException {
-            return movieMongoDBRepo.mostFrequentActorsSpecificGenres(genres);
+            return movieMongoDBInterface.mostFrequentActorsSpecificGenres(genres);
     }
 
     public List<StringCountDTO> mostVotedMoviesBy(String method) throws BusinessException {
-            return movieMongoDBRepo.mostVotedMoviesBy(method);
+        return switch (method) {
+            case "genres" -> movieMongoDBInterface.mostVotedMoviesByGenres();
+            case "production_countries" -> movieMongoDBInterface.mostVotedMoviesByProductionCountries();
+            default -> movieMongoDBInterface.mostVotedMoviesByKeywords();
+        };
     }
 
     public List<ActorDTO> mostPopularActors() throws BusinessException {
-            return movieMongoDBRepo.mostPopularActors();
+            return movieMongoDBInterface.mostPopularActors();
     }
 
     public List<ActorDTO> highesAverageActorsTop2000Movies() throws BusinessException {
-            return movieMongoDBRepo.highesAverageActorsTop2000Movies();
+            return movieMongoDBInterface.highesAverageActorsTop2000Movies();
     }
 
     public List<StringCountDTO> totalMoviesByPlatform() throws BusinessException {
-            return movieMongoDBRepo.totalMoviesByPlatform();
+            return movieMongoDBInterface.totalMoviesByPlatform();
     }
 
     public List<StringCountDTO> highestProfitDirectors() throws BusinessException {
-            return movieMongoDBRepo.highestProfitDirectors();
+            return movieMongoDBInterface.highestProfitDirectors();
     }
 
     public List<StringCountDTO> bestPlatformForTop1000Movies() throws BusinessException {
-            return movieMongoDBRepo.bestPlatformForTop1000Movies();
+            return movieMongoDBInterface.bestPlatformForTop1000Movies();
     }
 
     public List<CombinedPercentageDTO> percentageOfCombinedGenres(List<String> genres) throws BusinessException {
-            return movieMongoDBRepo.percentageOfCombinedGenres(genres);
+            return movieMongoDBInterface.percentageOfCombinedGenres(genres);
     }
 
     public List<CombinedPercentageDTO> percentageOfCombinedKeywords(List<String> keywords) throws BusinessException {
-            return movieMongoDBRepo.percentageOfCombinedKeywords(keywords);
+            return movieMongoDBInterface.percentageOfCombinedKeywords(keywords);
     }
 
 }

@@ -1,5 +1,6 @@
 package it.unipi.movieland.model.Movie;
 
+import it.unipi.movieland.model.Review.ReviewMongoDB;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -24,7 +25,7 @@ public class Movie {
     private List<String> platform;
     private List<MovieCelebrity> actors;
     private List<MovieCelebrity> directors;
-    //private Reviews reviews;
+    private List<ReviewMongoDB> reviews;
     private Double revenue;
     private Double budget;
     private String age_certification;
@@ -53,6 +54,7 @@ public class Movie {
         this.keywords = new ArrayList<>();
         this.actors = new ArrayList<>();
         this.directors = new ArrayList<>();
+        this.reviews = new ArrayList<>();
         this.revenue = null;
         this.budget = null;
         this.seasons = null;
@@ -62,7 +64,7 @@ public class Movie {
     public Movie(String _id, String title, String type, String description, Integer release_year, List<String> genres,
                  List<String> keywords, List<String> production_countries, Integer runtime, String poster_path,
                  Integer imdb_score, Integer imdb_votes, List<String> platform, List<MovieCelebrity> actors, List<MovieCelebrity> directors,
-                 Double revenue, Double budget, String age_certification, Integer seasons) {
+                 List<ReviewMongoDB> reviews, Double revenue, Double budget, String age_certification, Integer seasons) {
         this._id = _id;
         this.title = title;
         this.type = type;
@@ -78,6 +80,7 @@ public class Movie {
         this.platform = platform;
         this.actors = actors;
         this.directors = directors;
+        this.reviews = reviews;
         this.revenue = revenue;
         this.budget = budget;
         this.age_certification = age_certification;
@@ -85,9 +88,12 @@ public class Movie {
     }
 
     // Getter e Setter
+
+
     public String get_id() {
         return _id;
     }
+
     public void set_id(String _id) {
         this._id = _id;
     }
@@ -95,6 +101,7 @@ public class Movie {
     public String getTitle() {
         return title;
     }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -102,6 +109,7 @@ public class Movie {
     public String getType() {
         return type;
     }
+
     public void setType(String type) {
         this.type = type;
     }
@@ -109,27 +117,31 @@ public class Movie {
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public int getrelease_year() {
+    public Integer getRelease_year() {
         return release_year;
     }
-    public void setrelease_year(Integer release_year) {
+
+    public void setRelease_year(Integer release_year) {
         this.release_year = release_year;
     }
 
-    public List<String> getGenre() {
+    public List<String> getGenres() {
         return genres;
     }
-    public void setGenre(List<String> genre) {
-        this.genres = genre;
+
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
     }
 
     public List<String> getKeywords() {
         return keywords;
     }
+
     public void setKeywords(List<String> keywords) {
         this.keywords = keywords;
     }
@@ -137,39 +149,47 @@ public class Movie {
     public List<String> getProduction_countries() {
         return production_countries;
     }
-    public void setProduction_countries(List<String> production_countries) {this.production_countries = production_countries;}
 
-    public int getRuntime() {
+    public void setProduction_countries(List<String> production_countries) {
+        this.production_countries = production_countries;
+    }
+
+    public Integer getRuntime() {
         return runtime;
     }
+
     public void setRuntime(Integer runtime) {
         this.runtime = runtime;
+    }
+
+    public Integer getImdb_score() {
+        return imdb_score;
+    }
+
+    public void setImdb_score(Integer imdb_score) {
+        this.imdb_score = imdb_score;
     }
 
     public String getPoster_path() {
         return poster_path;
     }
+
     public void setPoster_path(String poster_path) {
         this.poster_path = poster_path;
     }
 
-    public double getimdb_score() {
-        return imdb_score;
-    }
-    public void setimdb_score(Integer imdb_score) {
-        this.imdb_score = imdb_score;
-    }
-
-    public double getimdb_votes() {
+    public Integer getImdb_votes() {
         return imdb_votes;
     }
-    public void setimdb_votes(Integer imdb_votes) {
+
+    public void setImdb_votes(Integer imdb_votes) {
         this.imdb_votes = imdb_votes;
     }
 
     public List<String> getPlatform() {
         return platform;
     }
+
     public void setPlatform(List<String> platform) {
         this.platform = platform;
     }
@@ -177,13 +197,31 @@ public class Movie {
     public List<MovieCelebrity> getActors() {
         return actors;
     }
+
     public void setActors(List<MovieCelebrity> actors) {
         this.actors = actors;
+    }
+
+    public List<MovieCelebrity> getDirectors() {
+        return directors;
+    }
+
+    public void setDirectors(List<MovieCelebrity> directors) {
+        this.directors = directors;
+    }
+
+    public List<ReviewMongoDB> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<ReviewMongoDB> reviews) {
+        this.reviews = reviews;
     }
 
     public Double getRevenue() {
         return revenue;
     }
+
     public void setRevenue(Double revenue) {
         this.revenue = revenue;
     }
@@ -191,20 +229,23 @@ public class Movie {
     public Double getBudget() {
         return budget;
     }
+
     public void setBudget(Double budget) {
         this.budget = budget;
     }
 
-    public String getage_certification() {
+    public String getAge_certification() {
         return age_certification;
     }
-    public void setage_certification(String age_certification) {
+
+    public void setAge_certification(String age_certification) {
         this.age_certification = age_certification;
     }
 
     public Integer getSeasons() {
         return seasons;
     }
+
     public void setSeasons(Integer seasons) {
         this.seasons = seasons;
     }
