@@ -3,7 +3,7 @@ package it.unipi.movieland.model.Celebrity;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 import java.util.ArrayList;
-
+//
 @Document(collection = "Celebrities")
 public class CelebrityMongoDB {
 

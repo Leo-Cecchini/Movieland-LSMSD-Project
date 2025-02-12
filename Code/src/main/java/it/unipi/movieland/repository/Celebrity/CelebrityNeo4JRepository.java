@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 import java.util.List;
 import java.util.Map;
-
+//
 @Repository
 public interface CelebrityNeo4JRepository extends Neo4jRepository<CelebrityNeo4J, String> {
 

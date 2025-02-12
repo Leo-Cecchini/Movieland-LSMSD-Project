@@ -48,7 +48,7 @@ public class PostController {
             @RequestParam String author,
             @RequestParam String text,
             @RequestParam LocalDateTime date) {
-        Post newPost = new Post(date, text, author, movie_id);
+        Post newPost = new Post(date, text, author, movie_id,null);
         Post addedPost = postService.addPost(newPost);
         return ResponseEntity.ok(addedPost);
     }
