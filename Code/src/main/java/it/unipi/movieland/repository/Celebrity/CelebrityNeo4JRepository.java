@@ -33,30 +33,11 @@ public interface CelebrityNeo4JRepository extends Neo4jRepository<CelebrityNeo4J
             "RETURN c")
     Optional<CelebrityNeo4J> updateCelebrity(String personId, String name, String poster);
 
-    //RECOMMEND ACTORS BY USER LIKES
-    @Query("MATCH (u:User {username: $username})-[:MOVIE_LIKE]->(m:Movie)<-[:ACTED_IN]-(a:Celebrity) " +
-            "WHERE NOT (u)-[:FOLLOW]->(a) " +
-            "RETURN a.person_id AS person_id, a.name AS RecommendedActor, a.Poster AS poster, COUNT(m) AS SharedMovies " +
-            "ORDER BY SharedMovies DESC " +
-            "LIMIT 10")
-    List<Map<String, Object>> recommendActorsByUserLikes(@Param("username") String username);
-
-    //ACTOR RECOMMENDATIONS FROM FOLLOWING
-    @Query("MATCH (u:User {username: $username})-[:ACTOR_FOLLOW]->(a1:Celebrity)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(a2:Celebrity) " +
-            "WHERE NOT (u)-[:FOLLOW]->(a2) " + // Escludi attori già seguiti
-            "RETURN a2.name AS RecommendedActor, COUNT(m) AS SharedMovies, a1.name AS with " +
-            "ORDER BY SharedMovies DESC "+
-            "LIMIT 10")
-    List<Map<String, Object>> recommendActorsByFollowedActors(@Param("username") String username);
-
     //ACTOR RECOMMENDATIONS FROM SECOND DEGREE CONNECTIONS
-    @Query("MATCH (user:User {username: $username})-[:FOLLOW|MOVIE_LIKE]->(intermediate)-[:ACTOR_FOLLOW|DIRECTED_IN|ACTED_IN]-(recommendedCelebrity:Celebrity) " +
-            "WHERE NOT (user)-[:ACTOR_FOLLOW]->(recommendedCelebrity) " +
-            "WITH recommendedCelebrity, COUNT(DISTINCT intermediate) AS numRelations " +
-            "OPTIONAL MATCH (recommendedCelebrity)<-[:ACTOR_FOLLOW]-(follower:User) " +
-            "WITH recommendedCelebrity, numRelations, COUNT(follower) AS FollowerCount " +
-            "RETURN recommendedCelebrity.name AS recommendedCelebrity, numRelations, FollowerCount " +
-            "ORDER BY numRelations DESC, FollowerCount DESC " +
+    @Query("MATCH (user:User {username: $username})-[:FOLLOW]->(friend:User)-[:ACTOR_FOLLOW]->(celebrity:Celebrity) " +
+            "WHERE NOT (user)-[:ACTOR_FOLLOW]->(celebrity) " +
+            "RETURN celebrity.name AS recommendedCelebrity, COUNT(friend) AS numCommonFollowers " +
+            "ORDER BY numCommonFollowers DESC " +
             "LIMIT 10")
     List<Map<String, Object>> recommendSecondDegreeCelebrities(@Param("username") String username);
 }
