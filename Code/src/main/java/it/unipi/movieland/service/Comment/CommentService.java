@@ -1,6 +1,9 @@
 package it.unipi.movieland.service.Comment;
-//
+
+import it.unipi.movieland.repository.Post.PostMongoDBRepository;
+import it.unipi.movieland.repository.User.UserMongoDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.repository.Comment.CommentMongoDBRepository;
@@ -9,91 +12,77 @@ import org.springframework.data.domain.PageRequest;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import java.security.SecureRandom;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CommentService {
 
     private final CommentMongoDBRepository commentRepository;
-    private final MongoTemplate mongoTemplate;
-
-    // Costanti per generazione ID
-    private static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
-    private static final SecureRandom RANDOM = new SecureRandom();
+    private final UserMongoDBRepository userRepository;
+    private final PostMongoDBRepository postRepository;
 
     @Autowired
-    public CommentService(CommentMongoDBRepository commentRepository,  MongoTemplate mongoTemplate) {
+    public CommentService(CommentMongoDBRepository commentRepository,UserMongoDBRepository userRepository, PostMongoDBRepository postRepository, MongoTemplate mongoTemplate) {
         this.commentRepository = commentRepository;
-        this.mongoTemplate = mongoTemplate;
+        this.userRepository = userRepository;
+        this.postRepository = postRepository;
     }
 
-    // Metodo per generare un ID unico
-    private String generateUniqueRandomId(int length) {
-        String generatedId;
-        do {
-            StringBuilder sb = new StringBuilder("CC");
-            for (int i = 0; i < length; i++) {
-                sb.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
-            }
-            generatedId = sb.toString();
-        } while (mongoTemplate.exists(Query.query(Criteria.where("_id").is(generatedId)), Comment.class));
+ //METODO PER CREARE UN COMMENTO
+    public Comment createComment(String text, String authorId,String postId) {
 
-        return generatedId;
-    }
+        if (!userRepository.existsById(authorId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Autore non trovato nel database.");
+        }
 
-    // Metodo per creare un commento
-    public Comment createComment(Comment comment) {
-        // Genera un ID unico per il commento
-        String uniqueId = generateUniqueRandomId(7); // Scegli la lunghezza dell'ID
-        comment.setId(uniqueId);
+        if (!postRepository.existsById(postId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post non trovato.");
+        }
 
-        // Salva il commento nel database
+        Comment comment = new Comment();
+        comment.setText(text);
+        comment.setAuthor(authorId);
+        comment.setId(postId); // Associa il commento al post
         return commentRepository.save(comment);
     }
 
-    // Metodo per recuperare tutti i commenti
+    //METODO PER RECUPERARE TUTTI I COMMENTI
     public Page<Comment> getAllComments(int page, int size) {
         return commentRepository.findAll(PageRequest.of(page, size));
     }
 
-    // Metodo per recuperare un commento per ID
+    //METODO PER RECUPERARE UN COMMENTO PER ID
     public Comment getCommentById(String id) {
         Optional<Comment> comment = commentRepository.findById(id);
         return comment.orElse(null);
     }
 
-    // Metodo per eliminare un commento per ID
+    //METODO PER ELIMINARE UN COMMENTO PER ID
     public void deleteComment(String id) {
         Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Commento con ID " + id + " non trovato"));
         commentRepository.delete(existingComment);
     }
 
-    // Metodo per aggiornare un commento esistente
+    //METODO PER AGGIORNARE UN COMMENTO ESISTENTE
     public Comment updateComment(String id, String text) {
+
         Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Commento con ID " + id + " non trovato"));
 
-        String originalAuthor = existingComment.getAuthor();
-        String originalId = existingComment.getId();
-
-        existingComment.setDatetime(LocalDateTime.now());
         existingComment.setText(text);
-        existingComment.setAuthor(originalAuthor);
-        existingComment.setId(originalId);
+        existingComment.setDatetime(LocalDateTime.now());
 
         return commentRepository.save(existingComment);
     }
 
-    // Metodo per ottenere i commenti in base all'autore
+    //METODO PER OTTENERE I COMMENTO PER AUTORE
     public Page<Comment> getCommentsByAuthor(String author, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         return commentRepository.findByAuthor(author, pageRequest);
     }
 
-    // Metodo per ottenere i commenti in base alla data
+    //METODO PER OTTENERE I COMMENTO PER DATA
     public Page<Comment> getCommentsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         return commentRepository.findByDatetimeBetween(startDate, endDate, pageRequest);

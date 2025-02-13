@@ -5,10 +5,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+
 @Document(collection = "Posts")
 public class Post {
     @Id
@@ -19,30 +18,26 @@ public class Post {
     private String author;
     @Field("movie_id")
     private String movieId;
-    private List<Comment> comment;
 
-    // Costruttore
+    // COSTRUTTORE PARAMETRIZZATO
     public Post( LocalDateTime datetime, String text, String author, String movieId, List<Comment> comment) {
         this.datetime = datetime;
         this.text = text;
         this.author = author;
         this.movieId = movieId;
-        this.comment = comment != null ? new ArrayList<>(comment) : new ArrayList<>();
     }
 
-    // Getter e Setter
-    public String getId() {
+    //GETTER E SETTER
+    public String get_id() {
         return _id;
     }
-
-    public void setId(String _id) {
+    public void set_id(String _id) {
         this._id = _id;
     }
 
     public LocalDateTime getDatetime() {
         return datetime;
     }
-
     public void setDatetime(LocalDateTime datetime) {
         this.datetime = datetime;
     }
@@ -50,7 +45,6 @@ public class Post {
     public String getText() {
         return text;
     }
-
     public void setText(String text) {
         this.text = text;
     }
@@ -58,7 +52,6 @@ public class Post {
     public String getAuthor() {
         return author;
     }
-
     public void setAuthor(String author) {
         this.author = author;
     }
@@ -66,25 +59,10 @@ public class Post {
     public String getMovieId() {
         return movieId;
     }
-
     public void setMovieId(String movieId) {
         this.movieId = movieId;
     }
 
-    public List<Comment> getResponse() {
-        return new ArrayList<>(comment);
-    }
-
-    public void setResponse(List<Comment> response) {
-        this.comment = response != null ? new ArrayList<>(response) : new ArrayList<>();
-    }
-
-    // Add a respose(comment) to the post
-    public void addResponse(Comment singleResponse) {
-        if (singleResponse != null) {
-            this.comment.add(singleResponse);
-        }
-    }
 
     // Override di toString
     @Override
@@ -95,7 +73,6 @@ public class Post {
                 ", text='" + text + '\'' +
                 ", author='" + author + '\'' +
                 ", movieId='" + movieId + '\'' +
-                ", response=" + comment +
                 '}';
     }
 }

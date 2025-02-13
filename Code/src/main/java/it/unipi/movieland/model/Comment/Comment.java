@@ -14,21 +14,23 @@ public class Comment {
     private LocalDateTime datetime;
     private String text;
     private String author;
+    private String post_id;
 
-    // Costruttore predefinito (senza generazione ID)
+    //COSTRUTTORE PREDEFINITO
     public Comment() {
         this.datetime = LocalDateTime.now();
     }
 
-    // Costruttore parametrizzato
-    public Comment(String id, String text, String author) {
+    //COSTRUTTORE PARAMETRIZZATO
+    public Comment(String id, String text, String author, String post_id) {
         this.id = id; // L'ID viene generato da un servizio
         this.datetime = LocalDateTime.now();
         this.text = text;
         this.author = author;
+        this.post_id = post_id;
     }
 
-    // Getter e Setter
+    //GETTER E SETTER
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -41,11 +43,8 @@ public class Comment {
     public String getAuthor() { return author; }
     public void setAuthor(String author) { this.author = author; }
 
-    @JsonIgnore
-    public String getFormattedDatetime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return datetime.format(formatter);
-    }
+    public String getPost_id() { return post_id; }
+    public void setPost_id(String post_id) { this.post_id = post_id; }
 
     @Override
     public String toString() {
@@ -54,6 +53,7 @@ public class Comment {
                 ", datetime='" + datetime + '\'' +
                 ", text='" + text + '\'' +
                 ", author='" + author + '\'' +
+                ", post_id='" + post_id + '\'' +
                 '}';
     }
 }
