@@ -17,9 +17,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
-@RequestMapping("/posts")
-public class PostController {
+    @RestController
+    @RequestMapping("/posts")
+    public class PostController {
 
     @Autowired
     private PostService postService;

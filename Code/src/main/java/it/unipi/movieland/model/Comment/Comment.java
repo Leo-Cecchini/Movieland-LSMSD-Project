@@ -1,10 +1,9 @@
 package it.unipi.movieland.model.Comment;
-//
+
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Id;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Document(collection = "Comments")
 public class Comment {
@@ -14,23 +13,22 @@ public class Comment {
     private LocalDateTime datetime;
     private String text;
     private String author;
-    private String post_id;
+    private ObjectId post_id;
 
-    //COSTRUTTORE PREDEFINITO
+    // Costruttore predefinito
     public Comment() {
         this.datetime = LocalDateTime.now();
     }
 
-    //COSTRUTTORE PARAMETRIZZATO
-    public Comment(String id, String text, String author, String post_id) {
-        this.id = id; // L'ID viene generato da un servizio
+    // Costruttore parametrizzato
+    public Comment(String text, String author, String post_id) {
         this.datetime = LocalDateTime.now();
         this.text = text;
         this.author = author;
-        this.post_id = post_id;
+        this.post_id = new ObjectId(post_id); // Conversione della stringa a ObjectId
     }
 
-    //GETTER E SETTER
+    // Getter e Setter
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -43,8 +41,8 @@ public class Comment {
     public String getAuthor() { return author; }
     public void setAuthor(String author) { this.author = author; }
 
-    public String getPost_id() { return post_id; }
-    public void setPost_id(String post_id) { this.post_id = post_id; }
+    public ObjectId getPost_id() { return post_id; }
+    public void setPost_id(ObjectId post_id) { this.post_id = post_id; }
 
     @Override
     public String toString() {

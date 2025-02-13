@@ -7,12 +7,12 @@ import it.unipi.movieland.model.Celebrity.CelebrityNeo4J;
 import it.unipi.movieland.service.Celebrity.CelebrityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import it.unipi.movieland.model.Celebrity.Job;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/celebrities")

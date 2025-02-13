@@ -2,21 +2,20 @@ package it.unipi.movieland.controller.Comment;
 
 import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.service.Comment.CommentService;
-import it.unipi.movieland.model.Post.Post;
 import it.unipi.movieland.repository.Post.PostMongoDBRepository;
 import it.unipi.movieland.repository.User.UserMongoDBRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Slice;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Parameter;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/comments")
@@ -94,8 +93,24 @@ public class CommentController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime endDate,
 
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size)
+    {
         return commentService.getCommentsByDateRange(startDate, endDate, page, size);
     }
+
+
+    //ENDPOINT PER OTTENERE I COMMENTI PER UN DETERMINATO POST
+    @GetMapping("/post/{postId}")
+    public Slice<Comment> getCommentsByPostId(
+            @PathVariable String postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    )
+    {
+        ObjectId objectId = new ObjectId(postId);
+        return commentService.getCommentsByPostId(objectId, page, size);
+    }
+
+
+
 }

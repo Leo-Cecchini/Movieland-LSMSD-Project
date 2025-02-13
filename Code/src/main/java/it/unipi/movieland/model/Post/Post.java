@@ -4,14 +4,13 @@ import it.unipi.movieland.model.Comment.Comment;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "Posts")
 public class Post {
+
     @Id
-    @GeneratedValue
     private String _id;
     private LocalDateTime datetime;
     private String text;
