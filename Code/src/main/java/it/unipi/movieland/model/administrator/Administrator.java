@@ -1,5 +1,6 @@
 package it.unipi.movieland.model.administrator;
 
+//
 public class Administrator {
 
     private String name;

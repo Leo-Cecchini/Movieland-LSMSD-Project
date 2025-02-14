@@ -1,15 +1,19 @@
 package it.unipi.movieland.dto;
 
 public class CommentDTO {
+    private String commentId;
 
-    private String text;
-
-    // Getter e setter per text
-    public String getText() {
-        return text;
+    // Costruttore
+    public CommentDTO(String commentId) {
+        this.commentId = commentId;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    // Getters e Setters
+    public String getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(String commentId) {
+        this.commentId = commentId;
     }
 }

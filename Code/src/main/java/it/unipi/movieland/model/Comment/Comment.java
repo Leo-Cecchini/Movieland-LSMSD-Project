@@ -1,11 +1,9 @@
 package it.unipi.movieland.model.Comment;
 
-
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Id;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Document(collection = "Comments")
 public class Comment {
@@ -15,18 +13,19 @@ public class Comment {
     private LocalDateTime datetime;
     private String text;
     private String author;
+    private ObjectId post_id;
 
-    // Costruttore predefinito (senza generazione ID)
+    // Costruttore predefinito
     public Comment() {
         this.datetime = LocalDateTime.now();
     }
 
     // Costruttore parametrizzato
-    public Comment(String id, String text, String author) {
-        this.id = id; // L'ID viene generato da un servizio
+    public Comment(String text, String author, String post_id) {
         this.datetime = LocalDateTime.now();
         this.text = text;
         this.author = author;
+        this.post_id = new ObjectId(post_id); // Conversione della stringa a ObjectId
     }
 
     // Getter e Setter
@@ -42,11 +41,8 @@ public class Comment {
     public String getAuthor() { return author; }
     public void setAuthor(String author) { this.author = author; }
 
-    @JsonIgnore
-    public String getFormattedDatetime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return datetime.format(formatter);
-    }
+    public ObjectId getPost_id() { return post_id; }
+    public void setPost_id(ObjectId post_id) { this.post_id = post_id; }
 
     @Override
     public String toString() {
@@ -55,6 +51,7 @@ public class Comment {
                 ", datetime='" + datetime + '\'' +
                 ", text='" + text + '\'' +
                 ", author='" + author + '\'' +
+                ", post_id='" + post_id + '\'' +
                 '}';
     }
 }

@@ -3,7 +3,7 @@ package it.unipi.movieland.model.Celebrity;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+//
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Job {
 

@@ -7,15 +7,11 @@ import it.unipi.movieland.model.Celebrity.CelebrityNeo4J;
 import it.unipi.movieland.service.Celebrity.CelebrityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import it.unipi.movieland.model.Celebrity.Job;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import java.util.List;
-import java.util.stream.Collectors;
-import it.unipi.movieland.dto.CelebrityNeo4JDTO;
-import org.springframework.data.domain.Pageable;
 
 
 @RestController
@@ -35,6 +31,16 @@ public class CelebrityController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "100") int size) {  // Default: 100 risultati per pagina
         return celebrityService.getAllCelebritiesMongo(PageRequest.of(page, size));
+    }
+
+    //ENDPOINT PER RECUPERARE TUTTE LE CELEBRITA' CON PAGINAZIONE (NEO4J)
+    @GetMapping("/neo4j")
+    public ResponseEntity<Page<CelebrityNeo4J>> getAllCelebrities(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<CelebrityNeo4J> response = celebrityService.getAllCelebrities(page, size);
+        return ResponseEntity.ok(response);
     }
 
     //ENDPOINT PER RECUPERARE UNA CELEBRITY PER PERSONID (NEO4J)
@@ -62,41 +68,17 @@ public class CelebrityController {
         return ResponseEntity.ok(celebrity.get());
     }
 
-    //ENDPOINT PER CREARE UNA CELEBRITA' IN ENTRAMBI I DATABASE.
+    //ENDPOINT PER CREARE UNA CELEBRITY
     @PostMapping("/create")
     public ResponseEntity<Object> createCelebrity(
             @RequestParam int id,
             @RequestParam String name,
             @RequestParam String poster) {
         try {
-            // Controlla se la celebrity esiste già in MongoDB e Neo4j
-            Optional<CelebrityMongoDB> existingMongoCelebrity = celebrityService.getCelebrityByIdMongo(id);
-            Optional<CelebrityNeo4J> existingNeo4jCelebrity = celebrityService.getCelebrityByIdNeo4j(String.valueOf(id));
-
-            // Se esiste in entrambi i database, restituisci un errore
-            if (existingMongoCelebrity.isPresent() && existingNeo4jCelebrity.isPresent()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("message", "Celebrity with ID " + id + " already exists in both databases"));
-            }
-
-            // Creazione dell'entità per MongoDB
-            CelebrityMongoDB newMongoCelebrity = new CelebrityMongoDB(id, name, poster);
-
-            // Salvataggio in MongoDB
-            CelebrityMongoDB savedMongoCelebrity = celebrityService.createCelebrityMongo(newMongoCelebrity);
-
-            // Creazione dell'entità per Neo4J
-            CelebrityNeo4J newNeo4jCelebrity = new CelebrityNeo4J(
-                    String.valueOf(savedMongoCelebrity.getId()), // Usa id coerente con MongoDB
-                    name,
-                    poster
-            );
-
-            // Salvataggio in Neo4J
-            celebrityService.createCelebrityNeo4j(newNeo4jCelebrity);
+            String responseMessage = celebrityService.createCelebrityInBothDatabases(id, name, poster);
 
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of("message", "Celebrity created successfully in both databases"));
+                    .body(Map.of("message", responseMessage));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -108,10 +90,7 @@ public class CelebrityController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object> deleteCelebrityById(@PathVariable("id") int id) {
         try {
-            // Eliminazione della celebrity da MongoDB
             celebrityService.deleteCelebrityMongo(id);
-
-            // Eliminazione della celebrity da Neo4j
             celebrityService.deleteCelebrityNeo4j(id);
 
             return ResponseEntity.status(HttpStatus.OK)
@@ -131,17 +110,8 @@ public class CelebrityController {
             @RequestParam String movie_title,
             @RequestParam String character) {
 
-        Optional<CelebrityMongoDB> celebrityOptional = celebrityService.getCelebrityByIdMongo(id);
-
-        if (celebrityOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Celebrity with ID " + id + " not found"));
-        }
-
-        CelebrityMongoDB celebrity = celebrityOptional.get();
-        Job newJob = new Job(celebrity, "Actor", movie_id, movie_title, character); // Imposto il ruolo come "Actor"
-
-        boolean isJobAdded = celebrityService.addJobToCelebrity(id, newJob);
+        // Chiamata al service per aggiungere il lavoro
+        boolean isJobAdded = celebrityService.addJobToActor(id, movie_id, movie_title, character);
 
         if (isJobAdded) {
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -153,23 +123,13 @@ public class CelebrityController {
     }
 
     //ENDPOINT PER AGGIUNGERE I JOB AD UN DIRECTOR
-    @PostMapping("/{id}/jobs/director")
+    @PostMapping("/{id}/jobs/director")  // Cambia il percorso da "/actor" a "/director"
     public ResponseEntity<Object> addJobToDirector(
             @PathVariable int id,
             @RequestParam String movie_id,
             @RequestParam String movie_title) {
 
-        Optional<CelebrityMongoDB> celebrityOptional = celebrityService.getCelebrityByIdMongo(id);
-
-        if (celebrityOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Celebrity with ID " + id + " not found"));
-        }
-
-        CelebrityMongoDB celebrity = celebrityOptional.get();
-        Job newJob = new Job(celebrity, "Director", movie_id, movie_title, null); // Imposto il ruolo come "Director" e character come null
-
-        boolean isJobAdded = celebrityService.addJobToCelebrity(id, newJob);
+        boolean isJobAdded = celebrityService.addJobToDirector(id, movie_id, movie_title);
 
         if (isJobAdded) {
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -194,18 +154,6 @@ public class CelebrityController {
         }
     }
 
-    //ENDPOINT PER CERCARE TUTTE LE CELEBRITA' SU NEO4J
-    @GetMapping("/neo4j")
-    public Page<CelebrityNeo4J> getAllCelebrities(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        // Valida i parametri di paginazione
-        if (page < 0 || size <= 0) {
-            throw new IllegalArgumentException("Page number and size must be positive values.");
-        }
-        return celebrityService.getAllCelebrities(page, size);
-    }
 
     //ENDPOINT FOR UPDATE THE CELEBRITY
     @PutMapping("/update/{personId}")
@@ -225,28 +173,15 @@ public class CelebrityController {
         }
     }
 
-    // Endpoint per cercare una celebrità tramite parola chiave o nome (MONGODB)
+    // ENDPOINT PER CERCARE UNA CELEBRITA' TRAMITE PAROLA CHIAVE O NOME (MONGODB)
     @GetMapping("/mongo/search")
     public List<CelebrityMongoDB> searchMongo(@RequestParam String query) {
         return celebrityService.searchActorsByCharacterMongo(query);
     }
 
-
-    //DA VERIFICARE ENDPOINT PER RACCOMANDARE ATTORI IN BASE AI FILM PIACIUTI DALL'UTENTE (NEO4J)
-    @GetMapping("/neo4j/recommend/actors/likes")
-    public List<Map<String, Object>> getRecommendedActorsByLikes(@RequestParam String username) {
-        return celebrityService.recommendActorsByUserLikes(username);
-    }
-
-    //DA VERIFICARE ENDPOINT PER RACCOMANDARE ATTORI IN BASE AGLI ATTORI SEGUITI DELL'UTENTE (NEO4J)
-    @GetMapping("/neo4j/recommend/actors/followed")
-    public List<Map<String, Object>> recommendActorsByFollowedActors(@RequestParam String username) {
-        return celebrityService.recommendActorsByFollowedActors(username);
-    }
-
     //DA VERIFICARE ENDPOINT PER RACCOMANDARE LA CELEBRITA' TRAMITE CONNESSIONI DI SECONDO GRADO (NEO4J)
     @GetMapping("/neo4j/recommend/actors/second-degree")
-    public List<Map<String, Object>> getSecondDegreeCelebrityRecommendations (@RequestParam String username){
+    public List<Map<String, Object>> getSecondDegreeCelebrityRecommendations(@RequestParam String username) {
         return celebrityService.getSecondDegreeCelebrityRecommendations(username);
     }
 }
