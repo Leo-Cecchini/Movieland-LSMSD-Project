@@ -1,9 +1,14 @@
 package it.unipi.movieland.controller.User;
 
+import it.unipi.movieland.dto.WatchlistDTO;
+import it.unipi.movieland.model.CountryEnum;
+import it.unipi.movieland.model.GenderEnum;
 import it.unipi.movieland.model.GenreEnum;
 import it.unipi.movieland.model.User.UserMongoDB;
+import it.unipi.movieland.model.User.UserMovie;
 import it.unipi.movieland.service.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +25,9 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/")
-    public ResponseEntity<?> getAllUsers(@RequestParam int page) {
+    public ResponseEntity<?> getAllUsers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
-            List<UserMongoDB> users = userService.getAllUsers(page);
+            List<UserMongoDB> users = userService.getAllUsers(page,size);
             if (users.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             } else {
@@ -36,7 +41,7 @@ public class UserController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> addUser(String username, String email, String name, String surname, String password, String country, String phoneNumber, @RequestBody List<GenreEnum> favoriteGenres, String gender, LocalDate birthday) {
+    public ResponseEntity<?> addUser(String username, String email, String name, String surname, String password, CountryEnum country, String phoneNumber, @RequestBody List<GenreEnum> favoriteGenres, GenderEnum gender, LocalDate birthday) {
         try {
             UserMongoDB user = userService.addUser(username, email, name, surname, password, country, phoneNumber, favoriteGenres, gender, birthday);
             return new ResponseEntity<>(user, HttpStatus.CREATED);
@@ -74,16 +79,17 @@ public class UserController {
     }
 
     @PutMapping("/{username}")
-    public ResponseEntity<String> updateUser(@PathVariable String username, String email, String name, String surname, String country, String phoneNumber, @RequestBody List<GenreEnum> favoriteGenres, String gender) {
+    public ResponseEntity<String> updateUser(@PathVariable String username, @RequestParam(required = false) String name, @RequestParam(required = false) String surname, @RequestParam(required = false) CountryEnum country, @RequestParam(required = false) String phoneNumber, @RequestBody(required = false) List<GenreEnum> favoriteGenres, @RequestParam(required = false) GenderEnum gender) {
         try {
-            userService.updateUser(username, email, name, surname, country, phoneNumber, favoriteGenres, gender);
+            userService.updateUser(username,  name, surname, country, phoneNumber, favoriteGenres, gender);
             return new ResponseEntity<>("User updated",HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @DeleteMapping("/{username}")
@@ -101,7 +107,8 @@ public class UserController {
     @GetMapping("/{username}/watchlist")
     public ResponseEntity<?> getWatchlist(@PathVariable String username) {
         try {
-            return new ResponseEntity<>(userService.getWatchlist(username),HttpStatus.OK);
+            WatchlistDTO watchlist = userService.getWatchlist(username);
+            return new ResponseEntity<>(watchlist,HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (RuntimeException e) {
@@ -138,9 +145,9 @@ public class UserController {
     }
 
     @GetMapping("/{username}/likedMovies")
-    public ResponseEntity<?> getLikedMovies(@PathVariable String username) {
+    public ResponseEntity<?> getLikedMovies(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
-            return new ResponseEntity<>(userService.getLikedMovies(username),HttpStatus.OK);
+            return new ResponseEntity<>(userService.getLikedMovies(username,page,size),HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (RuntimeException e){
@@ -178,9 +185,9 @@ public class UserController {
     }
 
     @GetMapping("/{username}/followedCelebrities")
-    public ResponseEntity<?> getFollowedCelebrities(@PathVariable String username) {
+    public ResponseEntity<?> getFollowedCelebrities(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
-            return new ResponseEntity<>(userService.getFollowedCelebrities(username),HttpStatus.OK);
+            return new ResponseEntity<>(userService.getFollowedCelebrities(username,page,size),HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
         }  catch (RuntimeException e){
@@ -218,9 +225,9 @@ public class UserController {
     }
 
     @GetMapping("/{username}/followedUsers")
-    public ResponseEntity<?> getFollowedUsers(@PathVariable String username) {
+    public ResponseEntity<?> getFollowedUsers(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
-            return new ResponseEntity<>(userService.getFollowedUsers(username),HttpStatus.OK);
+            return new ResponseEntity<>(userService.getFollowedUsers(username,page,size),HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (RuntimeException e){
@@ -229,9 +236,9 @@ public class UserController {
     }
 
     @GetMapping("/{username}/followedUsers/self")
-    public ResponseEntity<?> getFollowers(@PathVariable String username) {
+    public ResponseEntity<?> getFollowers(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
-            return new ResponseEntity<>(userService.getFollowersUsers(username),HttpStatus.OK);
+            return new ResponseEntity<>(userService.getFollowersUsers(username,page,size),HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (RuntimeException e){
@@ -268,14 +275,10 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchUsers(@RequestParam String query,@RequestParam(required = false) String country) {
+    public ResponseEntity<?> searchUsers(@RequestParam String query,@RequestParam(required = false) String country, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
-             List<UserMongoDB> users = userService.searchUser(query,country);
-            if (users.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            } else {
-                return new ResponseEntity<>(users, HttpStatus.OK);
-            }
+             List<UserMongoDB> users = userService.searchUser(query,country,page,size);
+             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (RuntimeException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

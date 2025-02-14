@@ -6,16 +6,14 @@ import it.unipi.movieland.repository.Celebrity.CelebrityMongoDBRepository;
 import it.unipi.movieland.repository.Celebrity.CelebrityNeo4JRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
+
+import java.util.*;
+
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
 import it.unipi.movieland.model.Celebrity.Job;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
-
-import java.util.Map;
 
 @Service
 public class CelebrityService {
@@ -180,5 +178,30 @@ public class CelebrityService {
     //Metodi per ottenere raccomandazioni di celebrity da connessioni di secondo grado (NEO4J)
     public List<Map<String, Object>> getSecondDegreeCelebrityRecommendations(String username) {
         return celebrityNeo4JRepository.recommendSecondDegreeCelebrities(username);
+    }
+
+    public static List<String> findDifference(List<String> a, List<String> b) {
+        Set<String> firstSet = new HashSet<>(a);
+
+        List<String> result = new ArrayList<>();
+
+        for (String mongoElement : b) {
+            if (!firstSet.contains(mongoElement)) {
+                result.add(mongoElement);
+            }
+        }
+
+        return result;
+    }
+
+    public List<String> inconsistenciesNeo() {
+        List<String> mongoDb=celebrityMongoRepository.findAllIds().getAllIds();
+        List<String> neo4j=celebrityNeo4JRepository.findAllIds();
+        return findDifference(neo4j, mongoDb);
+    }
+    public List<String> inconsistenciesMongo() {
+        List<String> mongoDb=celebrityMongoRepository.findAllIds().getAllIds();
+        List<String> neo4j=celebrityNeo4JRepository.findAllIds();
+        return findDifference(mongoDb, neo4j);
     }
 }

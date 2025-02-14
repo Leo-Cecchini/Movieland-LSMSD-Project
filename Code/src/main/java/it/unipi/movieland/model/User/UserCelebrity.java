@@ -14,6 +14,14 @@ public class UserCelebrity {
         this.poster = poster;
     }
 
+    public UserCelebrity() {}
+
+    public UserCelebrity(String celebrityId, String name, String poster) {
+        this.celebrityId = Integer.parseInt(celebrityId);
+        this.name = name;
+        this.poster = poster;
+    }
+
     public Integer getCelebrityId() {
         return celebrityId;
     }
@@ -29,6 +37,8 @@ public class UserCelebrity {
     public void setCelebrityId(Integer celebrityId) {
         this.celebrityId = celebrityId;
     }
+
+    public void setCelebrityId(String celebrityId) {this.celebrityId = Integer.parseInt(celebrityId);}
 
     public void setName(String name) {
         this.name = name;

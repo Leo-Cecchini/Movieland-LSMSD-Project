@@ -1,5 +1,6 @@
 package it.unipi.movieland.model.User;
 
+import it.unipi.movieland.model.CountryEnum;
 import it.unipi.movieland.model.GenreEnum;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,12 +23,12 @@ public class UserNeo4J {
     private String surname;
 
     @Property("country")
-    private String country;
+    private CountryEnum country;
 
     @Property("favorite_genres")
     private List<GenreEnum> favoriteGenres;
 
-    public UserNeo4J(String username, String name, String surname, String country, List<GenreEnum> favoriteGenres) {
+    public UserNeo4J(String username, String name, String surname, CountryEnum country, List<GenreEnum> favoriteGenres) {
         this.username = username;
         this.name = name;
         this.surname = surname;
@@ -35,7 +36,7 @@ public class UserNeo4J {
         this.favoriteGenres = favoriteGenres;
     }
 
-    public String getCountry() {
+    public CountryEnum getCountry() {
         return country;
     }
 
@@ -59,7 +60,7 @@ public class UserNeo4J {
         this.surname = surname;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(CountryEnum country) {
         this.country = country;
     }
 

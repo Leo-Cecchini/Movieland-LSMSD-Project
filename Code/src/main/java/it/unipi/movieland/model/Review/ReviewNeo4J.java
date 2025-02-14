@@ -5,7 +5,7 @@ import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
-@Node("Reviews")
+@Node("Review")
 public class ReviewNeo4J {
     @Id
     private String review_id;

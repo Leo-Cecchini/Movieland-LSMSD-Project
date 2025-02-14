@@ -1,10 +1,15 @@
 package it.unipi.movieland.repository.User;
 
 import it.unipi.movieland.dto.GenreRecommendationsDTO;
+import it.unipi.movieland.dto.ListIdDTO;
+import it.unipi.movieland.model.CountryEnum;
+import it.unipi.movieland.model.GenderEnum;
 import it.unipi.movieland.model.GenreEnum;
 import it.unipi.movieland.model.User.UserCelebrity;
 import it.unipi.movieland.model.User.UserMongoDB;
 import it.unipi.movieland.model.User.UserMovie;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -15,8 +20,8 @@ import java.util.List;
 public interface UserMongoDBRepository extends MongoRepository<UserMongoDB, String> {
 
     @Query("{ '_id': ?0 }")
-    @Update("{ $set: { 'email': ?1, 'name': ?2, 'surname': ?3, 'country': ?4, 'phone_number': ?5, 'favorite_genres': ?6, 'gender': ?7 } }")
-    void updateUser(String username, String email, String name, String surname, String country, String phoneNumber, List<GenreEnum> favoriteGenres, String gender);
+    @Update("{ $set: { 'name': ?1, 'surname': ?2, 'country': ?3, 'phone_number': ?4, 'favorite_genres': ?5, 'gender': ?6 } }")
+    void updateUser(String username, String name, String surname, CountryEnum country, String phoneNumber, List<GenreEnum> favoriteGenres, GenderEnum gender);
 
     @Query(value = "{ '_id': ?0 }", fields = "{ 'watchlist': 1 }")
     UserMongoDB getWatchlist(String userId);
@@ -72,19 +77,28 @@ public interface UserMongoDBRepository extends MongoRepository<UserMongoDB, Stri
     void removeFromFollowedCelebrities(String userId, List<UserCelebrity> celebrities);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ $set: { 'followed': ?1 } }")
-    void updateFollowed(String userId, int followed);
+    @Update("{ $inc: { 'followed': 1 } }")
+    void increaseFollowed(String userId);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ $set: { 'follower': ?1 } }")
-    void updateFollowers(String userId, int followers);
+    @Update("{ $inc: { 'follower': 1 } }")
+    void increaseFollowers(String userId);
+
+    @Query("{ '_id': ?0 }")
+    @Update("{ $inc: { 'followed': -1 } }")
+    void decreaseFollowed(String userId);
+
+    @Query("{ '_id': ?0 }")
+    @Update("{ $inc: { 'follower': -1 } }")
+    void decreaseFollowers(String userId);
 
     @Aggregation(pipeline = {
             "{ $match: { $text: { $search: '?0' }, $or: [ { 'country': '?1' }, { '?1': null }, { '?1': '' } ] } }",
             "{ $sort: { score: { $meta: 'textScore' } } }",
-            "{ $limit: 5 }"
+            "{ $skip: ?2 }",
+            "{ $limit: ?3 }"
     })
-    List<UserMongoDB> searchUser(String query, String country);
+    List<UserMongoDB> searchUser(String query, String country, int offset, int limit);
 
     @Aggregation(pipeline = {
             "{ $match: { _id: '?0' } }",
@@ -99,6 +113,14 @@ public interface UserMongoDBRepository extends MongoRepository<UserMongoDB, Stri
     })
     GenreRecommendationsDTO recommendedMoviesGenre(String userId);
 
-    @Query(value = "{ 'username': ?0, 'watchlist': { $in: [?1] } }", exists = true)
+    @Query(value = "{ '_id': ?0, 'watchlist.film_id': ?1 }", exists = true)
     boolean isMovieInWatchlist(String username, String movieId);
+
+    @Aggregation(pipeline = {
+            "{ $project: { _id: 1 } }",    // Seleziona solo il campo _id
+            "{ $group: { _id: 1, allIds: { $push: '$_id' } } }" // Raggruppa e crea l'array
+    })
+    ListIdDTO findAllMovieIds();
+
+    boolean existsByEmail(String email);
 }

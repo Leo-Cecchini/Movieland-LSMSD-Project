@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class MovieService {
@@ -136,7 +133,7 @@ public class MovieService {
         Movie movie = gson.fromJson(response, Movie.class);
         movie.setType(movie.getType());
 
-        MovieNeo4j movieNeo4j = new MovieNeo4j(movie.get_id(), movie.getTitle(), movie.getGenre());
+        MovieNeo4j movieNeo4j = new MovieNeo4j(movie.get_id(), movie.getTitle(), movie.getGenres());
 
         //add movie to mongodb
         movieMongoDBRepo.addTitle(movie);
@@ -168,8 +165,8 @@ public class MovieService {
         movieMongo.get().setTitle(movie.getTitle());
         movieMongo.get().setType(movie.getType());
         movieMongo.get().setDescription(movie.getDescription());
-        movieMongo.get().setrelease_year(movie.getRelease_year());
-        movieMongo.get().setGenre(movie.getGenres());
+        movieMongo.get().setRelease_year(movie.getRelease_year());
+        movieMongo.get().setGenres(movie.getGenres());
         movieMongo.get().setKeywords(movie.getKeywords());
         movieMongo.get().setProduction_countries(movie.getProduction_countries());
         movieMongo.get().setRuntime(movie.getRuntime());
@@ -177,7 +174,7 @@ public class MovieService {
         movieMongo.get().setPlatform(movie.getPlatform());
         movieMongo.get().setRevenue(movie.getRevenue());
         movieMongo.get().setBudget(movie.getBudget());
-        movieMongo.get().setage_certification(movie.getAge_certification());
+        movieMongo.get().setAge_certification(movie.getAge_certification());
         movieMongo.get().setSeasons(movie.getSeasons());
 
         //update mongoDB
@@ -253,4 +250,28 @@ public class MovieService {
             return movieMongoDBRepo.percentageOfCombinedKeywords(keywords);
     }
 
+    public static List<String> findDifference(List<String> a, List<String> b) {
+        Set<String> firstSet = new HashSet<>(a);
+
+        List<String> result = new ArrayList<>();
+
+        for (String mongoElement : b) {
+            if (!firstSet.contains(mongoElement)) {
+                result.add(mongoElement);
+            }
+        }
+
+        return result;
+    }
+
+    public List<String> inconsistenciesNeo() {
+        List<String> mongoDb=movieMongoDBInterface.findAllIds().getAllIds();
+        List<String> neo4j=movieNeo4jInterface.findAllIds();
+        return findDifference(neo4j, mongoDb);
+    }
+    public List<String> inconsistenciesMongo() {
+        List<String> mongoDb=movieMongoDBInterface.findAllIds().getAllIds();
+        List<String> neo4j=movieNeo4jInterface.findAllIds();
+        return findDifference(mongoDb, neo4j);
+    }
 }

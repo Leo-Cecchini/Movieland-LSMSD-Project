@@ -59,6 +59,9 @@ public interface CelebrityNeo4JRepository extends Neo4jRepository<CelebrityNeo4J
             "ORDER BY numRelations DESC, FollowerCount DESC " +
             "LIMIT 10")
     List<Map<String, Object>> recommendSecondDegreeCelebrities(@Param("username") String username);
+
+    @Query("MATCH (n:Celebrity) RETURN n.person_id AS all_ids")
+    List<String> findAllIds();
 }
 
 

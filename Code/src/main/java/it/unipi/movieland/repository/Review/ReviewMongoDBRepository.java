@@ -1,5 +1,6 @@
 package it.unipi.movieland.repository.Review;
 
+import it.unipi.movieland.dto.ListIdDTO;
 import it.unipi.movieland.model.Review.ReviewMongoDB;
 import it.unipi.movieland.model.User.UserReview;
 import org.springframework.data.mongodb.repository.Aggregation;
@@ -17,19 +18,23 @@ public interface ReviewMongoDBRepository extends MongoRepository<ReviewMongoDB, 
 
     @Aggregation(pipeline = {
             "{ $match: { movie_id: ?0 } }",
-            "{ $sort: { timestamp: -1 } }"
+            "{ $sort: { timestamp: -1 } }",
+            "{ $skip: ?2 }",
+            "{ $limit: ?3 }"
     })
-    List<ReviewMongoDB> findByMovieId(String movieId);
+    List<ReviewMongoDB> findByMovieId(String movieId,int offset, int limit);
 
     @Aggregation(pipeline = {
             "{ $match: { username: ?0 } }",
-            "{ $sort: { timestamp: -1 } }"
+            "{ $sort: { timestamp: -1 } }",
+            "{ $skip: ?2 }",
+            "{ $limit: ?3 }"
     })
-    List<ReviewMongoDB> findByUsername(String userId);
+    List<ReviewMongoDB> findByUsername(String userId,int offset, int limit);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ $set: { review: ?1, sentiment: ?2, timestamp: ?3 } }")
-    void updateReview(String id, String txt, boolean sentiment, LocalDateTime timestamp);
+    @Update("{ $set: { review: ?1, timestamp: ?2 } }")
+    void updateReview(String id, String txt, LocalDateTime timestamp);
 
     @Query("{ '_id': ?0 }")
     @Update("{ $inc: { num_likes: 1 }}")
@@ -48,4 +53,12 @@ public interface ReviewMongoDBRepository extends MongoRepository<ReviewMongoDB, 
             "{ $project: { review_id: '$_id', movie_title: '$movie.title', sentiment: '$sentiment', content: '$review'} }"
     })
     Optional<UserReview> findMostRecentReviewWithMovie(String username);
+
+    @Aggregation(pipeline = {
+            "{ $project: { _id: 1 } }",    // Seleziona solo il campo _id
+            "{ $group: { _id: 1, allIds: { $push: '$_id' } } }" // Raggruppa e crea l'array
+    })
+    ListIdDTO findAllCommentIds();
+
+
 }

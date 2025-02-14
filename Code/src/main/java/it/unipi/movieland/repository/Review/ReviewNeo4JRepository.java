@@ -20,4 +20,10 @@ public interface ReviewNeo4JRepository extends Neo4jRepository<ReviewNeo4J,Strin
 
     @Query("MATCH (u:Review {review_id: $id}) SET u.sentiment = $sentiment")
     void updateReview(String id, boolean sentiment);
+
+    @Query("MATCH (n:Review) RETURN n.review_id AS all_ids")
+    List<String> findAllIds();
+
+    @Query("RETURN EXISTS { MATCH (:User {username: $username})-[:REVIEW_LIKE]->(Review {review_id: $reviewId}) }")
+    boolean isReviewLiked(String username, String reviewId);
 }

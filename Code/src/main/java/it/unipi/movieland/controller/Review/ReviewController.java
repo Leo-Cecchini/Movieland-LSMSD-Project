@@ -20,9 +20,9 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @GetMapping("/")
-    public ResponseEntity<?> getAllReviews(@RequestParam int page) {
+    public ResponseEntity<?> getAllReviews(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
-            List<ReviewMongoDB> reviews = reviewService.getAllReviews(page);
+            List<ReviewMongoDB> reviews = reviewService.getAllReviews(page,size);
             if (reviews.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             } else {
@@ -34,9 +34,9 @@ public class ReviewController {
     }
 
     @GetMapping("/movie/{movieId}")
-    public ResponseEntity<?> getReviews(@PathVariable String movieId) {
+    public ResponseEntity<?> getReviews(@PathVariable String movieId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
-            List<ReviewMongoDB> reviews = reviewService.getReviewsByMovieId(movieId);
+            List<ReviewMongoDB> reviews = reviewService.getReviewsByMovieId(movieId,page,size);
             if (reviews.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             } else {
@@ -60,7 +60,7 @@ public class ReviewController {
         }
     }
 
-    @GetMapping("/{reviewId}")
+    @GetMapping("/id/{reviewId}")
     public ResponseEntity<?> getReview(@PathVariable String reviewId) {
         try {
             return new ResponseEntity<>(reviewService.getReviewById(reviewId),HttpStatus.CREATED);
@@ -71,10 +71,10 @@ public class ReviewController {
         }
     }
 
-    @PutMapping("/{reviewId}")
-    public ResponseEntity<String> updateReview(@PathVariable String reviewId, String review, boolean sentiment, String username) {
+    @PutMapping("/id/{reviewId}")
+    public ResponseEntity<String> updateReview(@PathVariable String reviewId, String review) {
         try {
-            reviewService.updateReview(reviewId,review,sentiment,username);
+            reviewService.updateReview(reviewId,review);
             return new ResponseEntity<>("Review updated",HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
@@ -83,10 +83,10 @@ public class ReviewController {
         }
     }
 
-    @DeleteMapping("/{reviewId}")
-    public ResponseEntity<String> deleteReview(@PathVariable String reviewId,String userId) {
+    @DeleteMapping("/id/{reviewId}")
+    public ResponseEntity<String> deleteReview(@PathVariable String reviewId) {
         try {
-            reviewService.deleteReview(reviewId,userId);
+            reviewService.deleteReview(reviewId);
             return new ResponseEntity<>("Review deleted",HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
@@ -95,7 +95,7 @@ public class ReviewController {
         }
     }
 
-    @PutMapping("/{reviewId}/like")
+    @PutMapping("/id/{reviewId}/like")
     public ResponseEntity<String> likeReview(@PathVariable String reviewId, String userId) {
         try {
             reviewService.likeReview(reviewId,userId);
@@ -107,7 +107,7 @@ public class ReviewController {
         }
     }
 
-    @PutMapping("/{reviewId}/unlike")
+    @PutMapping("/id/{reviewId}/unlike")
     public ResponseEntity<String> unlikeReview(@PathVariable String reviewId, String userId) {
         try {
             reviewService.unlikeReview(reviewId,userId);
@@ -120,9 +120,9 @@ public class ReviewController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getUserReviews(@PathVariable String userId) {
+    public ResponseEntity<?> getUserReviews(@PathVariable String userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
-            List<ReviewMongoDB> reviews = reviewService.getReviewsByUsername(userId);
+            List<ReviewMongoDB> reviews = reviewService.getReviewsByUsername(userId,page,size);
             if (reviews.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             } else {

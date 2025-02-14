@@ -1,5 +1,7 @@
 package it.unipi.movieland.model.User;
 
+import it.unipi.movieland.model.CountryEnum;
+import it.unipi.movieland.model.GenderEnum;
 import it.unipi.movieland.model.GenreEnum;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -10,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@NoArgsConstructor
 @Document(collection = "Users")
 public class UserMongoDB {
     @Id
@@ -19,10 +20,10 @@ public class UserMongoDB {
     private String name;
     private String surname;
     private String password;
-    private String country;
+    private CountryEnum country;
     private String phone_number;
     private List<GenreEnum> favorite_genres;
-    private String gender;
+    private GenderEnum gender;
     private LocalDate birthday;
     private List<UserMovie> liked_movies;
     private List<UserMovie> watchlist;
@@ -31,8 +32,8 @@ public class UserMongoDB {
     private Integer followed;
     private UserReview recent_review;
 
-    public UserMongoDB(String _id, String email, String name, String surname, String password, String country,
-                       String phone_number, List<GenreEnum> favorite_genres, String gender, LocalDate birthday, List<UserMovie> liked_movies, List<UserMovie> watchlist, List<UserCelebrity> followed_celebrities, Integer follower, Integer followed, UserReview recent_review) {
+    public UserMongoDB(String _id, String email, String name, String surname, String password, CountryEnum country,
+                       String phone_number, List<GenreEnum> favorite_genres, GenderEnum gender, LocalDate birthday, List<UserMovie> liked_movies, List<UserMovie> watchlist, List<UserCelebrity> followed_celebrities, Integer follower, Integer followed, UserReview recent_review) {
         this._id = _id;
         this.email = email;
         this.name = name;
@@ -50,8 +51,11 @@ public class UserMongoDB {
         this.followed = followed;
         this.recent_review = recent_review;
     }
-    public UserMongoDB(String _id, String email, String name, String surname, String password, String country,
-                       String phone_number, List<GenreEnum> favorite_genres, String gender, LocalDate birthday) {
+    public UserMongoDB() {
+    }
+
+    public UserMongoDB(String _id, String email, String name, String surname, String password, CountryEnum country,
+                       String phone_number, List<GenreEnum> favorite_genres, GenderEnum gender, LocalDate birthday) {
         this._id = _id;
         this.email = email;
         this.name = name;
@@ -128,7 +132,7 @@ public class UserMongoDB {
         return _id;
     }
 
-    public String getCountry() {
+    public CountryEnum getCountry() {
         return country;
     }
 
@@ -136,7 +140,7 @@ public class UserMongoDB {
         return email;
     }
 
-    public String getGender() {
+    public GenderEnum getGender() {
         return gender;
     }
 
@@ -168,7 +172,7 @@ public class UserMongoDB {
         this.birthday = birthday;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(CountryEnum country) {
         this.country = country;
     }
 
@@ -188,7 +192,7 @@ public class UserMongoDB {
         this.followed_celebrities = followed_celebrities;
     }
 
-    public void setGender(String gender) {
+    public void setGender(GenderEnum gender) {
         this.gender = gender;
     }
 
