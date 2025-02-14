@@ -131,7 +131,7 @@ public class MovieService {
         Movie movie = gson.fromJson(response, Movie.class);
         movie.setType(movie.getType());
 
-        MovieNeo4j movieNeo4j = new MovieNeo4j(movie.get_id(), movie.getTitle(), movie.getGenres());
+        MovieNeo4j movieNeo4j = new MovieNeo4j(movie.get_id(), movie.getTitle(), movie.getGenre());
 
         //add movie to mongodb
         movieMongoDBInterface.insert(movie);
@@ -163,8 +163,8 @@ public class MovieService {
         movieMongo.get().setTitle(movie.getTitle());
         movieMongo.get().setType(movie.getType());
         movieMongo.get().setDescription(movie.getDescription());
-        movieMongo.get().setRelease_year(movie.getRelease_year());
-        movieMongo.get().setGenres(movie.getGenres());
+        movieMongo.get().setrelease_year(movie.getRelease_year());
+        movieMongo.get().setGenre(movie.getGenres());
         movieMongo.get().setKeywords(movie.getKeywords());
         movieMongo.get().setProduction_countries(movie.getProduction_countries());
         movieMongo.get().setRuntime(movie.getRuntime());
@@ -172,7 +172,7 @@ public class MovieService {
         movieMongo.get().setPlatform(movie.getPlatform());
         movieMongo.get().setRevenue(movie.getRevenue());
         movieMongo.get().setBudget(movie.getBudget());
-        movieMongo.get().setAge_certification(movie.getAge_certification());
+        movieMongo.get().setage_certification(movie.getAge_certification());
         movieMongo.get().setSeasons(movie.getSeasons());
 
         //update mongoDB
@@ -268,12 +268,12 @@ public class MovieService {
 
     public List<String> inconsistenciesNeo() {
         List<String> mongoDb=movieMongoDBInterface.findAllIds().getAllIds();
-        List<String> neo4j=movieNeo4jInterface.findAllIds();
+        List<String> neo4j=movieNeo4jRepository.findAllIds();
         return findDifference(neo4j, mongoDb);
     }
     public List<String> inconsistenciesMongo() {
         List<String> mongoDb=movieMongoDBInterface.findAllIds().getAllIds();
-        List<String> neo4j=movieNeo4jInterface.findAllIds();
+        List<String> neo4j=movieNeo4jRepository.findAllIds();
         return findDifference(mongoDb, neo4j);
     }
 }

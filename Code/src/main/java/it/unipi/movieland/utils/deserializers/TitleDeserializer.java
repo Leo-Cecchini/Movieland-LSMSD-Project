@@ -1,7 +1,10 @@
 package it.unipi.movieland.utils.deserializers;
 
 import com.google.gson.*;
+import it.unipi.movieland.model.CountryEnum;
+import it.unipi.movieland.model.GenreEnum;
 import it.unipi.movieland.model.Movie.Movie;
+import it.unipi.movieland.model.TitleTypeEnum;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ public class TitleDeserializer implements JsonDeserializer<Movie> {
         String description = getAsString(jsonObject, "description");
         Integer runtime = getAsInt(jsonObject, "runtime");
         String _id = getNestedAsString(jsonObject, "ids", "imdb");
-        String type = getAsString(jsonObject, "type");
+        TitleTypeEnum type = TitleTypeEnum.valueOf(getAsString(jsonObject, "type"));
 
         // imdb_score and imdb_votes
         Integer imdb_score = null;
@@ -35,19 +38,19 @@ public class TitleDeserializer implements JsonDeserializer<Movie> {
         }
 
         // extract genres as list<String>  (toLowerCase)
-        List<String> genres = new ArrayList<>();
+        List<GenreEnum> genres = new ArrayList<>();
         if (jsonObject.has("genres")) {
             JsonArray genresArray = jsonObject.getAsJsonArray("genres");
             for (JsonElement genreElement : genresArray) {
-                genres.add(getAsString(genreElement.getAsJsonObject(), "title").toLowerCase());
+                genres.add(GenreEnum.valueOf(getAsString(genreElement.getAsJsonObject(), "title").toLowerCase()));
             }
         }
 
         // extract country in maiusc
-        List<String> production_countries = new ArrayList<>();
+        List<CountryEnum> production_countries = new ArrayList<>();
         String countryValue = getAsString(jsonObject, "country");
         if (countryValue != null) {
-            production_countries.add(countryValue.toUpperCase());
+            production_countries.add(CountryEnum.valueOf(countryValue.toUpperCase()));
         }
 
         String age_certification = getAsString(jsonObject, "certification");

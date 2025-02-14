@@ -1,5 +1,9 @@
 package it.unipi.movieland.model.Movie;
 
+import it.unipi.movieland.model.CountryEnum;
+import it.unipi.movieland.model.GenreEnum;
+import it.unipi.movieland.model.PlatformEnum;
+import it.unipi.movieland.model.TitleTypeEnum;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,12 +15,12 @@ public class Movie {
     @Id
     private String _id;
     private String title;
-    private String type;
+    private TitleTypeEnum type;
     private String description;
     private Integer release_year;
-    private List<String> genres;
+    private List<GenreEnum> genres;
     private List<String> keywords;
-    private List<String> production_countries;
+    private List<CountryEnum> production_countries;
     private Integer runtime;
     private String poster_path;
     private Integer imdb_score;
@@ -34,8 +38,8 @@ public class Movie {
     public Movie() {}
 
     // constructor for creating the title from the json object return by the mdblist api
-    public Movie(String title, Integer release_year, String description, Integer runtime, String _id, String type,
-                 Integer imdb_score, Integer imdb_votes, List<String> genres, List<String> production_countries,
+    public Movie(String title, Integer release_year, String description, Integer runtime, String _id, TitleTypeEnum type,
+                 Integer imdb_score, Integer imdb_votes, List<GenreEnum> genres, List<CountryEnum> production_countries,
                  String age_certification, String poster_path) {
         this.title = title;
         this.release_year = release_year;
@@ -59,8 +63,8 @@ public class Movie {
     }
 
     // constructor
-    public Movie(String _id, String title, String type, String description, Integer release_year, List<String> genres,
-                 List<String> keywords, List<String> production_countries, Integer runtime, String poster_path,
+    public Movie(String _id, String title, TitleTypeEnum type, String description, Integer release_year, List<GenreEnum> genres,
+                 List<String> keywords, List<CountryEnum> production_countries, Integer runtime, String poster_path,
                  Integer imdb_score, Integer imdb_votes, List<String> platform, List<MovieCelebrity> actors, List<MovieCelebrity> directors,
                  Double revenue, Double budget, String age_certification, Integer seasons) {
         this._id = _id;
@@ -99,10 +103,10 @@ public class Movie {
         this.title = title;
     }
 
-    public String getType() {
+    public TitleTypeEnum getType() {
         return type;
     }
-    public void setType(String type) {
+    public void setType(TitleTypeEnum type) {
         this.type = type;
     }
 
@@ -120,10 +124,10 @@ public class Movie {
         this.release_year = release_year;
     }
 
-    public List<String> getGenre() {
+    public List<GenreEnum> getGenre() {
         return genres;
     }
-    public void setGenre(List<String> genre) {
+    public void setGenre(List<GenreEnum> genre) {
         this.genres = genre;
     }
 
@@ -134,10 +138,10 @@ public class Movie {
         this.keywords = keywords;
     }
 
-    public List<String> getProduction_countries() {
+    public List<CountryEnum> getProduction_countries() {
         return production_countries;
     }
-    public void setProduction_countries(List<String> production_countries) {this.production_countries = production_countries;}
+    public void setProduction_countries(List<CountryEnum> production_countries) {this.production_countries = production_countries;}
 
     public int getRuntime() {
         return runtime;

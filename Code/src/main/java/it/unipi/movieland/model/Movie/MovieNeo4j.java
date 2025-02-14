@@ -1,5 +1,6 @@
 package it.unipi.movieland.model.Movie;
 
+import it.unipi.movieland.model.GenreEnum;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
@@ -10,9 +11,9 @@ public class MovieNeo4j {
     @Id
     private String imdb_id;
     private String title;
-    private List<String> genres;
+    private List<GenreEnum> genres;
 
-    public MovieNeo4j(String imdb_id, String title, List<String> genres) {
+    public MovieNeo4j(String imdb_id, String title, List<GenreEnum> genres) {
         this.imdb_id = imdb_id;
         this.title = title;
         this.genres = genres;
@@ -24,6 +25,6 @@ public class MovieNeo4j {
     public String getTitle() {return title;}
     public void setTitle(String title) {this.title = title;}
 
-    public List<String> getGenres() {return genres;}
-    public void setGenres(List<String> genres) {this.genres = genres;}
+    public List<GenreEnum> getGenres() {return genres;}
+    public void setGenres(List<GenreEnum> genres) {this.genres = genres;}
 }

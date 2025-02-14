@@ -2,6 +2,7 @@ package it.unipi.movieland.utils.deserializers;
 
 import com.google.gson.*;
 import it.unipi.movieland.dto.SearchNewTitleDTO;
+import it.unipi.movieland.model.TitleTypeEnum;
 
 import java.lang.reflect.Type;
 
@@ -19,6 +20,6 @@ public class SearchNewTitleDTODeserializer implements JsonDeserializer<SearchNew
             JsonObject ids = jsonObject.getAsJsonObject("ids");
             imdbId = ids.has("imdbid") && !ids.get("imdbid").isJsonNull() ? ids.get("imdbid").getAsString() : null;
         }
-        return new SearchNewTitleDTO(title, year, type, imdbId);
+        return new SearchNewTitleDTO( imdbId, year, title, TitleTypeEnum.valueOf(type));
     }
 }

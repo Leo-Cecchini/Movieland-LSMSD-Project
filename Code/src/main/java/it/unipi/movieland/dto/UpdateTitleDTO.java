@@ -1,5 +1,9 @@
 package it.unipi.movieland.dto;
 
+import it.unipi.movieland.model.CountryEnum;
+import it.unipi.movieland.model.GenreEnum;
+import it.unipi.movieland.model.PlatformEnum;
+import it.unipi.movieland.model.TitleTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,12 +14,12 @@ import java.util.List;
 public class UpdateTitleDTO {
     private String _id;
     private String title;
-    private String type;
+    private TitleTypeEnum type;
     private String description;
     private Integer release_year;
-    private List<String> genres;
+    private List<GenreEnum> genres;
     private List<String> keywords;
-    private List<String> production_countries;
+    private List<CountryEnum> production_countries;
     private Integer runtime;
     private String poster_path;
     private List<String> platform;
@@ -48,11 +52,11 @@ public class UpdateTitleDTO {
         this.description = description;
     }
 
-    public String getType() {
+    public TitleTypeEnum getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TitleTypeEnum type) {
         this.type = type;
     }
 
@@ -64,11 +68,11 @@ public class UpdateTitleDTO {
         this.release_year = release_year;
     }
 
-    public List<String> getGenres() {
+    public List<GenreEnum> getGenres() {
         return genres;
     }
 
-    public void setGenres(List<String> genres) {
+    public void setGenres(List<GenreEnum> genres) {
         this.genres = genres;
     }
 
@@ -80,11 +84,11 @@ public class UpdateTitleDTO {
         this.keywords = keywords;
     }
 
-    public List<String> getProduction_countries() {
+    public List<CountryEnum> getProduction_countries() {
         return production_countries;
     }
 
-    public void setProduction_countries(List<String> production_countries) {
+    public void setProduction_countries(List<CountryEnum> production_countries) {
         this.production_countries = production_countries;
     }
 

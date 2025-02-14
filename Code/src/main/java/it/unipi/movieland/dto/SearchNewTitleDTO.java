@@ -1,5 +1,6 @@
 package it.unipi.movieland.dto;
 
+import it.unipi.movieland.model.TitleTypeEnum;
 import lombok.Data;
 
 @Data
@@ -8,11 +9,11 @@ public class SearchNewTitleDTO {
     private String imdb_id;
     private String title;
     private Integer year;
-    private String type;
+    private TitleTypeEnum type;
 
     public SearchNewTitleDTO() {}
 
-    public SearchNewTitleDTO(String imdb_id, Integer release_year, String title, String type) {
+    public SearchNewTitleDTO(String imdb_id, Integer release_year, String title, TitleTypeEnum type) {
         this.imdb_id = imdb_id;
         this.year = release_year;
         this.title = title;
@@ -28,6 +29,6 @@ public class SearchNewTitleDTO {
     public Integer getYear() {return year;}
     public void setYear(Integer year) {this.year = year;}
 
-    public String getType() {return type;}
-    public void setType(String type) {this.type = type;}
+    public TitleTypeEnum getType() {return type;}
+    public void setType(TitleTypeEnum type) {this.type = type;}
 }

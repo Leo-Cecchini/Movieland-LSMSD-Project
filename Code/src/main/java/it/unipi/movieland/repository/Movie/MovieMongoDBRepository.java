@@ -2,6 +2,7 @@ package it.unipi.movieland.repository.Movie;
 
 import it.unipi.movieland.dto.ActorDTO;
 import it.unipi.movieland.dto.CombinedPercentageDTO;
+import it.unipi.movieland.dto.ListIdDTO;
 import it.unipi.movieland.dto.StringCountDTO;
 import it.unipi.movieland.model.Movie.Movie;
 import org.springframework.data.mongodb.repository.Aggregation;
@@ -148,5 +149,22 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
             "{ $sort: { combinedPercentage: -1 } }"
     })
     List<CombinedPercentageDTO> percentageOfCombinedKeywords(List<String> keywords);
+
+    @Aggregation(pipeline = {
+            "{ $project: { _id: 1 } }",    // Seleziona solo il campo _id
+            "{ $group: { _id: 1, allIds: { $push: '$_id' } } }" // Raggruppa e crea l'array
+    })
+    public ListIdDTO findAllIds();
+
+    @Aggregation(pipeline = {
+            "{ $match: { _id: ?0 } }",
+            "{ $lookup: { from: 'Reviews', localField: '_id', foreignField: 'movie_id', as: 'reviews' } }",
+            "{ $unwind: '$reviews' }",
+            "{ $sort: { 'reviews.timestamp': -1 } }",
+            "{ $limit: 5 }",
+            "{ $group: { _id: '$_id', title: { $first: '$title' }, type: { $first: '$type' }, description: { $first: '$description' }, release_year: { $first: '$release_year' }, genres: { $first: '$genres' }, keywords: { $first: '$keywords' }, production_countries: { $first: '$production_countries' }, runtime: { $first: '$runtime' }, poster_path: { $first: '$poster_path' }, imdb_score: { $first: '$imdb_score' }, imdb_votes: { $first: '$imdb_votes' }, platform: { $first: '$platform' }, director: { $first: '$director' }, actors: { $first: '$actors' }, reviews: { $push: { id: '$reviews._id', review: '$reviews.review', sentiment: '$reviews.sentiment', username: '$reviews.username', timestamp: '$reviews.timestamp' } }, revenue: { $first: '$revenue' }, budget: { $first: '$budget' }, age_certification: { $first: '$age_certification' }, seasons: { $first: '$seasons' } } }",
+            "{ $merge: { into: 'Movies', whenMatched: 'merge', whenNotMatched: 'insert' } }"
+    })
+    public void updateReviews(String movieId);
 
 }
