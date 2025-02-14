@@ -1,26 +1,150 @@
-package it.unipi.movieland.controller.Analytics;
+package it.unipi.movieland.controller.Manager;
 
-import it.unipi.movieland.dto.*;
+import it.unipi.movieland.dto.ActorDTO;
+import it.unipi.movieland.dto.CombinedPercentageDTO;
+import it.unipi.movieland.dto.ResponseWrapper;
+import it.unipi.movieland.dto.StringCountDTO;
+import it.unipi.movieland.model.CountryEnum;
+import it.unipi.movieland.model.GenderEnum;
+import it.unipi.movieland.model.GenreEnum;
+import it.unipi.movieland.model.Manager.Manager;
+import it.unipi.movieland.model.User.UserMongoDB;
+import it.unipi.movieland.service.Celebrity.CelebrityService;
+import it.unipi.movieland.service.Manager.ManagerService;
 import it.unipi.movieland.service.Movie.MovieService;
+import it.unipi.movieland.service.Review.ReviewService;
+import it.unipi.movieland.service.User.UserService;
 import it.unipi.movieland.service.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("movie-statistics")
-public class MovieAnalyticsController {
+@RequestMapping("/manager")
+public class ManagerController {
 
     @Autowired
     private MovieService movieService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private CelebrityService celebrityService;
+    @Autowired
+    private ReviewService reviewService;
+    @Autowired
+    private ManagerService managerService;
 
-    @GetMapping("/most-frequent-actors-specific-genres")
+    @GetMapping("/")
+    public ResponseEntity<?> getAllManagers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        try {
+            List<Manager> managers = managerService.getAllManagers(page,size);
+            if (managers.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(managers, HttpStatus.OK);
+            }
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<?> addManager(String username, String email, String password) {
+        try {
+            Manager manager = managerService.addManager(username, email, password);
+            return new ResponseEntity<>(manager, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(String username, String password) {
+        try {;
+            return new ResponseEntity<>(managerService.authenticate(username,password),HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<?> getManagerById(@PathVariable String username) {
+        try {
+            Manager manager = managerService.getManagerById(username);
+            return new ResponseEntity<>(manager, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @DeleteMapping("/{username}")
+    public ResponseEntity<String> deleteUser(@PathVariable String username) {
+        try {
+            managerService.deleteManager(username);
+            return new ResponseEntity<>("User deleted", HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e){
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/inconsistency/user/mongo")
+    public List<String> userInconsistenciesMongo() {
+        return userService.inconsistenciesMongo();
+    }
+    @GetMapping("/inconsistency/user/neo")
+    public List<String> userInconsistenciesNeo() {
+        return userService.inconsistenciesNeo();
+    }
+
+    @GetMapping("/inconsistency/review/mongo")
+    public List<String> reviewInconsistenciesMongo() {
+        return reviewService.inconsistenciesMongo();
+    }
+    @GetMapping("/inconsistency/review/neo")
+    public List<String> reviewInconsistenciesNeo() {
+        return reviewService.inconsistenciesNeo();
+    }
+
+    @GetMapping("/inconsistency/celebrity/mongo")
+    public List<String> celebrityInconsistenciesMongo() {
+        return celebrityService.inconsistenciesMongo();
+    }
+    @GetMapping("/inconsistency/celebrity/neo")
+    public List<String> celebrityInconsistenciesNeo() {
+        return celebrityService.inconsistenciesNeo();
+    }
+
+    @GetMapping("/inconsistency/movie/mongo")
+    public List<String> movieInconsistenciesMongo() {
+        return movieService.inconsistenciesMongo();
+    }
+    @GetMapping("/inconsistency/movie/neo")
+    public List<String> movieInconsistenciesNeo() {
+        return movieService.inconsistenciesNeo();
+    }
+
+    @GetMapping("/analytics/most-frequent-actors-specific-genres")
     public ResponseEntity<ResponseWrapper<List<ActorDTO>>> mostFrequentActorsSpecificGenres(
             @RequestParam List<String> genres
-            ){
+    ){
         try{
             List<ActorDTO> actors = movieService.mostFrequentActorsSpecificGenres(genres);
             if( actors.isEmpty() )
@@ -32,7 +156,7 @@ public class MovieAnalyticsController {
         }
     }
 
-    @GetMapping("/most-voted-movies-by-productionCountries")
+    @GetMapping("/analytics/most-voted-movies-by-productionCountries")
     public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> mostVotedMoviesByProductionCountries(){
         try {
             List<StringCountDTO> movies = movieService.mostVotedMoviesBy("production_countries");
@@ -45,7 +169,7 @@ public class MovieAnalyticsController {
         }
     }
 
-    @GetMapping("/most-voted-movies-by-keywords")
+    @GetMapping("/analytics/most-voted-movies-by-keywords")
     public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> mostVotedMoviesByKeywords(){
         try {
             List<StringCountDTO> movies = movieService.mostVotedMoviesBy("keywords");
@@ -58,7 +182,7 @@ public class MovieAnalyticsController {
         }
     }
 
-    @GetMapping("/most-voted-movies-by-genres")
+    @GetMapping("/analytics/most-voted-movies-by-genres")
     public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> mostVotedMoviesByGenres(){
         try {
             List<StringCountDTO> movies = movieService.mostVotedMoviesBy("genres");
@@ -71,7 +195,7 @@ public class MovieAnalyticsController {
         }
     }
 
-    @GetMapping("/most-popular-actors")
+    @GetMapping("/analytics/most-popular-actors")
     public ResponseEntity<ResponseWrapper<List<ActorDTO>>> mostPopularActors(){
         try {
             List<ActorDTO> actors = movieService.mostPopularActors();
@@ -84,7 +208,7 @@ public class MovieAnalyticsController {
         }
     }
 
-    @GetMapping("/highest-avg-actors-top2000-movies")
+    @GetMapping("/analytics/highest-avg-actors-top2000-movies")
     public ResponseEntity<ResponseWrapper<List<ActorDTO>>> highesAverageActorsTop2000Movies() {
         try {
             List<ActorDTO> actors = movieService.highesAverageActorsTop2000Movies();
@@ -97,7 +221,7 @@ public class MovieAnalyticsController {
         }
     }
 
-    @GetMapping("/total-movies-by-platform")
+    @GetMapping("/analytics/total-movies-by-platform")
     public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> totalMoviesByPlatform() {
         try {
             List<StringCountDTO> movies = movieService.totalMoviesByPlatform();
@@ -123,7 +247,7 @@ public class MovieAnalyticsController {
         }
     }
 
-    @GetMapping("/best-platform-for-top1000-movies")
+    @GetMapping("/analytics/best-platform-for-top1000-movies")
     public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> bestPlatformForTop1000Movies() {
         try {
             List<StringCountDTO> platforms = movieService.bestPlatformForTop1000Movies();
@@ -136,7 +260,7 @@ public class MovieAnalyticsController {
         }
     }
 
-    @GetMapping("/percentage-of-combined-genres")
+    @GetMapping("/analytics/percentage-of-combined-genres")
     public ResponseEntity<ResponseWrapper<List<CombinedPercentageDTO>>> percentageOfCombinedGenres(
             @RequestParam List<String> genres) {
         try {
@@ -150,7 +274,7 @@ public class MovieAnalyticsController {
         }
     }
 
-    @GetMapping("/percentage-of-combined-keywords")
+    @GetMapping("/analytics/percentage-of-combined-keywords")
     public ResponseEntity<ResponseWrapper<List<CombinedPercentageDTO>>> percentageOfCombinedKeywords(
             @RequestParam List<String> keywords) {
         try {
@@ -163,5 +287,4 @@ public class MovieAnalyticsController {
                     .body(new ResponseWrapper<>("Error searching keywords: " + e.getMessage(), null));
         }
     }
-
 }
