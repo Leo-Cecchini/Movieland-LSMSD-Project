@@ -19,11 +19,21 @@ public interface CelebrityMongoDBRepository extends MongoRepository<CelebrityMon
 
     //FIND ACTORS BY NAME OR CHARACTERS
     @Aggregation(pipeline = {
+            "{ $match: { $text: { $search: '?0' } } }",
+            "{ $addFields: { score: { $meta: 'textScore' } } }",
             "{ $unwind: '$jobs' }",
-            "{ $match: { $or: [ { 'name': { $regex: ?0, $options: 'i' } }, { 'jobs.character': { $regex: ?0, $options: 'i' } } ] } }",
-            "{ $group: { _id: '$_id', name: { $first: '$name' }, jobs: { $push: '$jobs' }, followers: { $first: '$followers' }, poster: { $first: '$poster' } } }",
+            "{ $group: { " +
+                    "_id: '$_id', " +
+                    "name: { $first: '$name' }, " +
+                    "jobs: { $push: '$jobs' }, " +
+                    "followers: { $first: '$followers' }, " +
+                    "poster: { $first: '$poster' }, " +
+                    "score: { $first: '$score' }, " +
+                    "imdb_score: { $first: '$imdb_score' } } }",
+            "{ $sort: { score: -1, imdb_score: -1 } }",
+            "{ $project: { " + "name: 1, " + "jobs: 1, " + "followers: 1, " + "poster: 1 " + "} }",
             "{ $limit: 10 }"
-        })
+    })
     List<CelebrityMongoDB> searchActorsAndCharacters(String searchTerm);
 
     @Query("{ '_id': ?0 }")

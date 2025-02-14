@@ -1,6 +1,8 @@
 package it.unipi.movieland.controller.Movie;
 
 import it.unipi.movieland.dto.*;
+import it.unipi.movieland.model.CountryEnum;
+import it.unipi.movieland.model.GenreEnum;
 import it.unipi.movieland.model.PlatformEnum;
 import it.unipi.movieland.model.TitleTypeEnum;
 import it.unipi.movieland.service.Movie.*;
@@ -56,10 +58,10 @@ public class MovieController {
     public ResponseEntity<ResponseWrapper<Page<SearchTitleDTO>>> getMovieByTitleOrKeywordWithFilters(
             @RequestParam("type") TitleTypeEnum type,
             @RequestParam("label") Optional<String> label,
-            @RequestParam("genre") Optional<List<String>> genre,
+            @RequestParam("genre") Optional<List<GenreEnum>> genre,
             @RequestParam("release_year") Optional<Integer> release_year,
             @RequestParam("platform") Optional<PlatformEnum> platform,
-            @RequestParam("production_countries") Optional<String> production_countries,
+            @RequestParam("production_countries") Optional<CountryEnum> production_countries,
             @RequestParam("age_certification") Optional<String> age_certification,
             @RequestParam("imdb_votes") Optional<Integer> imdb_votes,
             @RequestParam("imdb_scores") Optional<Integer> imdb_scores,

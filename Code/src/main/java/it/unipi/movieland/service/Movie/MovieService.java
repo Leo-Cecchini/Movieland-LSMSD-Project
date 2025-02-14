@@ -48,10 +48,10 @@ public class MovieService {
 
     public Page<SearchTitleDTO> getTitleWithFilters(TitleTypeEnum type,
                                                     Optional<String> label,
-                                                    Optional<List<String>> genre,
+                                                    Optional<List<GenreEnum>> genre,
                                                     Optional<Integer> release_year,
                                                     Optional<PlatformEnum> platform,
-                                                    Optional<String> production_countries,
+                                                    Optional<CountryEnum> production_countries,
                                                     Optional<String> age_certification,
                                                     Optional<Integer> imdb_scores,
                                                     Optional<Integer> imdb_votes,

@@ -2,11 +2,14 @@ package it.unipi.movieland.repository.Movie;
 
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.movieland.dto.*;
+import it.unipi.movieland.model.CountryEnum;
+import it.unipi.movieland.model.GenreEnum;
 import it.unipi.movieland.model.Movie.MovieCelebrity;
 import it.unipi.movieland.model.Movie.Movie;
 import it.unipi.movieland.model.PlatformEnum;
 import it.unipi.movieland.model.TitleTypeEnum;
 import it.unipi.movieland.service.exception.BusinessException;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,6 +35,36 @@ public class MovieMongoDBImplementation {
 
     public Page<SearchTitleDTO> getTitleByTitleOrKeyword(TitleTypeEnum type, String label, Pageable pageable) throws BusinessException {
         try {
+            MatchOperation matchOperation = Aggregation.match(
+                    Criteria.where("$text").is(new Document("$search", label)).and("type").is(type)
+            );
+
+            ProjectionOperation addScoreField = Aggregation.project("_id", "title", "release_year", "poster_path", "imdb_score")
+                    .andExpression("{$meta: 'textScore'}").as("score");
+
+            SortOperation sortOperation = Aggregation.sort(
+                    org.springframework.data.domain.Sort.by(
+                            org.springframework.data.domain.Sort.Order.desc("score"),
+                            org.springframework.data.domain.Sort.Order.desc("imdb_score")
+                    )
+            );
+
+            ProjectionOperation finalProjection = Aggregation.project("_id", "title", "release_year", "poster_path", "imdb_score");
+
+            Aggregation aggregation = Aggregation.newAggregation(
+                    matchOperation,
+                    addScoreField,
+                    sortOperation,
+                    finalProjection,
+                    Aggregation.skip((long) pageable.getOffset()),
+                    Aggregation.limit(pageable.getPageSize())
+            );
+
+            AggregationResults<SearchTitleDTO> results = mongoTemplate.aggregate(aggregation, "Movies", SearchTitleDTO.class);
+            List<SearchTitleDTO> movies = results.getMappedResults();
+
+            return new PageImpl<>(movies, pageable, movies.size());
+            /*
             //in case label has multiple words (ex. "star wars")
             String[] words = label.split("\\s+"); // Divide the string by spaces (even consecutive spaces)
             String regex = String.join(".*", words); //add .* prefix for regex
@@ -58,7 +91,7 @@ public class MovieMongoDBImplementation {
             );
             List<SearchTitleDTO> queryResults = mongoTemplate.aggregate(aggregation, "Movies", SearchTitleDTO.class).getMappedResults();
             long total = mongoTemplate.count(Query.query(combinedCriteria), "Movies");
-            return new PageImpl<>(queryResults, pageable, total);
+            return new PageImpl<>(queryResults, pageable, total);*/
         } catch (Exception e) {
             throw new BusinessException("Error retrieving titles", e);
         }
@@ -66,10 +99,10 @@ public class MovieMongoDBImplementation {
 
     public Page<SearchTitleDTO> getTitlewithFilters(TitleTypeEnum type,
             Optional<String> label,
-            Optional<List<String>> genre,
+            Optional<List<GenreEnum>> genres,
             Optional<Integer> release_year,
             Optional<PlatformEnum> platform,
-            Optional<String> production_countries,
+            Optional<CountryEnum> production_countries,
             Optional<String> age_certification,
             Optional<Integer> imdb_scores,
             Optional<Integer> imdb_votes,
@@ -77,6 +110,74 @@ public class MovieMongoDBImplementation {
     ) throws BusinessException {
 
         try {
+            List<Criteria> criteriaList = new ArrayList<>();
+
+            // Base criteria for type
+            criteriaList.add(Criteria.where("type").is(type));
+
+            // Add optional criteria only if they are present
+            genres.ifPresent(g -> criteriaList.add(Criteria.where("genres").all(g)));
+            release_year.ifPresent(y -> criteriaList.add(Criteria.where("release_year").is(y)));
+            platform.ifPresent(p -> criteriaList.add(Criteria.where("platform").is(p.getDisplayName())));
+            production_countries.ifPresent(pc -> criteriaList.add(Criteria.where("production_countries").is(pc)));
+            age_certification.ifPresent(ac -> criteriaList.add(Criteria.where("age_certification").is(ac)));
+            imdb_scores.ifPresent(score -> criteriaList.add(Criteria.where("imdb_score").gte(score)));
+            imdb_votes.ifPresent(votes -> criteriaList.add(Criteria.where("imdb_votes").gte(votes)));
+
+            // Handle text search for label if present
+            if (label.isPresent() && !label.get().isEmpty()) {
+                criteriaList.add(Criteria.where("$text").is(label.get()));
+            }
+
+            // Create the match operation with all criteria
+            Criteria combinedCriteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[0]));
+            MatchOperation matchOperation = Aggregation.match(combinedCriteria);
+
+            // Project fields and add text score
+            ProjectionOperation addScoreField = Aggregation.project()
+                    .and("_id").as("_id")
+                    .and("title").as("title")
+                    .and("release_year").as("release_year")
+                    .and("poster_path").as("poster_path")
+                    .and("imdb_score").as("imdb_score")
+                    .and("textScore").as("score");
+
+            // Sort by text score and imdb_score
+            SortOperation sortOperation = Aggregation.sort(
+                    Sort.by(Sort.Direction.DESC, "score", "imdb_score")
+            );
+
+            // Final projection to clean up output
+            ProjectionOperation finalProjection = Aggregation.project()
+                    .and("_id").as("_id")
+                    .and("title").as("title")
+                    .and("release_year").as("release_year")
+                    .and("poster_path").as("poster_path")
+                    .and("imdb_score").as("imdb_score");
+
+            // Count total matches for pagination
+            Aggregation countAggregation = Aggregation.newAggregation(matchOperation);
+            AggregationResults<Document> countResults = mongoTemplate.aggregate(
+                    countAggregation, "Movies", Document.class);
+            long total = countResults.getMappedResults().size();
+
+            // Build final aggregation with pagination
+            Aggregation aggregation = Aggregation.newAggregation(
+                    matchOperation,
+                    addScoreField,
+                    sortOperation,
+                    finalProjection,
+                    Aggregation.skip(pageable.getOffset()),
+                    Aggregation.limit(pageable.getPageSize())
+            );
+
+            AggregationResults<SearchTitleDTO> results = mongoTemplate.aggregate(
+                    aggregation, "Movies", SearchTitleDTO.class);
+            List<SearchTitleDTO> movies = results.getMappedResults();
+
+            return new PageImpl<>(movies, pageable, total);
+
+            /*
             Criteria criteria = Criteria.where("type").is(type);
             List<Criteria> additionalCriteria = new ArrayList<>();
 
@@ -119,6 +220,7 @@ public class MovieMongoDBImplementation {
             List<SearchTitleDTO> queryResults = mongoTemplate.aggregate(aggregation, "Movies", SearchTitleDTO.class).getMappedResults();
             long total = mongoTemplate.count(Query.query(criteria), "Movies");
             return new PageImpl<>(queryResults, pageable, total);
+             */
         } catch (Exception e) {
             throw new BusinessException("Error retrieving titles", e);
         }
