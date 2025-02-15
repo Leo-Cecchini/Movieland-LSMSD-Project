@@ -63,11 +63,11 @@ public interface UserMongoDBRepository extends MongoRepository<UserMongoDB, Stri
     void removeFromLikedMovies(String userId, List<UserMovie> movies);
 
     @Aggregation(pipeline = {
-            "{ $match: { _id: ?0 } }", // Trova l'utente tramite userId
+            "{ $match: { _id: ?0 } }",
             "{ $lookup: { from: 'Celebrities', let: { celebrityId: ?1 }, pipeline: [ { $match: { $expr: { $eq: ['$_id', '$$celebrityId'] } } } ], as: 'followedCelebrity' } }",
-            "{ $set: { followedCelebrity: { $first: '$followedCelebrity' } } }", // Prende il primo (e unico) film trovato
-            "{ $set: { followed_celebrities: { $concatArrays: ['$followed_celebrities', [{ person_id: '$followedCelebrity._id', name: '$followedCelebrity.name'}]] } } }",
-            "{ $set: { followed_celebrities: { $slice: ['$followed_celebrities', -5] } } }", // Mantieni solo gli ultimi 5 film
+            "{ $set: { followedCelebrity: { $first: '$followedCelebrity' } } }",
+            "{ $set: { followed_celebrities: { $concatArrays: ['$followed_celebrities', [{ person_id: '$followedCelebrity._id', name: '$followedCelebrity.name', poster: '$followedCelebrity.Poster'}]] } } }",
+            "{ $set: { followed_celebrities: { $slice: ['$followed_celebrities', -5] } } }",
             "{ $merge: { into: 'Users', whenMatched: 'merge', whenNotMatched: 'insert' } }"
     })
     void addToFollowedCelebrities(String userId, int celebrityId);

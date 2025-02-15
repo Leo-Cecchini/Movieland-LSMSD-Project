@@ -3,7 +3,6 @@ package it.unipi.movieland.model.User;
 import it.unipi.movieland.model.CountryEnum;
 import it.unipi.movieland.model.GenderEnum;
 import it.unipi.movieland.model.GenreEnum;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
