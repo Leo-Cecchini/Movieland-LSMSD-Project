@@ -114,6 +114,10 @@ public class MovieMongoDBImplementation {
 
             // Base criteria for type
             criteriaList.add(Criteria.where("type").is(type));
+            // Handle text search for label if present
+            if (label.isPresent() && !label.get().isEmpty()) {
+                criteriaList.add(Criteria.where("$text").is(new Document("$search", label.get())));
+            }
 
             // Add optional criteria only if they are present
             genres.ifPresent(g -> criteriaList.add(Criteria.where("genres").all(g)));
@@ -123,11 +127,6 @@ public class MovieMongoDBImplementation {
             age_certification.ifPresent(ac -> criteriaList.add(Criteria.where("age_certification").is(ac)));
             imdb_scores.ifPresent(score -> criteriaList.add(Criteria.where("imdb_score").gte(score)));
             imdb_votes.ifPresent(votes -> criteriaList.add(Criteria.where("imdb_votes").gte(votes)));
-
-            // Handle text search for label if present
-            if (label.isPresent() && !label.get().isEmpty()) {
-                criteriaList.add(Criteria.where("$text").is(label.get()));
-            }
 
             // Create the match operation with all criteria
             Criteria combinedCriteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[0]));
@@ -140,7 +139,7 @@ public class MovieMongoDBImplementation {
                     .and("release_year").as("release_year")
                     .and("poster_path").as("poster_path")
                     .and("imdb_score").as("imdb_score")
-                    .and("textScore").as("score");
+                    .andExpression("{$meta: 'textScore'}").as("score");
 
             // Sort by text score and imdb_score
             SortOperation sortOperation = Aggregation.sort(

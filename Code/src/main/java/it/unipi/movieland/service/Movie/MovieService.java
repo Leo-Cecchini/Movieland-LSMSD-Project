@@ -113,7 +113,6 @@ public class MovieService {
         if(response == null){ //api error
             return 2;
         }
-        System.out.println(response);
         //parsing the response to a json object
         JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
         //creating an array of json object because I can have a list of more than one title

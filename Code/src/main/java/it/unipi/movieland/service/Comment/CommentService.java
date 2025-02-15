@@ -1,21 +1,22 @@
 package it.unipi.movieland.service.Comment;
 
-import it.unipi.movieland.repository.Post.PostMongoDBRepository;
-import it.unipi.movieland.repository.User.UserMongoDBRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-import it.unipi.movieland.model.Comment.Comment;
-import it.unipi.movieland.repository.Comment.CommentMongoDBRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import it.unipi.movieland.model.Comment.Comment;
+import it.unipi.movieland.repository.Post.PostMongoDBRepository;
+import it.unipi.movieland.repository.User.UserMongoDBRepository;
+import it.unipi.movieland.repository.Comment.CommentMongoDBRepository;
 
 @Service
 public class CommentService {
@@ -31,38 +32,37 @@ public class CommentService {
         this.postRepository = postRepository;
     }
 
-    //METODO PER CREARE UN COMMENTO
+    //METHOD TO CREATE A COMMENT
     public Comment createComment(String text, String authorId,String postId) {
 
         if (!userRepository.existsById(authorId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author with id : " + authorId + " not found.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "AUTHOR WITH ID : " + authorId + " NOT FOUND.");
         }
 
         if (!postRepository.existsById(postId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post with id :" + postId + "not found.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "POST WITH ID :" + postId + "NOT FOUND.");
         }
 
         Comment comment = new Comment(text,authorId,postId);
         return commentRepository.save(comment);
     }
 
-    //METODO PER RECUPERARE TUTTI I COMMENTI
+    //METHOD TO RETRIEVE ALL COMMENTS
     public Page<Comment> getAllComments(int page, int size) {
         return commentRepository.findAll(PageRequest.of(page, size));
     }
 
-    //METODO PER RECUPERARE UN COMMENTO PER ID
+    //METHOD TO RETRIEVE A COMMENT BY ID
     public Comment getCommentById(String id) {
         Optional<Comment> comment = commentRepository.findById(id);
 
         if (comment.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with ID " + id + " not found");
         }
-
         return comment.get();
     }
 
-    //METODO PER ELIMINARE UN COMMENTO PER ID
+    //METHOD TO DELETE A COMMENT BY ID
     public void deleteComment(String id) {
 
         Comment existingComment = commentRepository.findById(id)
@@ -71,7 +71,7 @@ public class CommentService {
         commentRepository.delete(existingComment);
     }
 
-    //METODO PER AGGIORNARE UN COMMENTO ESISTENTE
+    //METHOD TO UPDATE AN EXISTING COMMENT
     public Comment updateComment(String id, String text) {
 
         Comment existingComment = commentRepository.findById(id)
@@ -83,7 +83,7 @@ public class CommentService {
         return commentRepository.save(existingComment);
     }
 
-    //METODO PER OTTENERE I COMMENTO PER AUTORE
+    //METHOD TO GET COMMENTS BY AUTHOR
     public Page<Comment> getCommentsByAuthor(String authorId, int page, int size) {
 
         boolean userExists = userRepository.existsById(authorId);
@@ -103,13 +103,13 @@ public class CommentService {
         return comments;
     }
 
-    //METODO PER OTTENERE I COMMENTO PER DATA
+    //METHOD TO GET COMMENTS BY DATE
     public Page<Comment> getCommentsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         return commentRepository.findByDatetimeBetween(startDate, endDate, pageRequest);
     }
 
-    //METODO PER OTTENERE I COMMENTI TRAMITE ID DEL POST
+    //METHOD TO GET COMMENTS BY POST ID
     public Slice<Comment> getCommentsByPostId(ObjectId postId, int page, int size) {
         if (!postRepository.existsById(String.valueOf(postId))) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post with id :" + postId + "not found.");
@@ -119,3 +119,10 @@ public class CommentService {
         return commentRepository.findCommentsByPostId(postId, pageable);
     }
 }
+
+
+
+
+
+
+

@@ -1,9 +1,11 @@
 package it.unipi.movieland.model.Celebrity;
 
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.util.List;
 import java.util.ArrayList;
-//
+
 @Document(collection = "Celebrities")
 public class CelebrityMongoDB {
 
@@ -11,12 +13,13 @@ public class CelebrityMongoDB {
     private String name;
     private List <Job> jobs;
     private int followers;
+
+    @Field("poster")
     private String Poster;
 
     public CelebrityMongoDB() {
     }
 
-    //Costruttore parametrizzato
     public CelebrityMongoDB(int id, String name, String poster) {
         this._id = id;
         this.name = name;
@@ -25,11 +28,10 @@ public class CelebrityMongoDB {
         this.Poster = poster;
     }
 
-    //Getters e Setters
+    //GETTERS AND SETTERS
     public int getId() {
         return _id;
     }
-
     public void setId(int id) {
         this._id = id;
     }
@@ -37,7 +39,6 @@ public class CelebrityMongoDB {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -45,7 +46,6 @@ public class CelebrityMongoDB {
     public List<Job> getJobs() {
         return jobs;
     }
-
     public void setJobs(List<Job> jobs) {
         this.jobs = jobs;
     }
@@ -53,7 +53,6 @@ public class CelebrityMongoDB {
     public int getFollowers() {
         return followers;
     }
-
     public void setFollowers(int followers) {
         this.followers = followers;
     }
@@ -61,7 +60,6 @@ public class CelebrityMongoDB {
     public String getPoster() {
         return Poster;
     }
-
     public void setPoster(String poster) {
         this.Poster = poster;
     }
