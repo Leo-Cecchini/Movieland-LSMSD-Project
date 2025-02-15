@@ -57,7 +57,7 @@ public class CommentService {
         Optional<Comment> comment = commentRepository.findById(id);
 
         if (comment.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with ID " + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "COMMENT WITH ID " + id + " NOT FOUND");
         }
         return comment.get();
     }
@@ -66,7 +66,7 @@ public class CommentService {
     public void deleteComment(String id) {
 
         Comment existingComment = commentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with ID " + id + " not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "COMMENT WITH ID " + id + " NOT FOUND"));
 
         commentRepository.delete(existingComment);
     }
@@ -75,7 +75,7 @@ public class CommentService {
     public Comment updateComment(String id, String text) {
 
         Comment existingComment = commentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with ID " + id + " not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "COMMENT WITH ID " + id + " NOT FOUND"));
 
         existingComment.setText(text);
         existingComment.setDatetime(LocalDateTime.now());
@@ -90,7 +90,7 @@ public class CommentService {
 
         if (!userExists) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("Author with ID %s not found", authorId));
+                    String.format("AUTHOR WITH ID %s NOT FOUND", authorId));
         }
 
         PageRequest pageRequest = PageRequest.of(page, size);
@@ -98,7 +98,7 @@ public class CommentService {
 
         if (comments.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("No comments found for the author with ID %s", authorId));
+                    String.format("NO COMMENTS FOUND FOR THE AUTHOR WITH ID %s", authorId));
         }
         return comments;
     }
@@ -112,7 +112,7 @@ public class CommentService {
     //METHOD TO GET COMMENTS BY POST ID
     public Slice<Comment> getCommentsByPostId(ObjectId postId, int page, int size) {
         if (!postRepository.existsById(String.valueOf(postId))) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post with id :" + postId + "not found.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "POST WITH ID:" + postId + "NOT FOUND.");
         }
 
         Pageable pageable = PageRequest.of(page, size);

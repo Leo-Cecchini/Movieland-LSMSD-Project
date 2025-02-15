@@ -97,9 +97,7 @@ public class CelebrityController {
             @RequestParam String name,
             @RequestParam (required = false) String poster) {
         try {
-            if (poster == null) {
-                poster = null;
-            }
+
             String responseMessage = celebrityService.createCelebrityInBothDatabases(id, name, poster);
 
             Map<String, Object> response = new HashMap<>();

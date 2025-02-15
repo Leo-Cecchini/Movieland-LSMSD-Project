@@ -340,12 +340,12 @@ public class CelebrityService {
     @Transactional
     public ResponseEntity<Object> updateCelebrity(String personId, String name, String poster) {
         try {
-            int id = Integer.parseInt(personId); // Assumiamo che personId sia un numero
+            int id = Integer.parseInt(personId);
             CelebrityMongoDB mongoCelebrity = celebrityMongoRepository.findById(id).orElse(null);
 
             if (mongoCelebrity == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Celebrity with personId " + personId + " not found in MongoDB"));
+                        .body(Map.of("message", "CELEBRITY WITH ID " + personId + " NOT FOUND IN THE DATABASES"));
             }
 
             if (name != null && !name.trim().isEmpty()) {
@@ -362,10 +362,10 @@ public class CelebrityService {
 
             if (neo4jCelebrityOptional.isPresent()) {
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(Map.of("message", "Celebrity updated successfully in both MongoDB and Neo4j"));
+                        .body(Map.of("message", "CELEBRITY UPDATED SUCCESSFULLY IN BOTH DATABASES."));
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Map.of("message", "Failed to update celebrity in Neo4j"));
+                        .body(Map.of("message", "FAILED TO UPDATED CELEBRUTY IN NEO4J."));
             }
 
         } catch (Exception e) {
