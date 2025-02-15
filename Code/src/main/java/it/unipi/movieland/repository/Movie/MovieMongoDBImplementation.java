@@ -126,7 +126,7 @@ public class MovieMongoDBImplementation {
 
             // Handle text search for label if present
             if (label.isPresent() && !label.get().isEmpty()) {
-                criteriaList.add(Criteria.where("$text").is(label.get()));
+                criteriaList.add(Criteria.where("$text").is(new Document("$search", label.get())));
             }
 
             // Create the match operation with all criteria
@@ -140,7 +140,7 @@ public class MovieMongoDBImplementation {
                     .and("release_year").as("release_year")
                     .and("poster_path").as("poster_path")
                     .and("imdb_score").as("imdb_score")
-                    .and("textScore").as("score");
+                    .and("{$meta: 'textScore'}").as("score");
 
             // Sort by text score and imdb_score
             SortOperation sortOperation = Aggregation.sort(

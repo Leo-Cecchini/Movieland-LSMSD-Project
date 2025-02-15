@@ -5,10 +5,12 @@ import it.unipi.movieland.model.CountryEnum;
 import it.unipi.movieland.model.GenreEnum;
 import it.unipi.movieland.model.Movie.Movie;
 import it.unipi.movieland.model.TitleTypeEnum;
+import org.apache.commons.lang3.EnumUtils;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TitleDeserializer implements JsonDeserializer<Movie> {
     @Override
@@ -20,7 +22,7 @@ public class TitleDeserializer implements JsonDeserializer<Movie> {
         String description = getAsString(jsonObject, "description");
         Integer runtime = getAsInt(jsonObject, "runtime");
         String _id = getNestedAsString(jsonObject, "ids", "imdb");
-        TitleTypeEnum type = TitleTypeEnum.valueOf(getAsString(jsonObject, "type"));
+        TitleTypeEnum type = TitleTypeEnum.valueOf(Objects.requireNonNull(getAsString(jsonObject, "type")).toUpperCase());
 
         // imdb_score and imdb_votes
         Integer imdb_score = null;
@@ -42,7 +44,10 @@ public class TitleDeserializer implements JsonDeserializer<Movie> {
         if (jsonObject.has("genres")) {
             JsonArray genresArray = jsonObject.getAsJsonArray("genres");
             for (JsonElement genreElement : genresArray) {
-                genres.add(GenreEnum.valueOf(getAsString(genreElement.getAsJsonObject(), "title").toLowerCase()));
+                String genreStr = getAsString(genreElement.getAsJsonObject(), "title").toUpperCase();
+                if (EnumUtils.isValidEnum(GenreEnum.class, genreStr)) {
+                    genres.add(GenreEnum.valueOf(genreStr));
+                }
             }
         }
 
