@@ -2,6 +2,7 @@ package it.unipi.movieland.repository.Review;
 
 import it.unipi.movieland.model.GenreEnum;
 import it.unipi.movieland.model.Review.ReviewNeo4J;
+import it.unipi.movieland.model.User.UserNeo4J;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 
@@ -26,4 +27,7 @@ public interface ReviewNeo4JRepository extends Neo4jRepository<ReviewNeo4J,Strin
 
     @Query("RETURN EXISTS { MATCH (:User {username: $username})-[:REVIEW_LIKE]->(Review {review_id: $reviewId}) }")
     boolean isReviewLiked(String username, String reviewId);
+
+    @Query("MATCH (Review {review_id: $reviewId})<-[:REVIEW_LIKE]-(u:User) RETURN u")
+    List<UserNeo4J> findUserLikeReview(String reviewId);
 }
