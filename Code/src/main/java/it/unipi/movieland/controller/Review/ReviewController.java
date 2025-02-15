@@ -2,6 +2,7 @@ package it.unipi.movieland.controller.Review;
 
 import it.unipi.movieland.model.Review.ReviewMongoDB;
 import it.unipi.movieland.model.User.UserMongoDB;
+import it.unipi.movieland.model.User.UserNeo4J;
 import it.unipi.movieland.service.Review.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -128,6 +129,18 @@ public class ReviewController {
             } else {
                 return new ResponseEntity<>(reviews, HttpStatus.OK);
             }
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/id/{reviewId}/like")
+    public ResponseEntity<?> UserLikeReview(@PathVariable String reviewId) {
+        try {
+            List<UserNeo4J> users= reviewService.findUserLikeReview(reviewId);
+            return new ResponseEntity<>(users,HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (RuntimeException e) {
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

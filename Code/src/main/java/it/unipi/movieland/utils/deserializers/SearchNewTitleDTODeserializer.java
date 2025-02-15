@@ -12,7 +12,7 @@ public class SearchNewTitleDTODeserializer implements JsonDeserializer<SearchNew
         JsonObject jsonObject = json.getAsJsonObject();
         String title = jsonObject.has("title") && !jsonObject.get("title").isJsonNull() ? jsonObject.get("title").getAsString() : null;
         Integer year = jsonObject.has("year") && !jsonObject.get("year").isJsonNull() ? jsonObject.get("year").getAsInt() : null;
-        String type = jsonObject.has("type") && !jsonObject.get("type").isJsonNull() ? jsonObject.get("type").getAsString() : null;
+        String type = jsonObject.has("type") && !jsonObject.get("type").isJsonNull() ? jsonObject.get("type").getAsString().toUpperCase() : null;
 
         // handling imdbid "ids"
         String imdbId = null;

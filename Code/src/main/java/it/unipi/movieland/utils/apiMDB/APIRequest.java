@@ -19,15 +19,16 @@ public class APIRequest {
 
     public String getIdByTitle(String type, String title, Optional<Integer> year) throws IOException, InterruptedException {
         String baseUrl = "https://api.mdblist.com/search/";
-        String yearParam = (year.isPresent()) ? "&year=" + year : "";
+        String yearParam = (year.isPresent()) ? "&year=" + year.get() : "&";
         String apiKey = "9penwmkrxop9yv1nch91du21l";
         //creating the url and the request
-        String requestUrl = String.format("%s%s?query=%s&apikey=%s%s",
+        String requestUrl = String.format("%s%s?query=%s%s&apikey=%s",
                 baseUrl,
                 type,
                 URLEncoder.encode(title, StandardCharsets.UTF_8),
-                apiKey,
-                yearParam);
+                yearParam,
+                apiKey
+        );
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(requestUrl))
                 .header("accept", "application/json")
