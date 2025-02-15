@@ -15,12 +15,12 @@ public class Comment {
     private String author;
     private ObjectId post_id;
 
-    // Costruttore predefinito
+
     public Comment() {
         this.datetime = LocalDateTime.now();
     }
 
-    // Costruttore parametrizzato
+
     public Comment(String text, String author, String post_id) {
         this.datetime = LocalDateTime.now();
         this.text = text;
@@ -28,7 +28,7 @@ public class Comment {
         this.post_id = new ObjectId(post_id); // Conversione della stringa a ObjectId
     }
 
-    // Getter e Setter
+    //GETTERS AND SETTERS
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

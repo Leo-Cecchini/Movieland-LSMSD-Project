@@ -1,21 +1,22 @@
 package it.unipi.movieland.controller.Comment;
 
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Parameter;
+import java.time.LocalDateTime;
+
 import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.service.Comment.CommentService;
 import it.unipi.movieland.repository.Post.PostMongoDBRepository;
 import it.unipi.movieland.repository.User.UserMongoDBRepository;
-import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Slice;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Page;
-import java.time.LocalDateTime;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/comments")
@@ -29,7 +30,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    //ENDPOINT PER CREARE UN COMMENTO (MONGODB)
+    //ENDPOINT TO CREATE A COMMENT (MONGODB)
     @PostMapping
     public Comment createComment(
             @RequestParam String text,
@@ -39,7 +40,7 @@ public class CommentController {
         return commentService.createComment(text,authorId,postId);
     }
 
-    //ENDPOINT PER RECUPERARE TUTTI I COMMENTI (MONGODB)
+    //ENDPOINT TO RETRIEVE ALL COMMENTS (MONGODB)
     @GetMapping
     public Page<Comment> getAllComments(
             @RequestParam(defaultValue = "0") int page,
@@ -48,7 +49,7 @@ public class CommentController {
         return commentService.getAllComments(page, size);
     }
 
-    //ENDPOINT PER RECUPERARE UN COMMENTO PER ID (MONGODB)
+    //ENDPOINT TO RETRIEVE A COMMENT BY ID (MONGODB)
     @GetMapping("/{id}")
     public Comment getCommentById(
             @PathVariable String id)
@@ -56,7 +57,7 @@ public class CommentController {
         return commentService.getCommentById(id);
     }
 
-    //ENDPOINT PER ELIMINARE UN COMMENTO PER ID (MONGODB)
+    //ENDPOINT TO DELETE A COMMENT BY ID (MONGODB)
     @DeleteMapping("/{id}")
     public void deleteComment(
             @PathVariable String id)
@@ -64,7 +65,7 @@ public class CommentController {
         commentService.deleteComment(id);
     }
 
-    //ENDPOINT PER MODIFICARE UN COMMENTO PER ID (MONGODB)
+    //ENDPOINT TO MODIFY A COMMENT BY ID (MONGODB)
     @PutMapping("/{id}")
     public Comment updateComment(
             @PathVariable String id,
@@ -73,7 +74,7 @@ public class CommentController {
         return commentService.updateComment(id, text);
     }
 
-    //ENDPOINT PER OTTENERE COMMENTI PER AUTORE CON PAGINAZIONE
+    //ENDPOINT TO GET COMMENTS BY AUTHOR WITH PAGINATION
     @GetMapping("/author/{author}")
     public Page<Comment> getCommentsByAuthor(
             @PathVariable String author,
@@ -83,7 +84,7 @@ public class CommentController {
         return commentService.getCommentsByAuthor(author, page, size);
     }
 
-    //ENDPOINT PER CERCARE I COMMENTI IN UN RANGE DI DATE
+    //ENDPOINT TO SEARCH COMMENTS WITHIN A DATE RANGE
     @GetMapping("/byDateRange")
     public Page<Comment> getCommentsByDateRange(
             @Parameter(description = "Start data in formato 'yyyy-MM-ddTHH:mm:ss'")
@@ -98,8 +99,7 @@ public class CommentController {
         return commentService.getCommentsByDateRange(startDate, endDate, page, size);
     }
 
-
-    //ENDPOINT PER OTTENERE I COMMENTI PER UN DETERMINATO POST
+    //ENDPOINT TO GET COMMENTS FOR A SPECIFIC POST
     @GetMapping("/post/{postId}")
     public Slice<Comment> getCommentsByPostId(
             @PathVariable String postId,
@@ -110,7 +110,4 @@ public class CommentController {
         ObjectId objectId = new ObjectId(postId);
         return commentService.getCommentsByPostId(objectId, page, size);
     }
-
-
-
 }

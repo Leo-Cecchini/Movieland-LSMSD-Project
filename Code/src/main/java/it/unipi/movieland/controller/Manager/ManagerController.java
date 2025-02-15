@@ -123,6 +123,20 @@ public class ManagerController {
         return reviewService.inconsistenciesNeo();
     }
 
+
+    @GetMapping("/inconsistency/celebrity/mongo")
+    public List<String> celebrityInconsistenciesMongo() {
+        return celebrityService.celebrityInconsistenciesMongo();
+    }
+
+    @GetMapping("/inconsistency/celebrity/neo")
+    public List<String> celebrityInconsistenciesNeo() {
+        return celebrityService.celebrityInconsistenciesNeo();
+    }
+
+
+    /*
+
     @GetMapping("/inconsistency/celebrity/mongo")
     public List<String> celebrityInconsistenciesMongo() {
         return celebrityService.inconsistenciesMongo();
@@ -131,6 +145,10 @@ public class ManagerController {
     public List<String> celebrityInconsistenciesNeo() {
         return celebrityService.inconsistenciesNeo();
     }
+
+
+
+     */
 
     @GetMapping("/inconsistency/movie/mongo")
     public List<String> movieInconsistenciesMongo() {

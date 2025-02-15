@@ -1,18 +1,24 @@
 package it.unipi.movieland.controller.Celebrity;
 
+import it.unipi.movieland.exception.CelebrityNotFoundException;
+import it.unipi.movieland.exception.CelebrityNotFoundInMongoException;
+import it.unipi.movieland.exception.CelebrityNotFoundInNeo4jException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import it.unipi.movieland.model.Celebrity.CelebrityMongoDB;
-import it.unipi.movieland.model.Celebrity.CelebrityNeo4J;
 import it.unipi.movieland.service.Celebrity.CelebrityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import java.util.List;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
+import it.unipi.movieland.dto.Celebrity.CelebrityNeo4JDto;
+import it.unipi.movieland.dto.Celebrity.CelebrityMongoDto;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/celebrities")
@@ -25,68 +31,91 @@ public class CelebrityController {
         this.celebrityService = celebrityService;
     }
 
-    //ENDPOINT PER RECUPERARE TUTTE LE CELEBRITY CON PAGINAZIONE (MONGODB)
+    //ENDPOINT TO RETRIEVE ALL CELEBRITIES WITH PAGINATION SUPPORT (MONGODB)
     @GetMapping("/mongo")
-    public Page<CelebrityMongoDB> getAllCelebritiesMongo(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "100") int size) {  // Default: 100 risultati per pagina
-        return celebrityService.getAllCelebritiesMongo(PageRequest.of(page, size));
+    public ResponseEntity<Page<CelebrityMongoDto>> getAllCelebritiesMongo(
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Max(100) int size) {
+
+        Page<CelebrityMongoDto> result = celebrityService.getAllCelebritiesMongo(PageRequest.of(page, size));
+        return ResponseEntity.ok(result);
     }
 
-    //ENDPOINT PER RECUPERARE TUTTE LE CELEBRITA' CON PAGINAZIONE (NEO4J)
+    //ENDPOINT TO RETRIEVE ALL CELEBRITIES WITH PAGINATION SUPPORT (NEO4J)
     @GetMapping("/neo4j")
-    public ResponseEntity<Page<CelebrityNeo4J>> getAllCelebrities(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<CelebrityNeo4JDto>> getAllCelebritiesNeo4J(
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Max(100) int size) {
 
-        Page<CelebrityNeo4J> response = celebrityService.getAllCelebrities(page, size);
-        return ResponseEntity.ok(response);
+        Page<CelebrityNeo4JDto> result = celebrityService.getAllCelebritiesNeo4J(PageRequest.of(page, size));
+        return ResponseEntity.ok(result);
     }
 
-    //ENDPOINT PER RECUPERARE UNA CELEBRITY PER PERSONID (NEO4J)
-    @GetMapping("/neo4j/{personId}")
-    public ResponseEntity<Object> getCelebrityById(@PathVariable("personId") String personId) {
-
-        Optional<CelebrityNeo4J> celebrity = celebrityService.getCelebrityByIdNeo4j(personId);
-
-        if (celebrity.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Celebrity with ID " + personId + " not found in the database"));
-        }
-        return ResponseEntity.ok(celebrity.get());
-    }
-
-    //ENDPOINT PER TROVARE UNA CELEBRITY PER ID (MONGODB)
+    //ENDPOINT TO RETRIEVE A CELEBRITY BY THEIR PERSON ID (MONGODB)
     @GetMapping("/mongo/{id}")
     public ResponseEntity<Object> getCelebrityByIdMongo(@PathVariable int id) {
-        Optional<CelebrityMongoDB> celebrity = celebrityService.getCelebrityByIdMongo(id);
-
-        if (celebrity.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Celebrity with ID " + id + " not found in the MongoDB database"));
+        try {
+            CelebrityMongoDto celebrityDto = celebrityService.getCelebrityByIdMongo(id);
+            return ResponseEntity.ok(celebrityDto);
+        } catch (CelebrityNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
-        return ResponseEntity.ok(celebrity.get());
     }
 
-    //ENDPOINT PER CREARE UNA CELEBRITY
+    //ENDPOINT TO RETRIEVE A CELEBRITY BY THEIR PERSON ID (NEO4J)
+    @GetMapping("/neo4j/{personId}")
+    public ResponseEntity<Object> getCelebrityByIdNeo4j(@PathVariable String personId) {
+        try
+        {
+            CelebrityNeo4JDto celebrityDto = celebrityService.getCelebrityByIdNeo4j(personId);
+            return ResponseEntity.ok(celebrityDto);
+        }
+        catch (CelebrityNotFoundException ex)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    // ENDPOINT TO SEARCH FOR A CELEBRITY BY KEYWORD OR NAME (MONGODB)
+    @GetMapping("/mongo/search for name or character")
+    public ResponseEntity<Object> searchMongo(@RequestParam String text) {
+        try
+        {
+            List<CelebrityMongoDto> celebrities = celebrityService.searchActorsByCharacterMongo(text);
+            return ResponseEntity.ok(celebrities);
+        }
+        catch (RuntimeException e)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    //ENDPOINT TO CREATE A CELEBRITY
     @PostMapping("/create")
     public ResponseEntity<Object> createCelebrity(
             @RequestParam int id,
             @RequestParam String name,
-            @RequestParam String poster) {
+            @RequestParam (required = false) String poster) {
         try {
+            if (poster == null) {
+                poster = null;
+            }
             String responseMessage = celebrityService.createCelebrityInBothDatabases(id, name, poster);
 
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", responseMessage);
+
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of("message", responseMessage));
+                    .body(response);
 
         } catch (Exception e) {
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to create celebrity", "details", e.getMessage()));
+                    .body(Map.of("error", "FAILED TO CREATE CELEBRITY", "details", e.getMessage()));
         }
     }
 
-    //ENDPOINT PER ELIMINARE UN CELEBRITA'
+    //ENDPOINT TO DELETE A CELEBRITY
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object> deleteCelebrityById(@PathVariable("id") int id) {
         try {
@@ -94,94 +123,62 @@ public class CelebrityController {
             celebrityService.deleteCelebrityNeo4j(id);
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(Map.of("message", "Celebrity with ID " + id + " has been deleted from both databases"));
+                    .body(Map.of("message", "CELEBRITY WITH ID " + id + " HAS BEEN DELETED FROM BOTH DATABASES"));
+
+        } catch (CelebrityNotFoundInMongoException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", ex.getMessage()));
+
+        } catch (CelebrityNotFoundInNeo4jException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", ex.getMessage()));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to delete celebrity from both databases", "details", e.getMessage()));
+                    .body(Map.of("error", "FAILED TO DELETE CELEBRITY FROM BOTH DATABASES", "details", e.getMessage()));
         }
     }
 
-    //ENDPOINT PER AGGIUNGERE I JOB AD UN ACTOR
-    @PostMapping("/{id}/jobs/actor")
-    public ResponseEntity<Object> addJobToActor(
+    //ENDPOINT TO ADD JOBS TO AN ACTOR
+    @PutMapping("/{id}/jobs/actor")
+    public ResponseEntity<Object> updateJobToActor(
             @PathVariable int id,
             @RequestParam String movie_id,
-            @RequestParam String movie_title,
             @RequestParam String character) {
 
-        // Chiamata al service per aggiungere il lavoro
-        boolean isJobAdded = celebrityService.addJobToActor(id, movie_id, movie_title, character);
-
-        if (isJobAdded) {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of("message", "Job added successfully to actor with ID " + id));
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Failed to add job to actor"));
-        }
+        return celebrityService.addJobToActor(id, movie_id, character);
     }
 
-    //ENDPOINT PER AGGIUNGERE I JOB AD UN DIRECTOR
-    @PostMapping("/{id}/jobs/director")  // Cambia il percorso da "/actor" a "/director"
-    public ResponseEntity<Object> addJobToDirector(
+    //ENDPOINT TO ADD JOBS TO A DIRECTOR
+    @PutMapping("/{id}/jobs/director")
+    public ResponseEntity<Object> updateJobToDirector(
             @PathVariable int id,
-            @RequestParam String movie_id,
-            @RequestParam String movie_title) {
+            @RequestParam String movie_id) {
 
-        boolean isJobAdded = celebrityService.addJobToDirector(id, movie_id, movie_title);
-
-        if (isJobAdded) {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of("message", "Job added successfully to director with ID " + id));
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Failed to add job to director"));
-        }
+        return celebrityService.addJobToDirector(id, movie_id);
     }
 
-    //ENDPOINT PER ELIMINARE UN JOB AD UN DIRETTORE O ATTORE
-    @DeleteMapping("/mongo/jobs/{jobId}")
-    public ResponseEntity<Object> deleteJobById(@PathVariable String jobId) {
-        boolean isJobRemoved = celebrityService.removeJobById(jobId);
+    //ENDPOINT TO DELETE A JOB FOR A DIRECTOR OR ACTOR
+    @DeleteMapping("/mongo/{celebrityId}/jobs/{jobId}")
+    public ResponseEntity<Object> deleteJobById(
+            @PathVariable int celebrityId,
+            @PathVariable String jobId) {
 
-        if (isJobRemoved) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)  // HTTP 204: No Content (successo senza corpo)
-                    .body(Map.of("message", "Job with ID " + jobId + " removed successfully"));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)  // HTTP 404: Not Found
-                    .body(Map.of("message", "Job with ID " + jobId + " not found"));
-        }
+        return celebrityService.removeJobById(celebrityId, jobId);
     }
 
+    //ENDPOINT TO GET A CELEBRITY'S JOBS
+    @GetMapping("/{id}/jobs")
+    public ResponseEntity<Object> getJobsForCelebrity(@PathVariable int id) {
+        return celebrityService.getJobsForCelebrity(id);
+    }
 
     //ENDPOINT FOR UPDATE THE CELEBRITY
     @PutMapping("/update/{personId}")
     public ResponseEntity<Object> updateCelebrity(
             @PathVariable String personId,
-            @RequestParam String name,
-            @RequestParam String poster) {
-
-        boolean isUpdated = celebrityService.updateCelebrity(personId, name, poster);
-
-        if (isUpdated) {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(Map.of("message", "Celebrity updated successfully in both MongoDB and Neo4j"));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Celebrity with personId " + personId + " not found in one or both databases"));
-        }
-    }
-
-    // ENDPOINT PER CERCARE UNA CELEBRITA' TRAMITE PAROLA CHIAVE O NOME (MONGODB)
-    @GetMapping("/mongo/search")
-    public List<CelebrityMongoDB> searchMongo(@RequestParam String query) {
-        return celebrityService.searchActorsByCharacterMongo(query);
-    }
-
-    //DA VERIFICARE ENDPOINT PER RACCOMANDARE LA CELEBRITA' TRAMITE CONNESSIONI DI SECONDO GRADO (NEO4J)
-    @GetMapping("/neo4j/recommend/actors/second-degree")
-    public List<Map<String, Object>> getSecondDegreeCelebrityRecommendations(@RequestParam String username) {
-        return celebrityService.getSecondDegreeCelebrityRecommendations(username);
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String poster) {
+        return celebrityService.updateCelebrity(personId, name, poster);
     }
 }
