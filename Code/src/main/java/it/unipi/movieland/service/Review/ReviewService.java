@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -29,6 +30,7 @@ public class ReviewService {
     @Autowired
     private MovieMongoDBRepository movieMongoDBRepository;
 
+    @Transactional
     public ReviewMongoDB addReview(String movieId, String userId, String txt, boolean sentiment) {
         if (!userMongoDBRepository.existsById(userId)) {
             throw new NoSuchElementException("User '" + userId + "' doesn't exists");
@@ -90,6 +92,7 @@ public class ReviewService {
         }
     }
 
+    @Transactional
     public void deleteReview(String id) {
         ReviewMongoDB review = getReviewById(id);
         if (review == null) {
@@ -105,6 +108,7 @@ public class ReviewService {
         }
     }
 
+    @Transactional
     public void updateReview(String id, String txt) {
         ReviewMongoDB review = getReviewById(id);
         if (review == null) {
@@ -120,6 +124,7 @@ public class ReviewService {
         }
     }
 
+    @Transactional
     public void likeReview(String id,String userId) {
         if (!reviewMongoRepository.existsById(id)) {
             throw new NoSuchElementException("Review '" + userId + "' doesn't exists");
@@ -136,6 +141,7 @@ public class ReviewService {
         }
     }
 
+    @Transactional
     public void unlikeReview(String id,String userId) {
         if (!reviewMongoRepository.existsById(id)) {
             throw new NoSuchElementException("Review '" + userId + "' doesn't exists");

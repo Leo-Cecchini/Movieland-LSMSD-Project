@@ -1,6 +1,5 @@
 package it.unipi.movieland.service.User;
 
-
 import it.unipi.movieland.dto.*;
 import it.unipi.movieland.model.CountryEnum;
 import it.unipi.movieland.model.GenderEnum;
@@ -20,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -65,6 +65,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public UserMongoDB addUser(String username, String email, String name, String surname, String password, CountryEnum country, String phoneNumber, List<GenreEnum> favoriteGenres, GenderEnum gender, LocalDate birthday) {
         if (mongoRepository.existsById(username) || neoRepository.existsById(username)) {
             throw new IllegalArgumentException("User '" + username + "' already exists");
@@ -84,6 +85,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void updateUser(String username, String name, String surname, CountryEnum country, String phoneNumber, List<GenreEnum> favoriteGenres, GenderEnum gender) {
         Optional<UserMongoDB> userOld = mongoRepository.findById(username);
         if (userOld.isEmpty()) {
@@ -110,6 +112,7 @@ public class UserService {
         return user.get();
     }
 
+    @Transactional
     public void deleteUser(String username) {
         if (!mongoRepository.existsById(username) && !neoRepository.existsById(username)) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");
@@ -150,6 +153,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void addToWatchlist(String username, String movieId) {
         if (!mongoRepository.existsById(username)) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");
@@ -165,6 +169,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void removeFromWatchlist(String username, String movieId) {
         if (!mongoRepository.existsById(username)) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");
@@ -191,6 +196,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void addLikedMovie(String username, String movieId) {
         if (!neoRepository.existsById(username)) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");
@@ -207,6 +213,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void removeLikedMovie(String username, String movieId) {
         if (!neoRepository.existsById(username)) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");
@@ -236,6 +243,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void addFollowedCelebrity(String username, int celebrityId) {
         if (!neoRepository.existsById(username)) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");
@@ -254,6 +262,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void removeFollowedCelebrity(String username, int celebrityId) {
         if (!neoRepository.existsById(username)) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");
@@ -297,6 +306,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void addFollowedUser(String username, String followedUsername) {
         if (!neoRepository.existsById(username)) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");
@@ -317,6 +327,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void removeFollowedUser(String username, String followedUsername) {
         if (!neoRepository.existsById(username)) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");

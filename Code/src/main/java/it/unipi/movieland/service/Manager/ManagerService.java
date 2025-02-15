@@ -2,14 +2,12 @@ package it.unipi.movieland.service.Manager;
 
 import it.unipi.movieland.model.Manager.Manager;
 import it.unipi.movieland.repository.Manager.ManagerRepository;
+import it.unipi.movieland.service.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -18,11 +16,7 @@ import java.util.Optional;
 public class ManagerService {
 
     public static String encrypt(String str, String secretKey) throws Exception {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
-        byte[] encryptedBytes = cipher.doFinal(str.getBytes(StandardCharsets.UTF_8));
-        return HexFormat.of().formatHex(encryptedBytes);
+        return UserService.encrypt(str, secretKey);
     }
 
     @Autowired
@@ -38,6 +32,7 @@ public class ManagerService {
         return manager.get();
     }
 
+    @Transactional
     public Manager addManager(String username, String email, String password) {
         if (managerRepository.existsById(username)) {
             throw new IllegalArgumentException("Manger '" + username + "' already exists");
@@ -55,6 +50,7 @@ public class ManagerService {
         }
     }
 
+    @Transactional
     public void deleteManager(String username) {
         if (!managerRepository.existsById(username)) {
             throw new NoSuchElementException("Manager '" + username + "' doesn't exists");
