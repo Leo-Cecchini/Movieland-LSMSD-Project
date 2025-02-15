@@ -1,5 +1,6 @@
 package it.unipi.movieland.service.Review;
 
+import it.unipi.movieland.dto.ReviewRatioDTO;
 import it.unipi.movieland.model.Review.ReviewMongoDB;
 import it.unipi.movieland.model.Review.ReviewNeo4J;
 import it.unipi.movieland.model.User.UserMongoDB;
@@ -169,6 +170,10 @@ public class ReviewService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<ReviewRatioDTO> findTopMoviesByReviewRatio(){
+        return reviewMongoRepository.findTopMoviesByReviewRatio();
     }
 
     public static List<String> findDifference(List<String> a, List<String> b) {

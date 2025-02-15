@@ -109,7 +109,7 @@ public interface UserMongoDBRepository extends MongoRepository<UserMongoDB, Stri
             "{ $unwind: '$matched_movies' }",
             "{ $sort: { 'matched_movies.match_score': -1, 'matched_movies.imdb_votes': -1 } }",
             "{ $group: { _id: '$_id',  recommended_movies: { $push: '$matched_movies' } } }",
-            "{ $project: { _id: 1, recommended_movies: { $slice: ['$recommended_movies', 10] } } }"
+            "{ $project: { _id: 1, recommended_movies: { $slice: ['$recommended_movies', 20] } } }"
     })
     GenreRecommendationsDTO recommendedMoviesGenre(String userId);
 

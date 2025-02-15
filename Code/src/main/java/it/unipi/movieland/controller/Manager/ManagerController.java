@@ -1,9 +1,6 @@
 package it.unipi.movieland.controller.Manager;
 
-import it.unipi.movieland.dto.ActorDTO;
-import it.unipi.movieland.dto.CombinedPercentageDTO;
-import it.unipi.movieland.dto.ResponseWrapper;
-import it.unipi.movieland.dto.StringCountDTO;
+import it.unipi.movieland.dto.*;
 import it.unipi.movieland.model.CountryEnum;
 import it.unipi.movieland.model.GenderEnum;
 import it.unipi.movieland.model.GenreEnum;
@@ -303,6 +300,16 @@ public class ManagerController {
         }catch(BusinessException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseWrapper<>("Error searching keywords: " + e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/analytics/movie-review-ratio")
+    public ResponseEntity<?> movieReviewRatio() {
+        try {
+            List<ReviewRatioDTO> movies = reviewService.findTopMoviesByReviewRatio();
+            return new ResponseEntity<>(movies, HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
