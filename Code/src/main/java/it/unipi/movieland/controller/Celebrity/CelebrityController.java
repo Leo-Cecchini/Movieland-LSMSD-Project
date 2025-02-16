@@ -94,7 +94,6 @@ public class CelebrityController {
     public ResponseEntity<Object> deleteCelebrityById(@PathVariable("id") int id) {
         try {
             celebrityService.deleteCelebrityInBothDatabases(id);
-            celebrityService.deleteCelebrityInBothDatabases(id);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(Map.of("message", "CELEBRITY WITH ID " + id + " HAS BEEN DELETED FROM BOTH DATABASES"));

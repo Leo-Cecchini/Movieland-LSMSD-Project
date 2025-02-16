@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import it.unipi.movieland.dto.PostActivityDTO;
 import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
+import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.model.Post.Post;
 import it.unipi.movieland.service.Post.PostService;
 import it.unipi.movieland.service.exception.BusinessException;
@@ -29,10 +30,19 @@ import java.util.Optional;
     public Post createPost(
             @RequestParam String text,
             @RequestParam String authorId,
-            @RequestParam String postId) {
+            @RequestParam String movieId) {
 
-        return postService.createPost(text,authorId,postId);
+        return postService.createPost(text,authorId,movieId);
     }
+
+        //ENDPOINT TO MODIFY A COMMENT BY ID (MONGODB)
+        @PutMapping("/{id}")
+        public Post updatePost(
+                @PathVariable String id,
+                @RequestParam String text)
+        {
+            return postService.updatePost(id, text);
+        }
 
     //ENDPOINT TO RETRIEVE ALL POST BY MOVIE ID
     @GetMapping("/movie/{movie_id}")

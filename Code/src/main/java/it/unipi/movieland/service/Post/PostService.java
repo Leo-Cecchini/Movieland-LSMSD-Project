@@ -49,6 +49,18 @@ public class PostService {
         return postMongoDBRepository.save(post);
     }
 
+    //METHOD TO UPDATE AN EXISTING COMMENT
+    public Post updatePost(String id, String text) {
+
+        Post existingPost = postMongoDBRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "POST WITH ID " + id + " NOT FOUND"));
+
+        existingPost.setText(text);
+        existingPost.setDatetime(LocalDateTime.now());
+
+        return postMongoDBRepository.save(existingPost);
+    }
+
 
     // Get post by id
     public Optional<Post> getPostById(String id) {
