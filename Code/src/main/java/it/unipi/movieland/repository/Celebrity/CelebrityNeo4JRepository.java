@@ -48,3 +48,5 @@ public interface CelebrityNeo4JRepository extends Neo4jRepository<CelebrityNeo4J
             "DELETE r")
     void removeDirectedInRelationship(String personId, String movieId);
 }
+
+

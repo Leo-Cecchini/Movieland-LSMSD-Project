@@ -27,5 +27,3 @@ public interface CommentMongoDBRepository extends MongoRepository<Comment, Strin
     })
     Slice<Comment> findCommentsByPostId(ObjectId postId, Pageable pageable);
 }
-
-

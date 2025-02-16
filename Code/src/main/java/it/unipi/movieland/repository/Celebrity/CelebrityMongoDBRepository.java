@@ -21,20 +21,16 @@ public interface CelebrityMongoDBRepository extends MongoRepository<CelebrityMon
 
     //FIND ACTORS BY NAME OR CHARACTER
     @Aggregation(pipeline = {
-            "{ $match: { $text: { $search: '?0' } } }",          // Match based on the search term
-            "{ $addFields: { score: { $meta: 'textScore' } } }",  // Add text score for relevance
-            "{ $unwind: '$jobs' }",                               // Unwind jobs array
+            "{ $match: { $text: { $search: '?0' } } }",
+            "{ $addFields: { score: { $meta: 'textScore' } } }",
+            "{ $unwind: '$jobs' }",
             "{ $group: { " +
-                    "_id: '$_id', " +
-                    "name: { $first: '$name' }, " +
-                    "jobs: { $push: '$jobs' }, " +
-                    "followers: { $first: '$followers' }, " +
-                    "poster: { $first: '$poster' }, " +
-                    "score: { $first: '$score' }, " +
-                    "imdb_score: { $first: '$imdb_score' } } }",  // Group by celebrity and aggregate info
-            "{ $sort: { score: -1, imdb_score: -1 } }",           // Sort by score and IMDB score
-            "{ $project: { name: 1, jobs: 1, followers: 1, poster: 1 } }",  // Select the fields to project
-            "{ $limit: 10 }"                                      // Limit the result to top 10
+                    "_id: '$_id', " + "name: { $first: '$name' }, " + "jobs: { $push: '$jobs' }, " +
+                    "followers: { $first: '$followers' }, " + "poster: { $first: '$poster' }, " +
+                    "score: { $first: '$score' }, " + "imdb_score: { $first: '$imdb_score' } } }",
+            "{ $sort: { score: -1, imdb_score: -1 } }",
+            "{ $project: { name: 1, jobs: 1, followers: 1, poster: 1 } }",
+            "{ $limit: 10 }"
     })
     List<CelebrityMongoDB> searchActorsAndCharacters(String searchTerm);
 

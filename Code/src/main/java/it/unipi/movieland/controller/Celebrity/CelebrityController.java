@@ -41,16 +41,6 @@ public class CelebrityController {
         return ResponseEntity.ok(result);
     }
 
-    //ENDPOINT TO RETRIEVE ALL CELEBRITIES WITH PAGINATION SUPPORT (NEO4J)
-    @GetMapping("/neo4j")
-    public ResponseEntity<Page<CelebrityNeo4JDto>> getAllCelebritiesNeo4J(
-            @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "10") @Max(100) int size) {
-
-        Page<CelebrityNeo4JDto> result = celebrityService.getAllCelebritiesNeo4J(PageRequest.of(page, size));
-        return ResponseEntity.ok(result);
-    }
-
     //ENDPOINT TO RETRIEVE A CELEBRITY BY THEIR PERSON ID (MONGODB)
     @GetMapping("/mongo/{id}")
     public ResponseEntity<Object> getCelebrityByIdMongo(@PathVariable int id) {
@@ -59,20 +49,6 @@ public class CelebrityController {
             return ResponseEntity.ok(celebrityDto);
         } catch (CelebrityNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        }
-    }
-
-    //ENDPOINT TO RETRIEVE A CELEBRITY BY THEIR PERSON ID (NEO4J)
-    @GetMapping("/neo4j/{personId}")
-    public ResponseEntity<Object> getCelebrityByIdNeo4j(@PathVariable String personId) {
-        try
-        {
-            CelebrityNeo4JDto celebrityDto = celebrityService.getCelebrityByIdNeo4j(personId);
-            return ResponseEntity.ok(celebrityDto);
-        }
-        catch (CelebrityNotFoundException ex)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
         }
     }
 
@@ -117,8 +93,8 @@ public class CelebrityController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object> deleteCelebrityById(@PathVariable("id") int id) {
         try {
-            celebrityService.deleteCelebrityMongo(id);
-            celebrityService.deleteCelebrityNeo4j(id);
+            celebrityService.deleteCelebrityInBothDatabases(id);
+            celebrityService.deleteCelebrityInBothDatabases(id);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(Map.of("message", "CELEBRITY WITH ID " + id + " HAS BEEN DELETED FROM BOTH DATABASES"));

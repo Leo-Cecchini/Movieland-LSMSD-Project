@@ -3,12 +3,17 @@ package it.unipi.movieland.service.Post;
 import it.unipi.movieland.dto.PostActivityDTO;
 import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
+import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.model.Post.Post;
 import it.unipi.movieland.repository.Post.PostMongoDBRepository;
+import it.unipi.movieland.repository.User.UserMongoDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,8 +22,26 @@ import java.util.Optional;
 @Service
 public class PostService {
 
+    private final UserMongoDBRepository userRepository;
+    private final PostMongoDBRepository postMongoDBRepository;
+
+
     @Autowired
-    private PostMongoDBRepository postMongoDBRepository;
+    public PostService(PostMongoDBRepository postMongoDBRepository,UserMongoDBRepository userRepository) {
+
+        this.userRepository = userRepository;
+        this.postMongoDBRepository = postMongoDBRepository;
+    }
+
+    //METHOD TO CREATE A POST
+    public Post createPost(String text, String author, String movieId) {
+        if (!userRepository.existsById(author)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "AUTHOR WITH ID : " + author + " NOT FOUND.");}
+
+        Post post = new Post(text,author,movieId,null);
+        return postMongoDBRepository.save(post);
+    }
+
 
     // Get post by id
     public Optional<Post> getPostById(String id) {
@@ -29,6 +52,7 @@ public class PostService {
     public Post addPost(Post post) {
         return postMongoDBRepository.save(post);
     }
+
 
     // Get posts by movieId
     public Page<PostDTO> getPostsByMovieId(String movie_id, int page, int size) {

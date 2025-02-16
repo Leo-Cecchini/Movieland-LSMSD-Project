@@ -34,15 +34,11 @@ public class CommentService {
 
     //METHOD TO CREATE A COMMENT
     public Comment createComment(String text, String authorId,String postId) {
-
         if (!userRepository.existsById(authorId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "AUTHOR WITH ID : " + authorId + " NOT FOUND.");
-        }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "AUTHOR WITH ID : " + authorId + " NOT FOUND.");}
 
         if (!postRepository.existsById(postId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "POST WITH ID :" + postId + "NOT FOUND.");
-        }
-
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "POST WITH ID :" + postId + "NOT FOUND.");}
         Comment comment = new Comment(text,authorId,postId);
         return commentRepository.save(comment);
     }

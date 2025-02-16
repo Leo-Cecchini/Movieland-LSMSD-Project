@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import it.unipi.movieland.dto.PostActivityDTO;
 import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
+import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.model.Post.Post;
 import it.unipi.movieland.service.Post.PostService;
 import it.unipi.movieland.service.exception.BusinessException;
@@ -24,6 +25,16 @@ import java.util.Optional;
     @Autowired
     private PostService postService;
 
+    //ENDPOINT TO CREATE A POST
+    @PostMapping
+    public Post createPost(
+            @RequestParam String text,
+            @RequestParam String author,
+            @RequestParam String movieId)
+    {
+        return postService.createPost(text,author,movieId);
+    }
+
     // Get all post by movie_id
     @GetMapping("/movie/{movie_id}")
     public Page<PostDTO> getPostsByMovieId(
@@ -39,18 +50,6 @@ import java.util.Optional;
         Optional<Post> post = postService.getPostById(id);
         return post.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    // Add new post
-    @PostMapping
-    public ResponseEntity<Post> addPost(
-            @RequestParam String movie_id,
-            @RequestParam String author,
-            @RequestParam String text,
-            @RequestParam LocalDateTime date) {
-        Post newPost = new Post(date, text, author, movie_id,null);
-        Post addedPost = postService.addPost(newPost);
-        return ResponseEntity.ok(addedPost);
     }
 
     // Delete post by id
