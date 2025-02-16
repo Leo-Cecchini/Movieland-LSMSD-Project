@@ -155,12 +155,15 @@ public class UserService {
 
     @Transactional
     public void addToWatchlist(String username, String movieId) {
-        if (!mongoRepository.existsById(username)) {
+        Optional<UserMongoDB> user = mongoRepository.findById(username);
+        if (user.isEmpty()) {
             throw new NoSuchElementException("User '" + username + "' doesn't exists");
-        } else if (!movieMongoRepository.existsById(movieId)) {
-            throw new NoSuchElementException("Movie '" + movieId + "' doesn't exists");
+        } else if (user.get().getWatchlist().size()>20) {
+            throw new IllegalArgumentException("Can't have more than 20 movies in the watchlist");
         } else if  (mongoRepository.isMovieInWatchlist(username, movieId)) {
             throw new IllegalArgumentException("Movie '" + movieId + "' is already in the watchlist");
+        } else if (!movieMongoRepository.existsById(movieId)) {
+            throw new NoSuchElementException("Movie '" + movieId + "' doesn't exists");
         }
         try {
             mongoRepository.addToWatchlist(username,movieId);

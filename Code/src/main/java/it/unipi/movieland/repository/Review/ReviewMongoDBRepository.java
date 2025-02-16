@@ -1,6 +1,7 @@
 package it.unipi.movieland.repository.Review;
 
 import it.unipi.movieland.dto.ListIdDTO;
+import it.unipi.movieland.dto.ReviewRatioDTO;
 import it.unipi.movieland.model.Review.ReviewMongoDB;
 import it.unipi.movieland.model.User.UserReview;
 import org.springframework.data.mongodb.repository.Aggregation;
@@ -60,5 +61,13 @@ public interface ReviewMongoDBRepository extends MongoRepository<ReviewMongoDB, 
     })
     ListIdDTO findAllCommentIds();
 
-
+    @Aggregation({
+            "{ $group: { _id: '$movie_id', positiveReviews: { $sum: { $cond: [ { $eq: ['$sentiment', true] }, 1, 0 ] } }, totalReviews: { $sum: 1 } } }",
+            "{ $sort: { totalReviews: -1 } }",
+            "{ $limit: 500 }",
+            "{ $project: { id: '$_id',positiveReviews: 1, totalReviews: 1, ratio: { $cond: { if: { $eq: ['$totalReviews', 0] }, then: 0, else: { $divide: ['$positiveReviews', '$totalReviews'] } } } } }",
+            "{ $sort: { ratio: -1 } }",
+            "{ $limit: 10 }"
+    })
+    List<ReviewRatioDTO> findTopMoviesByReviewRatio();
 }
