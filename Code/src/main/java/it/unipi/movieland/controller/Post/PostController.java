@@ -48,7 +48,7 @@ import java.util.Optional;
             @RequestParam String author,
             @RequestParam String text,
             @RequestParam LocalDateTime date) {
-        Post newPost = new Post(date, text, author, movie_id,null);
+        Post newPost = new Post(date, text, author, movie_id);
         Post addedPost = postService.addPost(newPost);
         return ResponseEntity.ok(addedPost);
     }

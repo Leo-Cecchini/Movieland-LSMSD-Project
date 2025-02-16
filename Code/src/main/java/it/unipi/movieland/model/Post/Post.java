@@ -19,12 +19,14 @@ public class Post {
     private String movieId;
 
     // COSTRUTTORE PARAMETRIZZATO
-    public Post( LocalDateTime datetime, String text, String author, String movieId, List<Comment> comment) {
+    public Post( LocalDateTime datetime, String text, String author, String movieId) {
         this.datetime = datetime;
         this.text = text;
         this.author = author;
         this.movieId = movieId;
     }
+
+    public Post() {}
 
     //GETTER E SETTER
     public String get_id() {
