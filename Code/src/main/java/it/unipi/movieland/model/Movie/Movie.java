@@ -185,6 +185,9 @@ public class Movie {
         this.actors = actors;
     }
 
+    public List<MovieCelebrity> getDirectors() {return directors;}
+    public void setDirectors(List<MovieCelebrity> directors) {this.directors = directors;}
+
     public Double getRevenue() {
         return revenue;
     }
