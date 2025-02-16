@@ -28,4 +28,23 @@ public interface CelebrityNeo4JRepository extends Neo4jRepository<CelebrityNeo4J
     //NEW METHOD TO GET ALL IDs OF CELEBRITIES
     @Query("MATCH (c:Celebrity) RETURN c.person_id")
     List<String> findAllIds();
+
+    //ADD ACTED_IN
+    @Query("MATCH (c:Celebrity {person_id: $personId}), (m:Movie {imdb_id: $movieId}) " +
+            "MERGE (c)-[:ACTED_IN {character: $character}]->(m)")
+    void addActedInRelationship(String personId, String movieId, String character);
+
+    //ADD DIRECTED_IN
+    @Query("MATCH (c:Celebrity {person_id: $personId}), (m:Movie {imdb_id: $movieId}) " +
+            "MERGE (c)-[:DIRECTED_IN]->(m)")
+    void addDirectorInRelationship(String personId, String movieId);
+
+    //REMOVE ACTED_IN
+    @Query("MATCH (c:Celebrity {person_id: $personId})-[r:ACTED_IN]->(m:Movie {imdb_id: $movieId}) DELETE r")
+    void removeActedInRelationship(String personId, String movieId);
+
+    //REMOVE DIRECTED_IN
+    @Query("MATCH (c:Celebrity {person_id: $personId})-[r:DIRECTED_IN]->(m:Movie {imdb_id: $movieId}) " +
+            "DELETE r")
+    void removeDirectedInRelationship(String personId, String movieId);
 }
