@@ -32,7 +32,7 @@ public interface PostMongoDBRepository extends MongoRepository<Post, String> {
 
     @Aggregation(pipeline = {
             "{ $group: { _id: \"$author\", totalPosts: { $count: {} }, totalComments: { $sum: { $size: \"$comment\" } } } }",
-            "{ $addFields: { commentsPerPost: { $cond: { if: { $eq: [ \"$totalPosts\", 0 ] }, then: 0, else: { $divide: [ \"$totalComments\", \"$totalPosts\" ] } } } } }",
+            "{ $addFields: { commentsPerPost: { $cond: { if: { $eq: [ \"$totalPosts\", 0 ] }," + " then: 0, else: { $divide: [ \"$totalComments\", \"$totalPosts\" ] } } } } }",
             "{ $sort: { totalComments: -1, totalPosts: -1, commentsPerPost: -1 } }",
             "{ $project: { username: \"$_id\", totalPosts: 1, totalComments: 1, commentsPerPost: 1 } }"
     })

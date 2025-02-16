@@ -1,22 +1,22 @@
 package it.unipi.movieland.controller.Post;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import it.unipi.movieland.dto.PostActivityDTO;
-import it.unipi.movieland.dto.PostDTO;
-import it.unipi.movieland.dto.UserInfluencerDTO;
-import it.unipi.movieland.model.Comment.Comment;
-import it.unipi.movieland.model.Post.Post;
-import it.unipi.movieland.service.Post.PostService;
-import it.unipi.movieland.service.exception.BusinessException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import io.swagger.v3.oas.annotations.Parameter;
+
+import it.unipi.movieland.dto.PostActivityDTO;
+import it.unipi.movieland.dto.PostDTO;
+import it.unipi.movieland.dto.UserInfluencerDTO;
+import it.unipi.movieland.model.Post.Post;
+import it.unipi.movieland.service.Post.PostService;
+import it.unipi.movieland.service.exception.BusinessException;
 
     @RestController
     @RequestMapping("/posts")
@@ -35,14 +35,14 @@ import java.util.Optional;
         return postService.createPost(text,authorId,movieId);
     }
 
-        //ENDPOINT TO MODIFY A COMMENT BY ID (MONGODB)
-        @PutMapping("/{id}")
-        public Post updatePost(
-                @PathVariable String id,
-                @RequestParam String text)
-        {
-            return postService.updatePost(id, text);
-        }
+    //ENDPOINT TO MODIFY A COMMENT BY ID (MONGODB)
+    @PutMapping("/{id}")
+    public Post updatePost(
+            @PathVariable String id,
+            @RequestParam String text)
+    {
+        return postService.updatePost(id, text);
+    }
 
     //ENDPOINT TO RETRIEVE ALL POST BY MOVIE ID
     @GetMapping("/movie/{movie_id}")
@@ -56,22 +56,23 @@ import java.util.Optional;
 
     //ENDPOINT TO RETRIEVE A POST BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<Post> getPostById(@PathVariable String id) {
-        Optional<Post> post = postService.getPostById(id);
-        return post.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public Post getPostById(
+            @PathVariable String id)
+    {
+        return postService.getPostById(id);
     }
 
     //ENDPOINT TO DELETE A POST BY ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable String id) {
+    public void deletePost(
+            @PathVariable String id)
+    {
         postService.deletePost(id);
-        return ResponseEntity.noContent().build();
     }
 
     //ENDPOINT TO SEARCH POSTS WITHIN A DATE RANGE
     @GetMapping("/byDateRange")
-    public Page<PostDTO> getCommentsByDateRange(
+    public Page<PostDTO> getPostsByDateRange(
             @Parameter(description = "Start data in format 'yyyy-MM-ddTHH:mm:ss'")
             @RequestParam String startDate,
 
@@ -85,19 +86,17 @@ import java.util.Optional;
         LocalDateTime start = LocalDateTime.parse(startDate, formatter);
         LocalDateTime end = LocalDateTime.parse(endDate, formatter);
 
-        return postService.getCommentsByDateRange(start, end, page, size);
+        return postService.getPostsByDateRange(start, end, page, size);
         }
 
-
-
-    //activty report
+    //ENDPOINT
     @GetMapping("/activityReport")
     public ResponseEntity<List<PostActivityDTO>> getActivityReport() throws BusinessException {
         List<PostActivityDTO> activity = postService.getPostActivity();
         return ResponseEntity.ok(activity);
     }
 
-    //inlfuencer users
+    //ENDPOINT
     @GetMapping("/influencersReport")
     public ResponseEntity<List<UserInfluencerDTO>> getInfluencersReport() throws BusinessException {
         List<UserInfluencerDTO> influencers = postService.getInfluencersReport();
