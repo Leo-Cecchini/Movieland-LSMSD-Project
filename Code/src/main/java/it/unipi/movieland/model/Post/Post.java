@@ -18,9 +18,13 @@ public class Post {
     @Field("movie_id")
     private String movieId;
 
+    public Post() {
+        this.datetime = LocalDateTime.now();
+    }
+
     // COSTRUTTORE PARAMETRIZZATO
-    public Post( LocalDateTime datetime, String text, String author, String movieId, List<Comment> comment) {
-        this.datetime = datetime;
+    public Post(String text, String author, String movieId, List<Comment> comment) {
+        this.datetime = LocalDateTime.now();
         this.text = text;
         this.author = author;
         this.movieId = movieId;
@@ -34,12 +38,8 @@ public class Post {
         this._id = _id;
     }
 
-    public LocalDateTime getDatetime() {
-        return datetime;
-    }
-    public void setDatetime(LocalDateTime datetime) {
-        this.datetime = datetime;
-    }
+    public LocalDateTime getDatetime() { return datetime; }
+    public void setDatetime(LocalDateTime datetime) { this.datetime = datetime; }
 
     public String getText() {
         return text;

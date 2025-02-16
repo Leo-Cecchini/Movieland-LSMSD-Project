@@ -4,7 +4,9 @@ import it.unipi.movieland.dto.PostActivityDTO;
 import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
 import it.unipi.movieland.model.Comment.Comment;
+import it.unipi.movieland.model.Movie.Movie;
 import it.unipi.movieland.model.Post.Post;
+import it.unipi.movieland.repository.Movie.MovieMongoDBRepository;
 import it.unipi.movieland.repository.Post.PostMongoDBRepository;
 import it.unipi.movieland.repository.User.UserMongoDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,19 +26,24 @@ public class PostService {
 
     private final UserMongoDBRepository userRepository;
     private final PostMongoDBRepository postMongoDBRepository;
+    private final MovieMongoDBRepository movieMongoDBRepository;
 
 
     @Autowired
-    public PostService(PostMongoDBRepository postMongoDBRepository,UserMongoDBRepository userRepository) {
+    public PostService(PostMongoDBRepository postMongoDBRepository, UserMongoDBRepository userRepository, MovieMongoDBRepository movieMongoDBRepository) {
 
         this.userRepository = userRepository;
         this.postMongoDBRepository = postMongoDBRepository;
+        this.movieMongoDBRepository = movieMongoDBRepository;
     }
 
     //METHOD TO CREATE A POST
     public Post createPost(String text, String author, String movieId) {
         if (!userRepository.existsById(author)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "AUTHOR WITH ID : " + author + " NOT FOUND.");}
+
+        if(!movieMongoDBRepository.existsById(movieId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MOVIE WITH ID " + movieId + " NOT FOUND");}
 
         Post post = new Post(text,author,movieId,null);
         return postMongoDBRepository.save(post);

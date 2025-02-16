@@ -24,16 +24,27 @@ import java.util.Optional;
     @Autowired
     private PostService postService;
 
-    // Get all post by movie_id
+    //ENDPOINT TO CREATE A POST
+    @PostMapping
+    public Post createPost(
+            @RequestParam String text,
+            @RequestParam String authorId,
+            @RequestParam String postId) {
+
+        return postService.createPost(text,authorId,postId);
+    }
+
+    //ENDPOINT TO RETRIEVE ALL POST BY MOVIE ID
     @GetMapping("/movie/{movie_id}")
     public Page<PostDTO> getPostsByMovieId(
             @PathVariable String movie_id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+
         return postService.getPostsByMovieId(movie_id, page, size);
     }
 
-    // Get post by id
+    //ENDPOINT TO RETRIEVE A POST BY ID
     @GetMapping("/{id}")
     public ResponseEntity<Post> getPostById(@PathVariable String id) {
         Optional<Post> post = postService.getPostById(id);
@@ -41,24 +52,33 @@ import java.util.Optional;
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Add new post
-    @PostMapping
-    public ResponseEntity<Post> addPost(
-            @RequestParam String movie_id,
-            @RequestParam String author,
-            @RequestParam String text,
-            @RequestParam LocalDateTime date) {
-        Post newPost = new Post(date, text, author, movie_id);
-        Post addedPost = postService.addPost(newPost);
-        return ResponseEntity.ok(addedPost);
-    }
-
-    // Delete post by id
+    //ENDPOINT TO DELETE A POST BY ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable String id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
+
+    //ENDPOINT TO SEARCH POSTS WITHIN A DATE RANGE
+    @GetMapping("/byDateRange")
+    public Page<PostDTO> getCommentsByDateRange(
+            @Parameter(description = "Start data in format 'yyyy-MM-ddTHH:mm:ss'")
+            @RequestParam String startDate,
+
+            @Parameter(description = "End data in format 'yyyy-MM-ddTHH:mm:ss'")
+            @RequestParam String endDate,
+
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime start = LocalDateTime.parse(startDate, formatter);
+        LocalDateTime end = LocalDateTime.parse(endDate, formatter);
+
+        return postService.getCommentsByDateRange(start, end, page, size);
+        }
+
+
 
     //activty report
     @GetMapping("/activityReport")
@@ -73,24 +93,4 @@ import java.util.Optional;
         List<UserInfluencerDTO> influencers = postService.getInfluencersReport();
         return ResponseEntity.ok(influencers);
     }
-
-    // Get posts with date range
-    @GetMapping("/byDateRange")
-    public Page<PostDTO> getCommentsByDateRange(
-            @Parameter(description = "Start data in format 'yyyy-MM-ddTHH:mm:ss'")
-            @RequestParam String startDate,
-
-            @Parameter(description = "End data in format 'yyyy-MM-ddTHH:mm:ss'")
-            @RequestParam String endDate,
-
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        LocalDateTime start = LocalDateTime.parse(startDate, formatter);
-        LocalDateTime end = LocalDateTime.parse(endDate, formatter);
-        return postService.getCommentsByDateRange(start, end, page, size);
-    }
-
-
 }

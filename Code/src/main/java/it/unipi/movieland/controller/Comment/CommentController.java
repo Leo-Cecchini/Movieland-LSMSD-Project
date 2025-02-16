@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 
 import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.service.Comment.CommentService;
-import it.unipi.movieland.repository.Post.PostMongoDBRepository;
-import it.unipi.movieland.repository.User.UserMongoDBRepository;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +23,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @Autowired
-    public CommentController(CommentService commentService, UserMongoDBRepository userRepository, PostMongoDBRepository postRepository)
+    public CommentController(CommentService commentService)
     {
         this.commentService = commentService;
     }
@@ -49,7 +47,7 @@ public class CommentController {
         return commentService.getAllComments(page, size);
     }
 
-    //ENDPOINT TO RETRIEVE A COMMENT BY ID (MONGODB)
+    //ENDPOINT TO RETRIEVE A COMMENT BY ID
     @GetMapping("/{id}")
     public Comment getCommentById(
             @PathVariable String id)
@@ -57,7 +55,7 @@ public class CommentController {
         return commentService.getCommentById(id);
     }
 
-    //ENDPOINT TO DELETE A COMMENT BY ID (MONGODB)
+    //ENDPOINT TO DELETE A COMMENT BY ID
     @DeleteMapping("/{id}")
     public void deleteComment(
             @PathVariable String id)
