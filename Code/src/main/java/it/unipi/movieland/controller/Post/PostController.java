@@ -36,38 +36,38 @@ import it.unipi.movieland.service.exception.BusinessException;
     }
 
     //ENDPOINT TO MODIFY A COMMENT BY ID (MONGODB)
-    @PutMapping("/{id}")
+    @PutMapping("/{postId}")
     public Post updatePost(
-            @PathVariable String id,
+            @PathVariable String postId,
             @RequestParam String text)
     {
-        return postService.updatePost(id, text);
+        return postService.updatePost(postId, text);
     }
 
     //ENDPOINT TO RETRIEVE ALL POST BY MOVIE ID
-    @GetMapping("/movie/{movie_id}")
+    @GetMapping("/movie/{movieId}")
     public Page<PostDTO> getPostsByMovieId(
-            @PathVariable String movie_id,
+            @PathVariable String movieId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        return postService.getPostsByMovieId(movie_id, page, size);
+        return postService.getPostsByMovieId(movieId, page, size);
     }
 
     //ENDPOINT TO RETRIEVE A POST BY ID
-    @GetMapping("/{id}")
+    @GetMapping("/{postId}")
     public Post getPostById(
-            @PathVariable String id)
+            @PathVariable String postId)
     {
-        return postService.getPostById(id);
+        return postService.getPostById(postId);
     }
 
     //ENDPOINT TO DELETE A POST BY ID
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{postId}")
     public void deletePost(
-            @PathVariable String id)
+            @PathVariable String postId)
     {
-        postService.deletePost(id);
+        postService.deletePost(postId);
     }
 
     //ENDPOINT TO SEARCH POSTS WITHIN A DATE RANGE

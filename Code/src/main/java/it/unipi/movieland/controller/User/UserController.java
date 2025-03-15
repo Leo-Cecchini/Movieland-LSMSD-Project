@@ -116,10 +116,10 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{username}/watchlist/{id}")
-    public ResponseEntity<String> addToWatchlist(@PathVariable String username, @PathVariable String id) {
+    @PostMapping("/{username}/watchlist/{movieId}")
+    public ResponseEntity<String> addToWatchlist(@PathVariable String username, @PathVariable String movieId) {
         try {
-            userService.addToWatchlist(username, id);
+            userService.addToWatchlist(username, movieId);
             return new ResponseEntity<>("Watchlist updated", HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
@@ -130,10 +130,10 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{username}/watchlist/{id}")
-    public ResponseEntity<String> removeFromWatchlist(@PathVariable String username, @PathVariable String id) {
+    @DeleteMapping("/{username}/watchlist/{movieId}")
+    public ResponseEntity<String> removeFromWatchlist(@PathVariable String username, @PathVariable String movieId) {
         try {
-            userService.removeFromWatchlist(username, id);
+            userService.removeFromWatchlist(username, movieId);
             return new ResponseEntity<>("Watchlist updated", HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
@@ -155,10 +155,10 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{username}/likedMovies/{id}")
-    public ResponseEntity<String> addLikedMovie(@PathVariable String username, @PathVariable String id) {
+    @PostMapping("/{username}/likedMovies/{movieId}")
+    public ResponseEntity<String> addLikedMovie(@PathVariable String username, @PathVariable String movieId) {
         try {
-            userService.addLikedMovie(username, id);
+            userService.addLikedMovie(username, movieId);
             return new ResponseEntity<>("Liked movies updated", HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
@@ -170,10 +170,10 @@ public class UserController {
 
     }
 
-    @DeleteMapping("/{username}/likedMovies/{id}")
-    public ResponseEntity<String> removeLikedMovie(@PathVariable String username, @PathVariable String id) {
+    @DeleteMapping("/{username}/likedMovies/{movieId}")
+    public ResponseEntity<String> removeLikedMovie(@PathVariable String username, @PathVariable String movieId) {
         try {
-            userService.removeLikedMovie(username, id);
+            userService.removeLikedMovie(username, movieId);
             return new ResponseEntity<>("Liked movies updated", HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
@@ -196,10 +196,10 @@ public class UserController {
 
     }
 
-    @PutMapping("/{username}/followedCelebrities/{id}")
-    public ResponseEntity<String> addFollowedCelebrity(@PathVariable String username, @PathVariable int id) {
+    @PostMapping("/{username}/followedCelebrities/{celebrityId}")
+    public ResponseEntity<String> addFollowedCelebrity(@PathVariable String username, @PathVariable int celebrityId) {
         try {
-            userService.addFollowedCelebrity(username, id);
+            userService.addFollowedCelebrity(username, celebrityId);
             return new ResponseEntity<>("Followed Celebrities updated", HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
@@ -210,10 +210,10 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{username}/followedCelebrities/{id}")
-    public ResponseEntity<String> removeFollowedCelebrity(@PathVariable String username, @PathVariable int id) {
+    @DeleteMapping("/{username}/followedCelebrities/{celebrityId}")
+    public ResponseEntity<String> removeFollowedCelebrity(@PathVariable String username, @PathVariable int celebrityId) {
         try {
-            userService.removeFollowedCelebrity(username, id);
+            userService.removeFollowedCelebrity(username, celebrityId);
             return new ResponseEntity<>("Followed Celebrities updated", HttpStatus.OK);
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
@@ -224,7 +224,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{username}/followedUsers")
+    @GetMapping("/{username}/followed")
     public ResponseEntity<?> getFollowedUsers(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
             return new ResponseEntity<>(userService.getFollowedUsers(username,page,size),HttpStatus.OK);
@@ -235,7 +235,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{username}/followedUsers/self")
+    @GetMapping("/{username}/followers")
     public ResponseEntity<?> getFollowers(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
             return new ResponseEntity<>(userService.getFollowersUsers(username,page,size),HttpStatus.OK);
@@ -246,7 +246,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{username}/followedUsers/{id}")
+    @PostMapping("/{username}/followedUsers/{id}")
     public ResponseEntity<String> addFollowedUser(@PathVariable String username, @PathVariable String id) {
         try {
             userService.addFollowedUser(username, id);

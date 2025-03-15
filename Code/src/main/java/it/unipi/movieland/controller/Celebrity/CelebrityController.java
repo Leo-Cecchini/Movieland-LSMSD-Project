@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/celebrities")
+@RequestMapping("/celebrities")
 public class CelebrityController {
 
     private final CelebrityService celebrityService;
@@ -32,7 +32,7 @@ public class CelebrityController {
     }
 
     //ENDPOINT TO RETRIEVE ALL CELEBRITIES WITH PAGINATION SUPPORT (MONGODB)
-    @GetMapping("/mongo")
+    @GetMapping("/")
     public ResponseEntity<Page<CelebrityMongoDto>> getAllCelebritiesMongo(
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Max(100) int size) {
@@ -42,10 +42,10 @@ public class CelebrityController {
     }
 
     //ENDPOINT TO RETRIEVE A CELEBRITY BY THEIR PERSON ID (MONGODB)
-    @GetMapping("/mongo/{id}")
-    public ResponseEntity<Object> getCelebrityByIdMongo(@PathVariable int id) {
+    @GetMapping("/{celebrityId}")
+    public ResponseEntity<Object> getCelebrityByIdMongo(@PathVariable int celebrityId) {
         try {
-            CelebrityMongoDto celebrityDto = celebrityService.getCelebrityByIdMongo(id);
+            CelebrityMongoDto celebrityDto = celebrityService.getCelebrityByIdMongo(celebrityId);
             return ResponseEntity.ok(celebrityDto);
         } catch (CelebrityNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -53,7 +53,7 @@ public class CelebrityController {
     }
 
     // ENDPOINT TO SEARCH FOR A CELEBRITY BY KEYWORD OR NAME (MONGODB)
-    @GetMapping("/mongo/search for name or character")
+    @GetMapping("/search")
     public ResponseEntity<Object> searchMongo(@RequestParam String text) {
         try
         {
@@ -67,7 +67,7 @@ public class CelebrityController {
     }
 
     //ENDPOINT TO CREATE A CELEBRITY
-    @PostMapping("/create")
+    @PostMapping("/")
     public ResponseEntity<Object> createCelebrity(
             @RequestParam int id,
             @RequestParam String name,
@@ -90,13 +90,13 @@ public class CelebrityController {
     }
 
     //ENDPOINT TO DELETE A CELEBRITY
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Object> deleteCelebrityById(@PathVariable("id") int id) {
+    @DeleteMapping("/delete/{celebrityId}")
+    public ResponseEntity<Object> deleteCelebrityById(@PathVariable int celebrityId) {
         try {
-            celebrityService.deleteCelebrityInBothDatabases(id);
+            celebrityService.deleteCelebrityInBothDatabases(celebrityId);
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(Map.of("message", "CELEBRITY WITH ID " + id + " HAS BEEN DELETED FROM BOTH DATABASES"));
+                    .body(Map.of("message", "CELEBRITY WITH ID " + celebrityId + " HAS BEEN DELETED FROM BOTH DATABASES"));
 
         } catch (CelebrityNotFoundInMongoException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -113,26 +113,26 @@ public class CelebrityController {
     }
 
     //ENDPOINT TO ADD JOBS TO AN ACTOR
-    @PutMapping("/{id}/jobs/actor")
+    @PostMapping("/{celebrityId}/jobs/actor")
     public ResponseEntity<Object> updateJobToActor(
-            @PathVariable int id,
+            @PathVariable int celebrityId,
             @RequestParam String movie_id,
             @RequestParam String character) {
 
-        return celebrityService.addJobToActor(id, movie_id, character);
+        return celebrityService.addJobToActor(celebrityId, movie_id, character);
     }
 
     //ENDPOINT TO ADD JOBS TO A DIRECTOR
-    @PutMapping("/{id}/jobs/director")
+    @PostMapping("/{celebrityId}/jobs/director")
     public ResponseEntity<Object> updateJobToDirector(
-            @PathVariable int id,
+            @PathVariable int celebrityId,
             @RequestParam String movie_id) {
 
-        return celebrityService.addJobToDirector(id, movie_id);
+        return celebrityService.addJobToDirector(celebrityId, movie_id);
     }
 
     //ENDPOINT TO DELETE A JOB FOR A DIRECTOR OR ACTOR
-    @DeleteMapping("/mongo/{celebrityId}/jobs/{jobId}")
+    @DeleteMapping("/{celebrityId}/jobs/{jobId}")
     public ResponseEntity<Object> deleteJobById(
             @PathVariable int celebrityId,
             @PathVariable String jobId) {
@@ -141,17 +141,17 @@ public class CelebrityController {
     }
 
     //ENDPOINT TO GET A CELEBRITY'S JOBS
-    @GetMapping("/{id}/jobs")
-    public ResponseEntity<Object> getJobsForCelebrity(@PathVariable int id) {
-        return celebrityService.getJobsForCelebrity(id);
+    @GetMapping("/{celebrityId}/jobs")
+    public ResponseEntity<Object> getJobsForCelebrity(@PathVariable int celebrityId) {
+        return celebrityService.getJobsForCelebrity(celebrityId);
     }
 
     //ENDPOINT FOR UPDATE THE CELEBRITY
-    @PutMapping("/update/{personId}")
+    @PutMapping("/update/{celebrityId}")
     public ResponseEntity<Object> updateCelebrity(
-            @PathVariable String personId,
+            @PathVariable String celebrityId,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String poster) {
-        return celebrityService.updateCelebrity(personId, name, poster);
+        return celebrityService.updateCelebrity(celebrityId, name, poster);
     }
 }

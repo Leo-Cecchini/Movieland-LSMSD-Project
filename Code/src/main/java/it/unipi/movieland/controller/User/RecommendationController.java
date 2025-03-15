@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/recommendation")
+@RequestMapping("/users/recommendation")
 public class RecommendationController {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping("/{username}/celebrity")
+    @GetMapping("/{username}/celebrities")
     public ResponseEntity<?> getCelebrityRecommendation(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
              return new ResponseEntity<>(userService.recommendCelebrity(username,page,size), HttpStatus.OK);
@@ -28,7 +28,7 @@ public class RecommendationController {
     }
 
     // Raccomandazione utenti (Neo4j)
-    @GetMapping("/{username}/user")
+    @GetMapping("/{username}/users")
     public ResponseEntity<?> getUserRecommendation(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
             return new ResponseEntity<>(userService.recommendUser(username,page,size), HttpStatus.OK);
@@ -40,7 +40,7 @@ public class RecommendationController {
     }
 
     // Raccomandazione film (Neo4j)
-    @GetMapping("/{username}/movie")
+    @GetMapping("/{username}/movies")
     public ResponseEntity<?> getMovieRecommendation(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
             return new ResponseEntity<>(userService.recommendMovie(username,page,size), HttpStatus.OK);
@@ -52,7 +52,7 @@ public class RecommendationController {
     }
 
     // Raccomandazione per genere (MongoDb)
-    @GetMapping("/{username}/movie/genre")
+    @GetMapping("/{username}/movies/byGenre")
     public ResponseEntity<?> getGenreRecommendation(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
             return new ResponseEntity<>(userService.recommendByGenre(username), HttpStatus.OK);
@@ -63,7 +63,7 @@ public class RecommendationController {
         }
     }
 
-    @GetMapping("/{username}/movie/cast")
+    @GetMapping("/{username}/movies/byCast")
     public ResponseEntity<?> getCastRecommendation(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
             return new ResponseEntity<>(userService.recommendCast(username,page,size), HttpStatus.OK);
@@ -74,7 +74,7 @@ public class RecommendationController {
         }
     }
 
-    @GetMapping("/{username}/movie/review")
+    @GetMapping("/{username}/movies/breview")
     public ResponseEntity<?> getReviewRecommendation(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
             return new ResponseEntity<>(userService.recommendReview(username,page,size), HttpStatus.OK);

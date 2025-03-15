@@ -48,32 +48,32 @@ public class CommentController {
     }
 
     //ENDPOINT TO RETRIEVE A COMMENT BY ID
-    @GetMapping("/{id}")
+    @GetMapping("/{commentId}")
     public Comment getCommentById(
-            @PathVariable String id)
+            @PathVariable String commentId)
     {
-        return commentService.getCommentById(id);
+        return commentService.getCommentById(commentId);
     }
 
     //ENDPOINT TO DELETE A COMMENT BY ID
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{commentId}")
     public void deleteComment(
-            @PathVariable String id)
+            @PathVariable String commentId)
     {
-        commentService.deleteComment(id);
+        commentService.deleteComment(commentId);
     }
 
     //ENDPOINT TO MODIFY A COMMENT BY ID (MONGODB)
-    @PutMapping("/{id}")
+    @PutMapping("/{commentId}")
     public Comment updateComment(
-            @PathVariable String id,
+            @PathVariable String commentId,
             @RequestParam String text)
     {
-        return commentService.updateComment(id, text);
+        return commentService.updateComment(commentId, text);
     }
 
     //ENDPOINT TO GET COMMENTS BY AUTHOR WITH PAGINATION
-    @GetMapping("/author/{author}")
+    @GetMapping("/user/{userId}")
     public Page<Comment> getCommentsByAuthor(
             @PathVariable String author,
             @RequestParam(defaultValue = "0") int page,

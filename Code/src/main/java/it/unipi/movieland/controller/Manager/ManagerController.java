@@ -249,7 +249,7 @@ public class ManagerController {
         }
     }
 
-    @GetMapping("highest-profit-directors")
+    @GetMapping("/analytics/highest-profit-directors")
     public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> highestProfitDirectors() {
         try {
             List<StringCountDTO> directors = movieService.highestProfitDirectors();

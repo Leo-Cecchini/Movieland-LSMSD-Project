@@ -20,14 +20,14 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/titles")
+@RequestMapping("/movies")
 public class MovieController {
 
     @Autowired
     private MovieService movieService;
 
     // Search movie by id
-    @GetMapping("/search/{movieId}")
+    @GetMapping("/{movieId}")
     public ResponseEntity<Movie> getMovieById(@PathVariable String movieId) {
         Optional<Movie> movie = movieService.getMovieById(movieId);
         return movie.map(ResponseEntity::ok)
@@ -35,7 +35,7 @@ public class MovieController {
     }
 
     // Search title by word
-    @GetMapping("/search/titleOrKeyword/{label}")
+    @GetMapping("/search/titleOrKeyword")
     public ResponseEntity<ResponseWrapper<Page<SearchTitleDTO>>> getMovieByTitle(
             @RequestParam("type") TitleTypeEnum type,
             @RequestParam String label,
@@ -89,7 +89,7 @@ public class MovieController {
     }*/
 
     // Search new title by name (and by year...released before a specific year)
-    @GetMapping("/searchNew/titleIdByName")
+    @GetMapping("/searchNew/movieIdByName")
     public ResponseEntity<ResponseWrapper<List<SearchNewTitleDTO>>> searchNewTitleByName(
             @RequestParam("type") TitleTypeEnum type,
             @RequestParam("title") String title,
@@ -111,7 +111,7 @@ public class MovieController {
     }
 
     //Add title by id
-    @PutMapping("/addTitleById")
+    @PostMapping("/addMovieById")
     public ResponseEntity<ResponseWrapper<Integer>> addTitleById(
             @RequestParam TitleTypeEnum type,
             @RequestParam String id) {
@@ -133,7 +133,7 @@ public class MovieController {
     }
 
     // Update title: general info
-    @PutMapping("/updateTitle/{movieId}")
+    @PutMapping("/{movieId}")
     public ResponseEntity<Object> updateMovie(
             @PathVariable String movieId,
             @RequestBody UpdateTitleDTO movie
@@ -156,65 +156,65 @@ public class MovieController {
     }
 
     // Add title actor
-    @PutMapping("/addRole")
-    public ResponseEntity<String> addRole(@RequestParam String movie_id, @RequestParam Integer actor_id, @RequestParam String name,
+    @PostMapping("/{movieId}/addActor/{actorId}")
+    public ResponseEntity<String> addRole(@PathVariable String movieId, @PathVariable Integer actor_id, @RequestParam String name,
                                           @RequestParam String character) {
-        int result = movieService.addRole(movie_id, actor_id, name, character);
+        int result = movieService.addRole(movieId, actor_id, name, character);
         return switch (result) {
-            case 0 -> ResponseEntity.ok("Role: '"+ character +"' for actor: "+ actor_id +" added successfully in title: "+movie_id);
+            case 0 -> ResponseEntity.ok("Role: '"+ character +"' for actor: "+ actor_id +" added successfully in title: "+movieId);
             case 1 -> ResponseEntity.status(HttpStatus.CONFLICT).body("Actor already exists or no update was made");
-            default -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Actor with id "+ movie_id +" not found!");
+            default -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Actor with id "+ movieId +" not found!");
         };
     }
 
     // Update title actor
-    @PutMapping("/updateRole")
-    public ResponseEntity<String> updateRole(@RequestParam String movie_id, @RequestParam Integer actor_id, @RequestParam String name,
+    @PutMapping("/{movieId}/updateActor/{actorId}")
+    public ResponseEntity<String> updateRole(@PathVariable String movieId, @PathVariable Integer actorId, @RequestParam String name,
                                             @RequestParam String character) {
-        int result = movieService.updateRole(movie_id, actor_id, name, character);
+        int result = movieService.updateRole(movieId, actorId, name, character);
         if(result == 0)
-            return ResponseEntity.ok("Role '"+ character +"' for actor: "+ actor_id +" updated successfully in title: "+movie_id);
+            return ResponseEntity.ok("Role '"+ character +"' for actor: "+ actorId +" updated successfully in title: "+movieId);
         else
-            return ResponseEntity.ok("Title with id "+ movie_id +" not found!");
+            return ResponseEntity.ok("Title with id "+ movieId +" not found!");
     }
 
     // Remove title actor
-    @PutMapping("/removeRole")
-    public ResponseEntity<String> deleteRole(@RequestParam String movie_id, @RequestParam Integer actor_id) {
-        int result = movieService.deleteRole(movie_id, actor_id);
+    @DeleteMapping("/{movieId}/removeRole/{actorId}")
+    public ResponseEntity<String> deleteRole(@PathVariable String movieId, @PathVariable Integer actorId) {
+        int result = movieService.deleteRole(movieId, actorId);
         if( result == 0 )
-            return ResponseEntity.ok("Role for actor: "+ actor_id +" deleted successfully in title: "+movie_id);
+            return ResponseEntity.ok("Role for actor: "+ actorId +" deleted successfully in title: "+movieId);
         else
-            return  ResponseEntity.ok("Title with id "+ movie_id +" not found!");
+            return  ResponseEntity.ok("Title with id "+ movieId +" not found!");
     }
 
 
     // Add title director
-    @PutMapping("/addDirector")
-    public ResponseEntity<String> addDirector(@RequestParam String movie_id, @RequestParam Integer director_id, @RequestParam String name) {
-        int result = movieService.addDirector(movie_id, director_id, name);
+    @PostMapping("/{movieId}/addDirector/{directorId}")
+    public ResponseEntity<String> addDirector(@PathVariable String movieId, @PathVariable Integer directorId, @RequestParam String name) {
+        int result = movieService.addDirector(movieId, directorId, name);
         return switch (result) {
-            case 0 -> ResponseEntity.ok("Director "+ director_id +" added successfully to title "+ movie_id);
-            case 1 -> ResponseEntity.ok("Director with id: "+ director_id +" already exists or no update was made");
-            default -> ResponseEntity.ok("Title with id "+ movie_id +" not found!");
+            case 0 -> ResponseEntity.ok("Director "+ directorId +" added successfully to title "+ movieId);
+            case 1 -> ResponseEntity.ok("Director with id: "+ directorId +" already exists or no update was made");
+            default -> ResponseEntity.ok("Title with id "+ movieId +" not found!");
         };
     }
     // Remove title director
-    @PutMapping("/updateDirector")
-    public ResponseEntity<String> updateRole(@RequestParam String movie_id, @RequestParam Integer director_id, @RequestParam String name) {
-        int result = movieService.updateDirector(movie_id, director_id, name);
+    @PutMapping("/{movieId}/updateDirector/{directorId}")
+    public ResponseEntity<String> updateRole(@PathVariable String movieId, @PathVariable Integer directorId, @RequestParam String name) {
+        int result = movieService.updateDirector(movieId, directorId, name);
         if ( result == 0 )
-            return ResponseEntity.ok("Director "+ director_id +" of title "+ movie_id +" updated  successfully!");
+            return ResponseEntity.ok("Director "+ directorId +" of title "+ movieId +" updated  successfully!");
         else
-            return ResponseEntity.ok("Title with id "+ movie_id +" not found!");
+            return ResponseEntity.ok("Title with id "+ movieId +" not found!");
     }
     // Update title director
-    @PutMapping("/removeDirector")
-    public ResponseEntity<String> deleteDirector(@PathVariable String movie_id, @PathVariable Integer director_id) {
-        int result = movieService.deleteDirector(movie_id, director_id);
+    @DeleteMapping("/{movieId}/removeDirector/{directorId}")
+    public ResponseEntity<String> deleteDirector(@PathVariable String movieId, @PathVariable Integer directorId) {
+        int result = movieService.deleteDirector(movieId, directorId);
         if ( result == 0 )
-            return ResponseEntity.ok("Director "+ director_id +" of title "+ movie_id +" removed successfully!");
+            return ResponseEntity.ok("Director "+ directorId +" of title "+ movieId +" removed successfully!");
         else
-            return ResponseEntity.ok("Title with id "+ movie_id +" not found!");
+            return ResponseEntity.ok("Title with id "+ movieId +" not found!");
     }
 }
