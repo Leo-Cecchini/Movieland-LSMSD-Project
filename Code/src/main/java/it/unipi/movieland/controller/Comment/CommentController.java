@@ -29,7 +29,7 @@ public class CommentController {
     }
 
     //ENDPOINT TO CREATE A COMMENT (MONGODB)
-    @PostMapping
+    @PostMapping("/")
     public Comment createComment(
             @RequestParam String text,
             @RequestParam String authorId,
@@ -39,7 +39,7 @@ public class CommentController {
     }
 
     //ENDPOINT TO RETRIEVE ALL COMMENTS (MONGODB)
-    @GetMapping
+    @GetMapping("/")
     public Page<Comment> getAllComments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "25") int size)

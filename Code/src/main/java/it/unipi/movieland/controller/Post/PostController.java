@@ -62,6 +62,16 @@ import it.unipi.movieland.service.exception.BusinessException;
         return postService.getPostById(postId);
     }
 
+    //ENDPOINT TO GET POST BY AUTHOR WITH PAGINATION
+    @GetMapping("/author/{userId}")
+    public Page<Post> getPostByAuthor(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size)
+    {
+        return postService.getPostByAuthor(userId, page, size);
+    }
+
     //ENDPOINT TO DELETE A POST BY ID
     @DeleteMapping("/{postId}")
     public void deletePost(

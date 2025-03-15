@@ -3,6 +3,7 @@ package it.unipi.movieland.repository.Post;
 import it.unipi.movieland.dto.PostActivityDTO;
 import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
+import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.model.Post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,10 @@ import java.util.List;
 
 @Repository
 public interface PostMongoDBRepository extends MongoRepository<Post, String> {
+
+    //METHOD TO SEARCH COMMENTS BASED ON AUTHOR
+    Page<Post> findByAuthor(String author, Pageable pageable);
+
     @Query(value = "{ 'movie_id': ?0 }", fields = "{ 'comment': 0 }")
     Page<PostDTO> findByMovieId(String movieId, Pageable pageable);
 

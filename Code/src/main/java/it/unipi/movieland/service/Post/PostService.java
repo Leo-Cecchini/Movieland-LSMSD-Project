@@ -4,6 +4,7 @@ import it.unipi.movieland.dto.PostActivityDTO;
 import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
 
+import it.unipi.movieland.model.Comment.Comment;
 import it.unipi.movieland.model.Post.Post;
 
 import it.unipi.movieland.repository.Movie.MovieMongoDBRepository;
@@ -70,6 +71,26 @@ public class PostService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "COMMENT WITH ID " + id + " NOT FOUND");
         }
         return post.get();
+    }
+
+    //METHOD TO GET POST BY AUTHOR
+    public Page<Post> getPostByAuthor(String authorId, int page, int size) {
+
+        boolean userExists = userRepository.existsById(authorId);
+
+        if (!userExists) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("AUTHOR WITH ID %s NOT FOUND", authorId));
+        }
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Post> post = postMongoDBRepository.findByAuthor(authorId, pageRequest);
+
+        if (post.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("NO POST FOUND FOR THE AUTHOR WITH ID %s", authorId));
+        }
+        return post;
     }
 
     //METHOD TO DELETE A POST BY ID
