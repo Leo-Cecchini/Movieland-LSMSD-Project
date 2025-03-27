@@ -102,6 +102,22 @@ public class ManagerController {
         }
     }
 
+    @GetMapping("/inconsistency")
+    public InconsistenciesDTO Inconsistencies() {
+        InconsistenciesDTO inconsistenciesDTO = new InconsistenciesDTO();
+        inconsistenciesDTO.setMovieMongoDb(movieService.inconsistenciesMongo());
+        inconsistenciesDTO.setMovieNeo4j(movieService.inconsistenciesNeo());
+        inconsistenciesDTO.setCelebrityMongoDb(celebrityService.celebrityInconsistenciesMongo());
+        inconsistenciesDTO.setCelebrityNeo4j(celebrityService.celebrityInconsistenciesNeo());
+        inconsistenciesDTO.setUserMongoDb(userService.inconsistenciesMongo());
+        inconsistenciesDTO.setUserNeo4j(userService.inconsistenciesNeo());
+        inconsistenciesDTO.setReviewMongoDb(reviewService.inconsistenciesMongo());
+        inconsistenciesDTO.setReviewNeo4j(reviewService.inconsistenciesNeo());
+        return inconsistenciesDTO;
+    }
+
+    /*
+
     @GetMapping("/inconsistency/user/mongo")
     public List<String> userInconsistenciesMongo() {
         return userService.inconsistenciesMongo();
@@ -132,7 +148,6 @@ public class ManagerController {
     }
 
 
-    /*
 
     @GetMapping("/inconsistency/celebrity/mongo")
     public List<String> celebrityInconsistenciesMongo() {
@@ -143,10 +158,6 @@ public class ManagerController {
         return celebrityService.inconsistenciesNeo();
     }
 
-
-
-     */
-
     @GetMapping("/inconsistency/movie/mongo")
     public List<String> movieInconsistenciesMongo() {
         return movieService.inconsistenciesMongo();
@@ -155,6 +166,8 @@ public class ManagerController {
     public List<String> movieInconsistenciesNeo() {
         return movieService.inconsistenciesNeo();
     }
+
+     */
 
     @GetMapping("/analytics/most-frequent-actors-specific-genres")
     public ResponseEntity<ResponseWrapper<List<ActorDTO>>> mostFrequentActorsSpecificGenres(
