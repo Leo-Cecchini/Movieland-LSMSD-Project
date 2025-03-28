@@ -105,14 +105,14 @@ public class ManagerController {
     @GetMapping("/inconsistency")
     public InconsistenciesDTO Inconsistencies() {
         InconsistenciesDTO inconsistenciesDTO = new InconsistenciesDTO();
-        inconsistenciesDTO.setMovieMongoDb(movieService.inconsistenciesMongo());
-        inconsistenciesDTO.setMovieNeo4j(movieService.inconsistenciesNeo());
-        inconsistenciesDTO.setCelebrityMongoDb(celebrityService.celebrityInconsistenciesMongo());
-        inconsistenciesDTO.setCelebrityNeo4j(celebrityService.celebrityInconsistenciesNeo());
-        inconsistenciesDTO.setUserMongoDb(userService.inconsistenciesMongo());
-        inconsistenciesDTO.setUserNeo4j(userService.inconsistenciesNeo());
-        inconsistenciesDTO.setReviewMongoDb(reviewService.inconsistenciesMongo());
-        inconsistenciesDTO.setReviewNeo4j(reviewService.inconsistenciesNeo());
+        inconsistenciesDTO.setMovieMongoDb(movieService.inconsistenciesNeo());
+        inconsistenciesDTO.setMovieNeo4j(movieService.inconsistenciesMongo());
+        inconsistenciesDTO.setCelebrityMongoDb(celebrityService.celebrityInconsistenciesNeo());
+        inconsistenciesDTO.setCelebrityNeo4j(celebrityService.celebrityInconsistenciesMongo());
+        inconsistenciesDTO.setUserMongoDb(userService.inconsistenciesNeo());
+        inconsistenciesDTO.setUserNeo4j(userService.inconsistenciesMongo());
+        inconsistenciesDTO.setReviewMongoDb(reviewService.inconsistenciesNeo());
+        inconsistenciesDTO.setReviewNeo4j(reviewService.inconsistenciesMongo());
         return inconsistenciesDTO;
     }
 

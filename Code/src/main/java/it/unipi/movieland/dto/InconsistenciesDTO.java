@@ -1,8 +1,11 @@
 package it.unipi.movieland.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonPropertyOrder({"movieMongoDb", "movieNeo4j", "userMongoDb", "userNeo4j", "celebrityMongoDb", "celebrityNeo4j", "reviewMongoDb", "reviewNeo4j"})
 public class InconsistenciesDTO {
     private List<String> MovieMongoDb;
     private List<String> UserMongoDb;
