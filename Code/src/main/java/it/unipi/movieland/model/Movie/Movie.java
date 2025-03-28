@@ -66,7 +66,7 @@ public class Movie {
     public Movie(String _id, String title, TitleTypeEnum type, String description, Integer release_year, List<GenreEnum> genres,
                  List<String> keywords, List<CountryEnum> production_countries, Integer runtime, String poster_path,
                  Integer imdb_score, Integer imdb_votes, List<String> platform, List<MovieCelebrity> actors, List<MovieCelebrity> directors,
-                 Double revenue, Double budget, String age_certification, Integer seasons) {
+                 Double revenue, Double budget, String age_certification, Integer seasons,List<MovieReview> reviews) {
         this._id = _id;
         this.title = title;
         this.type = type;
@@ -86,6 +86,7 @@ public class Movie {
         this.budget = budget;
         this.age_certification = age_certification;
         this.seasons = seasons;
+        this.reviews = reviews;
     }
 
     // Getter e Setter
@@ -214,6 +215,14 @@ public class Movie {
     }
     public void setSeasons(Integer seasons) {
         this.seasons = seasons;
+    }
+
+    public List<MovieReview> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<MovieReview> reviews) {
+        this.reviews = reviews;
     }
 
     // toString

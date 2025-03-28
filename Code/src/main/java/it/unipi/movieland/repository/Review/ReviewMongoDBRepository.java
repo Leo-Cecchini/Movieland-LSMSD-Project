@@ -20,16 +20,16 @@ public interface ReviewMongoDBRepository extends MongoRepository<ReviewMongoDB, 
     @Aggregation(pipeline = {
             "{ $match: { movie_id: ?0 } }",
             "{ $sort: { timestamp: -1 } }",
-            "{ $skip: ?2 }",
-            "{ $limit: ?3 }"
+            "{ $skip: ?1 }",
+            "{ $limit: ?2 }"
     })
     List<ReviewMongoDB> findByMovieId(String movieId,int offset, int limit);
 
     @Aggregation(pipeline = {
             "{ $match: { username: ?0 } }",
             "{ $sort: { timestamp: -1 } }",
-            "{ $skip: ?2 }",
-            "{ $limit: ?3 }"
+            "{ $skip: ?1 }",
+            "{ $limit: ?2 }"
     })
     List<ReviewMongoDB> findByUsername(String userId,int offset, int limit);
 
