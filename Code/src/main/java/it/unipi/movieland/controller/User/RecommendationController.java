@@ -74,7 +74,7 @@ public class RecommendationController {
         }
     }
 
-    @GetMapping("/{username}/movies/breview")
+    @GetMapping("/{username}/movies/byReview")
     public ResponseEntity<?> getReviewRecommendation(@PathVariable String username, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         try {
             return new ResponseEntity<>(userService.recommendReview(username,page,size), HttpStatus.OK);
