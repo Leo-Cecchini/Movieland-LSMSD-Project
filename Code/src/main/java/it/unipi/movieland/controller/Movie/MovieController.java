@@ -15,9 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/movies")
@@ -216,5 +214,25 @@ public class MovieController {
             return ResponseEntity.ok("Director "+ directorId +" of title "+ movieId +" removed successfully!");
         else
             return ResponseEntity.ok("Title with id "+ movieId +" not found!");
+    }
+
+    @GetMapping("/popularMovies")
+    public ResponseEntity<List<SearchTitleDTO>> getPopularMovies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            return new ResponseEntity<>(movieService.popularTitles("MOVIE",page,size), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());        }
+    }
+
+    @GetMapping("/popularShows")
+    public ResponseEntity<List<SearchTitleDTO>> getPopularShows(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            return new ResponseEntity<>(movieService.popularTitles("SHOW",page,size), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());        }
     }
 }

@@ -1,12 +1,11 @@
 package it.unipi.movieland.repository.Movie;
 
-import it.unipi.movieland.dto.ActorDTO;
-import it.unipi.movieland.dto.CombinedPercentageDTO;
-import it.unipi.movieland.dto.ListIdDTO;
-import it.unipi.movieland.dto.StringCountDTO;
+import it.unipi.movieland.dto.*;
 import it.unipi.movieland.model.Movie.Movie;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,6 +21,11 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     Movie save(Movie movie);
     void deleteById(String id);
 
+    @Query(value = "{ 'type': {$eq: ?0 }, 'release_year': { $gte: 2015 }, 'imdb_votes': { $gte: 85 } }",
+            sort = "{ 'imdb_score': -1, 'imdb_votes': -1 }",
+            fields = "{ '_id': 1, 'title': 1, 'release_year': 1, 'imdb_score': 1, 'poster_path': 1 }")
+    List<SearchTitleDTO> popularTitles(String type, Pageable pageable);
+
     @Aggregation(pipeline = {
             "{ $match: { genres: { $all: ?0 } } }",
             "{ $unwind: '$actors' }",
@@ -32,7 +36,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
             "{ $limit: 5 }",
             "{ $project: { " + "actor_id: '$_id', " + "name: 1, " + "poster: 1, " + "movieCount: 1 " + "} }"
     })
-    List<ActorDTO> mostFrequentActorsSpecificGenres(List<String> genres);
+    List<ActorDTO> mostFrequentActorsSpecificGenres(List<String> genres, Pageable pageable);
 
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
@@ -62,7 +66,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
             "{ $sort: { count: -1 } }",
             "{ $project: { label: \"$_id\", count: 1 } }"
     })
-    List<StringCountDTO> mostVotedMoviesByGenres();
+    List<StringCountDTO> mostVotedMoviesByGenres(Pageable pageable);
 
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
@@ -78,7 +82,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
             "{ $limit: 10 }",
             "{ $project: { " + "actor_id: '$_id', " + "name: 1, " + "poster: 1, " + "movieCount: 1 " + "} }"
     })
-    List<ActorDTO> mostPopularActors();
+    List<ActorDTO> mostPopularActors(Pageable pageable);
 
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
@@ -126,7 +130,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
             "{ $sort: { count: -1 } }",
             "{ $project: { " + "label: '$_id', " + "count: 1 " + "} }"
     })
-    List<StringCountDTO> bestPlatformForTop1000Movies();
+    List<StringCountDTO> bestPlatformForTop1000Movies(Pageable pageable);
 
     @Aggregation(pipeline = {
             "{ $match: { genres: { $all: ?0 } } }",
@@ -148,7 +152,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
             "{ $project: { label: \"$_id\", movieCount: 1, combinedPercentage: { $multiply: [ { $divide: [ \"$movieCount\", \"$totalMovies\" ] }, 100 ] } } }",
             "{ $sort: { combinedPercentage: -1 } }"
     })
-    List<CombinedPercentageDTO> percentageOfCombinedKeywords(List<String> keywords);
+    List<CombinedPercentageDTO> percentageOfCombinedKeywords(List<String> keywords, Pageable pageable);
 
     @Aggregation(pipeline = {
             "{ $project: { _id: 1 } }",    // Seleziona solo il campo _id

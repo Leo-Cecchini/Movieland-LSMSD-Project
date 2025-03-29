@@ -211,20 +211,32 @@ public class MovieService {
         movieNeo4jRepository.deleteById(movieId);
     }
 
-    public List<ActorDTO> mostFrequentActorsSpecificGenres(List<String> genres) throws BusinessException {
-            return movieMongoDBInterface.mostFrequentActorsSpecificGenres(genres);
+    public List<ActorDTO> mostFrequentActorsSpecificGenres(List<String> genres, int page, int size) throws BusinessException {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return movieMongoDBInterface.mostFrequentActorsSpecificGenres(genres, pageRequest);
     }
 
-    public List<StringCountDTO> mostVotedMoviesBy(String method) throws BusinessException {
+    public List<StringCountDTO> mostVotedMoviesBy(String method, int page, int size) throws BusinessException {
+        PageRequest pageRequest = PageRequest.of(page, size);
         return switch (method) {
-            case "genres" -> movieMongoDBInterface.mostVotedMoviesByGenres();
+            case "genres" -> movieMongoDBInterface.mostVotedMoviesByGenres(pageRequest);
             case "production_countries" -> movieMongoDBInterface.mostVotedMoviesByProductionCountries();
             default -> movieMongoDBInterface.mostVotedMoviesByKeywords();
         };
     }
 
-    public List<ActorDTO> mostPopularActors() throws BusinessException {
-            return movieMongoDBInterface.mostPopularActors();
+    public List<SearchTitleDTO> popularTitles(String type, int page, int size) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, size);
+            return movieMongoDBInterface.popularTitles(type, pageRequest);
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<ActorDTO> mostPopularActors(int page, int size) throws BusinessException {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return movieMongoDBInterface.mostPopularActors(pageRequest);
     }
 
     public List<ActorDTO> highesAverageActorsTop2000Movies() throws BusinessException {
@@ -239,16 +251,18 @@ public class MovieService {
             return movieMongoDBInterface.highestProfitDirectors();
     }
 
-    public List<StringCountDTO> bestPlatformForTop1000Movies() throws BusinessException {
-            return movieMongoDBInterface.bestPlatformForTop1000Movies();
+    public List<StringCountDTO> bestPlatformForTop1000Movies(int page, int size) throws BusinessException {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return movieMongoDBInterface.bestPlatformForTop1000Movies(pageRequest);
     }
 
     public List<CombinedPercentageDTO> percentageOfCombinedGenres(List<String> genres) throws BusinessException {
             return movieMongoDBInterface.percentageOfCombinedGenres(genres);
     }
 
-    public List<CombinedPercentageDTO> percentageOfCombinedKeywords(List<String> keywords) throws BusinessException {
-            return movieMongoDBInterface.percentageOfCombinedKeywords(keywords);
+    public List<CombinedPercentageDTO> percentageOfCombinedKeywords(List<String> keywords, int page, int size) throws BusinessException {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return movieMongoDBInterface.percentageOfCombinedKeywords(keywords, pageRequest);
     }
 
     public static List<String> findDifference(List<String> a, List<String> b) {

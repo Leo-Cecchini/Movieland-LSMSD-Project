@@ -1,11 +1,7 @@
 package it.unipi.movieland.controller.Manager;
 
 import it.unipi.movieland.dto.*;
-import it.unipi.movieland.model.CountryEnum;
-import it.unipi.movieland.model.GenderEnum;
-import it.unipi.movieland.model.GenreEnum;
 import it.unipi.movieland.model.Manager.Manager;
-import it.unipi.movieland.model.User.UserMongoDB;
 import it.unipi.movieland.service.Celebrity.CelebrityService;
 import it.unipi.movieland.service.Manager.ManagerService;
 import it.unipi.movieland.service.Movie.MovieService;
@@ -17,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -171,10 +166,12 @@ public class ManagerController {
 
     @GetMapping("/analytics/most-frequent-actors-specific-genres")
     public ResponseEntity<ResponseWrapper<List<ActorDTO>>> mostFrequentActorsSpecificGenres(
-            @RequestParam List<String> genres
+            @RequestParam List<String> genres,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
     ){
         try{
-            List<ActorDTO> actors = movieService.mostFrequentActorsSpecificGenres(genres);
+            List<ActorDTO> actors = movieService.mostFrequentActorsSpecificGenres(genres, page, size);
             if( actors.isEmpty() )
                 return ResponseEntity.ok(new ResponseWrapper<>("No actors found for the genres: "+genres, actors));
             return ResponseEntity.ok(new ResponseWrapper<>("Actors fetched successfully", actors));
@@ -184,6 +181,7 @@ public class ManagerController {
         }
     }
 
+    /*
     @GetMapping("/analytics/most-voted-movies-by-productionCountries")
     public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> mostVotedMoviesByProductionCountries(){
         try {
@@ -209,11 +207,15 @@ public class ManagerController {
                     .body(new ResponseWrapper<>("Error searching movies: " + e.getMessage(), null));
         }
     }
+     */
 
     @GetMapping("/analytics/most-voted-movies-by-genres")
-    public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> mostVotedMoviesByGenres(){
+    public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> mostVotedMoviesByGenres(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ){
         try {
-            List<StringCountDTO> movies = movieService.mostVotedMoviesBy("genres");
+            List<StringCountDTO> movies = movieService.mostVotedMoviesBy("genres", page, size);
             if( movies.isEmpty() )
                 return ResponseEntity.ok(new ResponseWrapper<>("Query executed successfully but no result given", movies));
             return ResponseEntity.ok(new ResponseWrapper<>("Movies fetched successfully", movies));
@@ -224,9 +226,12 @@ public class ManagerController {
     }
 
     @GetMapping("/analytics/most-popular-actors")
-    public ResponseEntity<ResponseWrapper<List<ActorDTO>>> mostPopularActors(){
+    public ResponseEntity<ResponseWrapper<List<ActorDTO>>> mostPopularActors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ){
         try {
-            List<ActorDTO> actors = movieService.mostPopularActors();
+            List<ActorDTO> actors = movieService.mostPopularActors(page, size);
             if( actors.isEmpty() )
                 return ResponseEntity.ok(new ResponseWrapper<>("Query executed successfully but no result given", actors));
             return ResponseEntity.ok(new ResponseWrapper<>("Actors fetched successfully", actors));
@@ -236,6 +241,7 @@ public class ManagerController {
         }
     }
 
+    /*
     @GetMapping("/analytics/highest-avg-actors-top2000-movies")
     public ResponseEntity<ResponseWrapper<List<ActorDTO>>> highesAverageActorsTop2000Movies() {
         try {
@@ -274,11 +280,15 @@ public class ManagerController {
                     .body(new ResponseWrapper<>("Error searching directors: " + e.getMessage(), null));
         }
     }
+     */
 
     @GetMapping("/analytics/best-platform-for-top1000-movies")
-    public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> bestPlatformForTop1000Movies() {
+    public ResponseEntity<ResponseWrapper<List<StringCountDTO>>> bestPlatformForTop1000Movies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
         try {
-            List<StringCountDTO> platforms = movieService.bestPlatformForTop1000Movies();
+            List<StringCountDTO> platforms = movieService.bestPlatformForTop1000Movies(page, size);
             if( platforms.isEmpty() )
                 return ResponseEntity.ok(new ResponseWrapper<>("Query executed successfully but no result given", platforms));
             return ResponseEntity.ok(new ResponseWrapper<>("Platforms fetched successfully", platforms));
@@ -288,6 +298,7 @@ public class ManagerController {
         }
     }
 
+    /*
     @GetMapping("/analytics/percentage-of-combined-genres")
     public ResponseEntity<ResponseWrapper<List<CombinedPercentageDTO>>> percentageOfCombinedGenres(
             @RequestParam List<String> genres) {
@@ -301,12 +312,15 @@ public class ManagerController {
                     .body(new ResponseWrapper<>("Error searching genres: " + e.getMessage(), null));
         }
     }
+     */
 
     @GetMapping("/analytics/percentage-of-combined-keywords")
     public ResponseEntity<ResponseWrapper<List<CombinedPercentageDTO>>> percentageOfCombinedKeywords(
-            @RequestParam List<String> keywords) {
+            @RequestParam List<String> keywords,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
-            List<CombinedPercentageDTO> combinedKeywords = movieService.percentageOfCombinedKeywords(keywords);
+            List<CombinedPercentageDTO> combinedKeywords = movieService.percentageOfCombinedKeywords(keywords, page, size);
             if( combinedKeywords.isEmpty() )
                 return ResponseEntity.ok(new ResponseWrapper<>("Query executed successfully but no result given", combinedKeywords));
             return ResponseEntity.ok(new ResponseWrapper<>("Keywords fetched successfully", combinedKeywords));
