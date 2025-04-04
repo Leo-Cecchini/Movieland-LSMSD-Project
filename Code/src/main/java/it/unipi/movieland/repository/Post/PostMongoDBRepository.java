@@ -23,18 +23,19 @@ public interface PostMongoDBRepository extends MongoRepository<Post, String> {
     Page<PostDTO> findByDatetimeBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     @Aggregation(pipeline = {
-            "{ $project: { hour: { $hour: { $dateFromString: { dateString: \"$datetime\" } } } } }",
-            "{ $group: { _id: \"$hour\", postCount: { $count: {} } } }",
+            "{ $project: { hour: { $hour: '$datetime' } } }",
+            "{ $group: { _id: '$hour', postCount: { $count: {} } } }",
             "{ $sort: { _id: 1 } }",
-            "{ $project: { hour: \"$_id\", postCount: 1 } }"
+            "{ $project: { hour: '$_id', postCount: 1 } }"
     })
     List<PostActivityDTO> getPostActivity();
 
     @Aggregation(pipeline = {
-            "{ $group: { _id: \"$author\", totalPosts: { $count: {} }, totalComments: { $sum: { $size: \"$comment\" } } } }",
-            "{ $addFields: { commentsPerPost: { $cond: { if: { $eq: [ \"$totalPosts\", 0 ] }," + " then: 0, else: { $divide: [ \"$totalComments\", \"$totalPosts\" ] } } } } }",
-            "{ $sort: { totalComments: -1, totalPosts: -1, commentsPerPost: -1 } }",
-            "{ $project: { username: \"$_id\", totalPosts: 1, totalComments: 1, commentsPerPost: 1 } }"
+            "{ '$lookup': { 'from': 'Comments', 'localField': '_id', 'foreignField': 'post_id', 'as': 'postComments' } }",
+            "{ '$group': { '_id': '$author', 'totalPosts': { '$sum': 1 }, 'totalComments': { '$sum': { '$size': '$postComments' } } } }",
+            "{ '$addFields': { 'commentsPerPost': { '$cond': { 'if': { '$eq': [ '$totalPosts', 0 ] }, 'then': 0, 'else': { '$divide': [ '$totalComments', '$totalPosts' ] } } } } }",
+            "{ '$sort': { 'totalComments': -1, 'totalPosts': -1, 'commentsPerPost': -1 } }",
+            "{ '$project': { 'username': '$_id', 'totalPosts': 1, 'totalComments': 1, 'commentsPerPost': 1, '_id': 0 } }"
     })
     List<UserInfluencerDTO> getInfluencersReport();
 

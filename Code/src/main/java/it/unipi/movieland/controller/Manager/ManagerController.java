@@ -1,23 +1,17 @@
 package it.unipi.movieland.controller.Manager;
 
 import it.unipi.movieland.dto.*;
-import it.unipi.movieland.model.CountryEnum;
-import it.unipi.movieland.model.GenderEnum;
-import it.unipi.movieland.model.GenreEnum;
 import it.unipi.movieland.model.Manager.Manager;
-import it.unipi.movieland.model.User.UserMongoDB;
 import it.unipi.movieland.service.Celebrity.CelebrityService;
 import it.unipi.movieland.service.Manager.ManagerService;
 import it.unipi.movieland.service.Movie.MovieService;
 import it.unipi.movieland.service.Review.ReviewService;
 import it.unipi.movieland.service.User.UserService;
 import it.unipi.movieland.service.exception.BusinessException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -25,16 +19,19 @@ import java.util.NoSuchElementException;
 @RequestMapping("/manager")
 public class ManagerController {
 
-    @Autowired
-    private MovieService movieService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private CelebrityService celebrityService;
-    @Autowired
-    private ReviewService reviewService;
-    @Autowired
-    private ManagerService managerService;
+    private final MovieService movieService;
+    private final UserService userService;
+    private final CelebrityService celebrityService;
+    private final ReviewService reviewService;
+    private final ManagerService managerService;
+
+    public ManagerController(MovieService movieService, UserService userService, CelebrityService celebrityService, ReviewService reviewService, ManagerService managerService) {
+        this.movieService = movieService;
+        this.userService = userService;
+        this.celebrityService = celebrityService;
+        this.reviewService = reviewService;
+        this.managerService = managerService;
+    }
 
     @GetMapping("/")
     public ResponseEntity<?> getAllManagers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
@@ -67,7 +64,7 @@ public class ManagerController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(String username, String password) {
-        try {;
+        try {
             return new ResponseEntity<>(managerService.authenticate(username,password),HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);

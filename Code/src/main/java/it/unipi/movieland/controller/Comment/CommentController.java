@@ -75,11 +75,11 @@ public class CommentController {
     //ENDPOINT TO GET COMMENTS BY AUTHOR WITH PAGINATION
     @GetMapping("/user/{userId}")
     public Page<Comment> getCommentsByAuthor(
-            @PathVariable String author,
+            @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size)
     {
-        return commentService.getCommentsByAuthor(author, page, size);
+        return commentService.getCommentsByAuthor(userId, page, size);
     }
 
     //ENDPOINT TO SEARCH COMMENTS WITHIN A DATE RANGE
