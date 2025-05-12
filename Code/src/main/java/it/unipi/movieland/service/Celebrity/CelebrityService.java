@@ -4,7 +4,6 @@ import it.unipi.movieland.model.Movie.MovieCelebrity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,7 @@ import it.unipi.movieland.exception.*;
 import it.unipi.movieland.model.Celebrity.CelebrityMongoDB;
 import it.unipi.movieland.model.Celebrity.CelebrityNeo4J;
 import it.unipi.movieland.model.Celebrity.Job;
-import it.unipi.movieland.model.Movie.Movie;
+import it.unipi.movieland.model.Movie.MovieMongoDB;
 import it.unipi.movieland.repository.Celebrity.CelebrityMongoDBRepository;
 import it.unipi.movieland.repository.Celebrity.CelebrityNeo4JRepository;
 import it.unipi.movieland.repository.Movie.MovieMongoDBRepository;
@@ -47,7 +46,7 @@ public class CelebrityService {
         celebrityNeo4JRepository.save(neo4jCelebrity);
     }
 
-    //METHOD TO RETRIEVE ALL CELEBRITIES (MONGODB)
+    //METHOD TO RETRIEVE ALL CELEBRITIES
     public Page<CelebrityMongoDto> getAllCelebritiesMongo(Pageable pageable) {
 
         Page<CelebrityMongoDB> list = celebrityMongoRepository.findAll(pageable);
@@ -58,7 +57,7 @@ public class CelebrityService {
         return new PageImpl<>(dtoList, pageable, list.getTotalElements());
     }
 
-    //METHOD TO RETRIEVE A CELEBRITY USING THEIR ID (MONGODB)
+    //METHOD TO RETRIEVE A CELEBRITY USING THEIR ID
     public CelebrityMongoDto getCelebrityByIdMongo(int id) {
 
         CelebrityMongoDB celebrity = celebrityMongoRepository.findById(id)
@@ -76,7 +75,7 @@ public class CelebrityService {
         return CelebrityNeo4JDto.fromEntity(celebrity);
     }
 
-    // METHOD TO SEARCH FOR AN ACTOR BY NAME OR CHARACTER (MONGODB)
+    //METHOD TO SEARCH FOR AN ACTOR BY NAME OR CHARACTER (MONGODB)
     public List<CelebrityMongoDto> searchActorsByCharacterMongo(String searchTerm) {
         List<CelebrityMongoDB> celebrities = celebrityMongoRepository.searchActorsAndCharacters(searchTerm);
 
@@ -89,7 +88,7 @@ public class CelebrityService {
                 .collect(Collectors.toList());
     }
 
-    // METHOD TO CREATE A CELEBRITY IN BOTH DATABASES
+    //METHOD TO CREATE A CELEBRITY IN BOTH DATABASES
     public String createCelebrityInBothDatabases(int id, String name, String poster) {
         try {
             CelebrityMongoDto existingMongoCelebrity = null;
@@ -104,7 +103,7 @@ public class CelebrityService {
             } catch (CelebrityNotFoundException e) { }
 
             if (existingMongoCelebrity != null && existingNeo4jCelebrity != null) {
-                return "CELEBRITY WITH ID " + id + " ALREADY EXISTS IN BOTH DATABASES";
+                return "CELEBRITY WITH ID " + id + " ALREADY EXISTS.";
             }
 
             CelebrityMongoDB newMongoCelebrity = new CelebrityMongoDB(id, name, poster);
@@ -120,19 +119,19 @@ public class CelebrityService {
         }
     }
 
-    // METHOD TO DELETE A CELEBRITY IN BOTH DATABASES
+    //METHOD TO DELETE A CELEBRITY IN BOTH DATABASES
     @Transactional
     public void deleteCelebrityInBothDatabases(int id) {
 
         Optional<CelebrityMongoDB> mongoCelebrity = celebrityMongoRepository.findById(id);
         if (mongoCelebrity.isEmpty()) {
-            throw new CelebrityNotFoundInMongoException("CELEBRITY WITH ID " + id + " NOT FOUND IN THE MONGO DATABASE");
+            throw new CelebrityNotFoundException("CELEBRITY WITH ID " + id + " NOT FOUND.");
         }
         celebrityMongoRepository.deleteById(id);
 
         Optional<CelebrityNeo4J> neo4jCelebrity = celebrityNeo4JRepository.findById(String.valueOf(id));
         if (neo4jCelebrity.isEmpty()) {
-            throw new CelebrityNotFoundInNeo4jException("CELEBRITY WITH ID " + id + " NOT FOUND IN THE NEO4J DATABASE");
+            throw new CelebrityNotFoundException("CELEBRITY WITH ID " + id + " NOT FOUND.");
         }
         celebrityNeo4JRepository.deleteById(String.valueOf(id));
     }
@@ -145,7 +144,7 @@ public class CelebrityService {
 
         Set<Integer> existingJobNumbers = celebrity.getJobs().stream()
                 .map(job -> {
-                    String[] parts = job.getJob_id().split("_job");
+                    String[] parts = job.getJobId().split("_job");
                     return (parts.length == 2) ? Integer.parseInt(parts[1]) : null;
                 })
                 .filter(Objects::nonNull)
@@ -160,30 +159,30 @@ public class CelebrityService {
 
     //METHOD TO ADD JOBS TO AN ACTOR
     @Transactional
-    public ResponseEntity<Object> addJobToActor(int id, String movie_id, String character) {
+    public ResponseEntity<Object> addJobToActor(int id, String movieId, String character) {
         try {
             CelebrityMongoDB celebrity = celebrityMongoRepository.findById(id)
                     .orElseThrow(() -> new CelebrityNotFoundException("CELEBRITY WITH ID " + id + " NOT FOUND"));
 
-            Movie movie = movieMongoDBRepository.findById(movie_id)
-                    .orElseThrow(() -> new MovieNotFoundException("MOVIE WITH ID " + movie_id + " NOT FOUND"));
+            MovieMongoDB movie = movieMongoDBRepository.findById(movieId)
+                    .orElseThrow(() -> new MovieNotFoundInMongoException("MOVIE WITH ID " + movieId + " NOT FOUND"));
 
             if (celebrity.getJobs() == null) { celebrity.setJobs(new ArrayList<>()); }
 
             boolean jobExists = celebrity.getJobs().stream()
-                    .anyMatch(job -> movie_id.equals(job.getMovie_id()) && character != null && character.equals(job.getCharacter()));
+                    .anyMatch(job -> movieId.equals(job.getMovieId()) && character != null && character.equals(job.getCharacter()));
             if (jobExists) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("message", "JOB ALREADY EXISTS FOR MOVIE ID: " + movie_id + " AND CHARACTER: " + character));
+                        .body(Map.of("message", "JOB ALREADY EXISTS FOR MOVIE ID: " + movieId + " AND CHARACTER: " + character));
             }
-
+//FINO A QUA OK
             String jobId = generateJobIdForCelebrity(celebrity);
-            Job newJob = new Job(celebrity, "ACTOR", movie_id, movie.getTitle(), character);
-            newJob.setJob_id(jobId);
+            Job newJob = new Job(celebrity, "ACTOR", movieId, movie.getTitle(), character);
+            newJob.setJobId(jobId);
             celebrity.getJobs().add(newJob);
             celebrityMongoRepository.save(celebrity);
 
-            celebrityNeo4JRepository.addActedInRelationship(String.valueOf(id), movie_id, character);
+            celebrityNeo4JRepository.addActedInRelationship(String.valueOf(id), movieId, character);
 
             if (movie.getActors() == null) { movie.setActors(new ArrayList<>());}
 
@@ -200,7 +199,7 @@ public class CelebrityService {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("message", "JOB ADDED SUCCESSFULLY FOR ACTOR WITH ID " + id, "job", jobDto));
 
-        } catch (CelebrityNotFoundException | MovieNotFoundException ex) {
+        } catch (CelebrityNotFoundException | MovieNotFoundInMongoException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", ex.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
@@ -216,7 +215,7 @@ public class CelebrityService {
             CelebrityMongoDB celebrity = celebrityMongoRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("CELEBRITY WITH ID " + id + " NOT FOUND"));
 
-            Movie movie = movieMongoDBRepository.findById(movie_id)
+            MovieMongoDB movie = movieMongoDBRepository.findById(movie_id)
                     .orElseThrow(() -> new IllegalArgumentException("MOVIE WITH ID " + movie_id + " NOT FOUND"));
 
             if (celebrity.getJobs() == null) {
@@ -224,7 +223,7 @@ public class CelebrityService {
             }
 
             boolean jobAlreadyExists = celebrity.getJobs().stream()
-                    .anyMatch(job -> job.getMovie_id().equals(movie_id) && job.getRole().equalsIgnoreCase("Director"));
+                    .anyMatch(job -> job.getMovieId().equals(movie_id) && job.getRole().equalsIgnoreCase("Director"));
 
             if (jobAlreadyExists) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -233,10 +232,10 @@ public class CelebrityService {
 
             String jobId = generateJobIdForCelebrity(celebrity);
             Job newJob = new Job();
-            newJob.setJob_id(jobId);
+            newJob.setJobId(jobId);
             newJob.setRole("DIRECTOR");
-            newJob.setMovie_id(movie_id);
-            newJob.setMovie_title(movie.getTitle());
+            newJob.setMovieId(movie_id);
+            newJob.setMovieTitle(movie.getTitle());
 
             celebrity.getJobs().add(newJob);
             celebrityMongoRepository.save(celebrity);
@@ -272,7 +271,7 @@ public class CelebrityService {
         }
     }
 
-    //REMOVE JOBS TO ACTOR O DIRECTOR
+    //METHOD TO REMOVE JOBS TO ACTOR O DIRECTOR
     @Transactional
     public ResponseEntity<Object> removeJobById(int celebrityId, String jobId) {
         try {
@@ -283,7 +282,7 @@ public class CelebrityService {
 
 
             Job jobToRemove = jobs.stream()
-                    .filter(job -> jobId.equals(job.getJob_id()))
+                    .filter(job -> jobId.equals(job.getJobId()))
                     .findFirst()
                     .orElse(null);
 
@@ -297,18 +296,18 @@ public class CelebrityService {
 
             switch (jobToRemove.getRole()) {
                 case "ACTOR":
-                    celebrityNeo4JRepository.removeActedInRelationship(String.valueOf(celebrityId), jobToRemove.getMovie_id());
+                    celebrityNeo4JRepository.removeActedInRelationship(String.valueOf(celebrityId), jobToRemove.getMovieId());
                     break;
                 case "DIRECTOR":
-                    celebrityNeo4JRepository.removeDirectedInRelationship(String.valueOf(celebrityId), jobToRemove.getMovie_id());
+                    celebrityNeo4JRepository.removeDirectedInRelationship(String.valueOf(celebrityId), jobToRemove.getMovieId());
                     break;
                 default:
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body(Map.of("message", "INVALID ROLE: " + jobToRemove.getRole()));
             }
 
-            Movie movie = movieMongoDBRepository.findById(jobToRemove.getMovie_id())
-                    .orElseThrow(() -> new MovieNotFoundException("MOVIE WITH ID " + jobToRemove.getMovie_id() + " NOT FOUND"));
+            MovieMongoDB movie = movieMongoDBRepository.findById(jobToRemove.getMovieId())
+                    .orElseThrow(() -> new MovieNotFoundInMongoException("MOVIE WITH ID " + jobToRemove.getMovieId() + " NOT FOUND"));
 
             if ("ACTOR".equalsIgnoreCase(jobToRemove.getRole())) {
                 movie.getActors().removeIf(actor -> actor.getId().equals(celebrityId));
@@ -321,7 +320,7 @@ public class CelebrityService {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(Map.of("message", "JOB WITH ID " + jobId + " REMOVED SUCCESSFULLY FROM CELEBRITY"));
 
-        } catch (CelebrityNotFoundException | MovieNotFoundException e) {
+        } catch (CelebrityNotFoundException | MovieNotFoundInMongoException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
@@ -383,7 +382,7 @@ public class CelebrityService {
 
             if (neo4jCelebrityOptional.isPresent()) {
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(Map.of("message", "CELEBRITY UPDATED SUCCESSFULLY IN BOTH DATABASES."));
+                        .body(Map.of("message", "CELEBRITY UPDATED SUCCESSFULLY."));
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of("message", "FAILED TO UPDATED CELEBRUTY IN NEO4J."));
@@ -395,14 +394,14 @@ public class CelebrityService {
         }
     }
 
-    // METHOD TO FIND NEO4J INCONSISTENCIES
+    //METHOD TO FIND NEO4J INCONSISTENCIES
     public List<String> celebrityInconsistenciesNeo() {
         List<String> mongoDbIds = celebrityMongoRepository.findAllIds().getAllIds();
         List<String> neo4jIds = celebrityNeo4JRepository.findAllIds();
         return findDifference(neo4jIds, mongoDbIds);
     }
 
-    // METHOD TO FIND MONGO INCONSISTENCIES
+    //METHOD TO FIND MONGO INCONSISTENCIES
     public List<String> celebrityInconsistenciesMongo() {
         List<String> mongoDbIds = celebrityMongoRepository.findAllIds().getAllIds();
         List<String> neo4jIds = celebrityNeo4JRepository.findAllIds();

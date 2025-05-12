@@ -1,9 +1,7 @@
 package it.unipi.movieland.model.User;
 
-import it.unipi.movieland.model.CountryEnum;
-import it.unipi.movieland.model.GenreEnum;
-import lombok.Getter;
-import lombok.Setter;
+import it.unipi.movieland.model.Enum.CountryEnum;
+import it.unipi.movieland.model.Enum.GenreEnum;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
@@ -36,43 +34,38 @@ public class UserNeo4J {
         this.favoriteGenres = favoriteGenres;
     }
 
-    public CountryEnum getCountry() {
-        return country;
+    public String getUsername() {
+        return username;
     }
-
-    public String getSurname() {
-        return surname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getName() {
         return name;
     }
-
-    public List<GenreEnum> getFavoriteGenres() {
-        return favoriteGenres;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public void setCountry(CountryEnum country) {
-        this.country = country;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setFavoriteGenres(List<GenreEnum> favoriteGenres) {
-        this.favoriteGenres = favoriteGenres;
+    public String getSurname() {
+        return surname;
+    }
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public CountryEnum getCountry() {
+        return country;
+    }
+    public void setCountry(CountryEnum country) {
+        this.country = country;
+    }
+
+    public List<GenreEnum> getFavoriteGenres() {
+        return favoriteGenres;
+    }
+    public void setFavoriteGenres(List<GenreEnum> favoriteGenres) {
+        this.favoriteGenres = favoriteGenres;
     }
 }

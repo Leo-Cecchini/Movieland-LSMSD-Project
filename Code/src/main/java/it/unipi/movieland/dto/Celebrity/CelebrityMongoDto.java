@@ -20,7 +20,7 @@ public class CelebrityMongoDto {
         this.poster = celebrityMongoDB.getPoster();
     }
 
-    //GETTER AND SETTER
+    //GETTERS AND SETTERS
     public int getId() { return _id; }
     public void setId(int _id) { this._id = _id; }
 

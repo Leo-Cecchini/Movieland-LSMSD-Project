@@ -3,29 +3,31 @@ package it.unipi.movieland.model.Comment;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.time.LocalDateTime;
 
 @Document(collection = "Comments")
-public class Comment {
+public class CommentMongoDB {
 
     @Id
     private String id;
+    private String author;
     private LocalDateTime datetime;
     private String text;
-    private String author;
-    private ObjectId post_id;
 
+    @Field("post_id")
+    private ObjectId postId;
 
-    public Comment() {
+    public CommentMongoDB() {
         this.datetime = LocalDateTime.now();
     }
 
-
-    public Comment(String text, String author, String post_id) {
+    public CommentMongoDB(String text, String author, String postId) {
         this.datetime = LocalDateTime.now();
         this.text = text;
         this.author = author;
-        this.post_id = new ObjectId(post_id); // Conversione della stringa a ObjectId
+        this.postId = new ObjectId(postId);
     }
 
     //GETTERS AND SETTERS
@@ -41,8 +43,8 @@ public class Comment {
     public String getAuthor() { return author; }
     public void setAuthor(String author) { this.author = author; }
 
-    public ObjectId getPost_id() { return post_id; }
-    public void setPost_id(ObjectId post_id) { this.post_id = post_id; }
+    public ObjectId getPostId() { return postId; }
+    public void setPostId(ObjectId postId) { this.postId = postId; }
 
     @Override
     public String toString() {
@@ -51,7 +53,7 @@ public class Comment {
                 ", datetime='" + datetime + '\'' +
                 ", text='" + text + '\'' +
                 ", author='" + author + '\'' +
-                ", post_id='" + post_id + '\'' +
+                ", post id='" + postId + '\'' +
                 '}';
     }
 }

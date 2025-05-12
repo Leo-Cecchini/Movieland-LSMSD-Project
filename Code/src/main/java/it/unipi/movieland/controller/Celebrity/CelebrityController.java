@@ -1,8 +1,6 @@
 package it.unipi.movieland.controller.Celebrity;
 
 import it.unipi.movieland.exception.CelebrityNotFoundException;
-import it.unipi.movieland.exception.CelebrityNotFoundInMongoException;
-import it.unipi.movieland.exception.CelebrityNotFoundInNeo4jException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import it.unipi.movieland.service.Celebrity.CelebrityService;
@@ -13,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
-import it.unipi.movieland.dto.Celebrity.CelebrityNeo4JDto;
 import it.unipi.movieland.dto.Celebrity.CelebrityMongoDto;
 
 import java.util.HashMap;
@@ -31,7 +28,7 @@ public class CelebrityController {
         this.celebrityService = celebrityService;
     }
 
-    //ENDPOINT TO RETRIEVE ALL CELEBRITIES WITH PAGINATION SUPPORT (MONGODB)
+    //GET CELEBRITIES WITH PAGINATION SUPPORT, DEFAULT: PAGE=0, SIZE=20
     @GetMapping("/")
     public ResponseEntity<Page<CelebrityMongoDto>> getAllCelebritiesMongo(
             @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -41,7 +38,7 @@ public class CelebrityController {
         return ResponseEntity.ok(result);
     }
 
-    //ENDPOINT TO RETRIEVE A CELEBRITY BY THEIR PERSON ID (MONGODB)
+    //GET CELEBRITY BY ID
     @GetMapping("/{celebrityId}")
     public ResponseEntity<Object> getCelebrityByIdMongo(@PathVariable int celebrityId) {
         try {
@@ -52,7 +49,7 @@ public class CelebrityController {
         }
     }
 
-    // ENDPOINT TO SEARCH FOR A CELEBRITY BY KEYWORD OR NAME (MONGODB)
+    //SEARCH CELEBRITIES BY KEYWORD OR NAME
     @GetMapping("/search")
     public ResponseEntity<Object> searchMongo(@RequestParam String text) {
         try
@@ -66,7 +63,7 @@ public class CelebrityController {
         }
     }
 
-    //ENDPOINT TO CREATE A CELEBRITY
+    //CREATE A NEW CELEBRITY
     @PostMapping("/")
     public ResponseEntity<Object> createCelebrity(
             @RequestParam int id,
@@ -89,30 +86,26 @@ public class CelebrityController {
         }
     }
 
-    //ENDPOINT TO DELETE A CELEBRITY
+    //DELETE CELEBRITY BY ID
     @DeleteMapping("/delete/{celebrityId}")
     public ResponseEntity<Object> deleteCelebrityById(@PathVariable int celebrityId) {
         try {
             celebrityService.deleteCelebrityInBothDatabases(celebrityId);
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(Map.of("message", "CELEBRITY WITH ID " + celebrityId + " HAS BEEN DELETED FROM BOTH DATABASES"));
+                    .body(Map.of("message", "CELEBRITY WITH ID " + celebrityId + " HAS BEEN DELETED."));
 
-        } catch (CelebrityNotFoundInMongoException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", ex.getMessage()));
-
-        } catch (CelebrityNotFoundInNeo4jException ex) {
+        } catch (CelebrityNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", ex.getMessage()));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "FAILED TO DELETE CELEBRITY FROM BOTH DATABASES", "details", e.getMessage()));
+                    .body(Map.of("error", "FAILED TO DELETE CELEBRITY.", "details", e.getMessage()));
         }
     }
 
-    //ENDPOINT TO ADD JOBS TO AN ACTOR
+    //ADD JOB AS ACTOR TO A CELEBRITY
     @PostMapping("/{celebrityId}/jobs/actor")
     public ResponseEntity<Object> updateJobToActor(
             @PathVariable int celebrityId,
@@ -122,7 +115,7 @@ public class CelebrityController {
         return celebrityService.addJobToActor(celebrityId, movie_id, character);
     }
 
-    //ENDPOINT TO ADD JOBS TO A DIRECTOR
+    //ADD JOB AS DIRECTOR TO A CELEBRITY
     @PostMapping("/{celebrityId}/jobs/director")
     public ResponseEntity<Object> updateJobToDirector(
             @PathVariable int celebrityId,
@@ -131,7 +124,7 @@ public class CelebrityController {
         return celebrityService.addJobToDirector(celebrityId, movie_id);
     }
 
-    //ENDPOINT TO DELETE A JOB FOR A DIRECTOR OR ACTOR
+    //REMOVE JOB FOR A CELEBRITY
     @DeleteMapping("/{celebrityId}/jobs/{jobId}")
     public ResponseEntity<Object> deleteJobById(
             @PathVariable int celebrityId,
@@ -140,13 +133,13 @@ public class CelebrityController {
         return celebrityService.removeJobById(celebrityId, jobId);
     }
 
-    //ENDPOINT TO GET A CELEBRITY'S JOBS
+    //GET JOBS FOR A CELEBRITY
     @GetMapping("/{celebrityId}/jobs")
     public ResponseEntity<Object> getJobsForCelebrity(@PathVariable int celebrityId) {
         return celebrityService.getJobsForCelebrity(celebrityId);
     }
 
-    //ENDPOINT FOR UPDATE THE CELEBRITY
+    //UPDATE CELEBRITY DETAILS
     @PutMapping("/update/{celebrityId}")
     public ResponseEntity<Object> updateCelebrity(
             @PathVariable String celebrityId,

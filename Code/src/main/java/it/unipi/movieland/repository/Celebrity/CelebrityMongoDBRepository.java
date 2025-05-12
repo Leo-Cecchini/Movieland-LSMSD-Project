@@ -46,8 +46,8 @@ public interface CelebrityMongoDBRepository extends MongoRepository<CelebrityMon
 
     //FIND ALL CELEBRITY IDS
     @Aggregation(pipeline = {
-            "{ $project: { _id: 1 } }",    // Select only the _id field
-            "{ $group: { _id: 1, allIds: { $push: '$_id' } } }" // Group and create an array of all ids
+            "{ $project: { _id: 1 } }",
+            "{ $group: { _id: 1, allIds: { $push: '$_id' } } }"
     })
     ListIdDTO findAllIds();
 }

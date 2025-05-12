@@ -1,10 +1,11 @@
 package it.unipi.movieland.model.User;
 
-import it.unipi.movieland.model.CountryEnum;
-import it.unipi.movieland.model.GenderEnum;
-import it.unipi.movieland.model.GenreEnum;
+import it.unipi.movieland.model.Enum.CountryEnum;
+import it.unipi.movieland.model.Enum.GenderEnum;
+import it.unipi.movieland.model.Enum.GenreEnum;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,212 +14,208 @@ import java.util.List;
 @Document(collection = "Users")
 public class UserMongoDB {
     @Id
-    private String _id;
+    @Field("_id")
+    private String id;
+
     private String email;
     private String name;
     private String surname;
     private String password;
     private CountryEnum country;
-    private String phone_number;
-    private List<GenreEnum> favorite_genres;
+
+    @Field("phone_number")
+    private String phoneNumber;
+
+    @Field("favorite_genres")
+    private List<GenreEnum> favoriteGenres;
+
     private GenderEnum gender;
     private LocalDate birthday;
-    private List<UserMovie> liked_movies;
+    
+    @Field("liked_movies")
+    private List<UserMovie> likedMovies;
+
     private List<UserMovie> watchlist;
-    private List<UserCelebrity> followed_celebrities;
+
+    @Field("followed_celebrities")
+    private List<UserCelebrity> followedCelebrities;
+
     private Integer follower;
     private Integer followed;
-    private UserReview recent_review;
 
-    public UserMongoDB(String _id, String email, String name, String surname, String password, CountryEnum country,
-                       String phone_number, List<GenreEnum> favorite_genres, GenderEnum gender, LocalDate birthday, List<UserMovie> liked_movies, List<UserMovie> watchlist, List<UserCelebrity> followed_celebrities, Integer follower, Integer followed, UserReview recent_review) {
-        this._id = _id;
+    @Field("recent_review")
+    private UserReview recentReview;
+
+    public UserMongoDB(String id,String email, String name, String surname, String password, CountryEnum country,
+                       String phoneNumber, List<GenreEnum> favoriteGenres, GenderEnum gender, LocalDate birthday,
+                       List<UserMovie> likedMovies, List<UserMovie> watchlist, List<UserCelebrity> followedCelebrities,
+                       Integer follower, Integer followed, UserReview recentReview) {
+
+        this.id = id;
         this.email = email;
         this.name = name;
         this.surname = surname;
         this.password = password;
         this.country = country;
-        this.phone_number = phone_number;
-        this.favorite_genres = favorite_genres;
+        this.phoneNumber = phoneNumber;
+        this.favoriteGenres = favoriteGenres;
         this.gender = gender;
         this.birthday = birthday;
-        this.liked_movies = liked_movies;
+        this.likedMovies = likedMovies;
         this.watchlist = watchlist;
-        this.followed_celebrities = followed_celebrities;
+        this.followedCelebrities = followedCelebrities;
         this.follower = follower;
         this.followed = followed;
-        this.recent_review = recent_review;
+        this.recentReview = recentReview;
     }
-    public UserMongoDB() {
-    }
+    public UserMongoDB() {}
 
-    public UserMongoDB(String _id, String email, String name, String surname, String password, CountryEnum country,
-                       String phone_number, List<GenreEnum> favorite_genres, GenderEnum gender, LocalDate birthday) {
-        this._id = _id;
+    public UserMongoDB(String id,String email, String name, String surname, String password, CountryEnum country,
+                       String phoneNumber, List<GenreEnum> favoriteGenres, GenderEnum gender, LocalDate birthday) {
+        this.id = id;
         this.email = email;
         this.name = name;
         this.surname = surname;
         this.password = password;
         this.country = country;
-        this.phone_number = phone_number;
-        this.favorite_genres = favorite_genres;
+        this.phoneNumber = phoneNumber;
+        this.favoriteGenres = favoriteGenres;
         this.gender = gender;
         this.birthday = birthday;
-        this.liked_movies = new ArrayList<>();
+        this.likedMovies = new ArrayList<>();
         this.watchlist = new ArrayList<>();
-        this.followed_celebrities = new ArrayList<>();
+        this.followedCelebrities = new ArrayList<>();
         this.follower = 0;
         this.followed = 0;
-        this.recent_review = null;
+        this.recentReview = null;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                " _id='" + _id + '\'' +
-                ", email='" + email + '\'' +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", password='" + password + '\'' +
-                ", country='" + country + '\'' +
-                ", phoneNumber='" + phone_number + '\'' +
-                ", favoriteGenres=" + favorite_genres +
-                ", gender='" + gender + '\'' +
-                ", birthday=" + birthday +
-                ", likedMovies=" + liked_movies +
-                ", watchlist=" + watchlist +
-                ", followedCelebrities=" + followed_celebrities +
-                ", followerCount=" + follower +
-                ", followedCount=" + followed +
-                ", recentReview=" + recent_review +
-                '}';
+    //GETTERS AND SETTERS
+    public String getId() {
+        return id;
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public Integer getFollowed() {
-        return followed;
-    }
-
-    public Integer getFollower() {
-        return follower;
-    }
-
-    public List<GenreEnum> getFavorite_genres() {
-        return favorite_genres;
-    }
-
-    public LocalDate getBirthday() {
-        return birthday;
-    }
-
-    public List<UserCelebrity> getFollowed_celebrities() {
-        return followed_celebrities;
-    }
-
-    public List<UserMovie> getLiked_movies() {
-        return liked_movies;
-    }
-
-    public List<UserMovie> getWatchlist() {
-        return watchlist;
-    }
-
-    public String get_id() {
-        return _id;
-    }
-
-    public CountryEnum getCountry() {
-        return country;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getEmail() {
         return email;
     }
-
-    public GenderEnum getGender() {
-        return gender;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getName() {
+        return name;
     }
-
-    public String getPhone_number() {
-        return phone_number;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getSurname() {
         return surname;
     }
-
-    public UserReview getRecent_review() {
-        return recent_review;
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
+    public CountryEnum getCountry() {
+        return country;
     }
-
-    public void setBirthday(LocalDate birthday) {
-        this.birthday = birthday;
-    }
-
     public void setCountry(CountryEnum country) {
         this.country = country;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public void setFavorite_genres(List<GenreEnum> favorite_genres) {
-        this.favorite_genres = favorite_genres;
+    public List<GenreEnum> getFavoriteGenres() { return favoriteGenres; }
+    public void setFavoriteGenres(List<GenreEnum> favoriteGenres) { this.favoriteGenres = favoriteGenres; }
+
+    public GenderEnum getGender() {
+        return gender;
+    }
+    public void setGender(GenderEnum gender) {
+        this.gender = gender;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
+    }
+
+    public List<UserMovie> getLikedMovies() {
+        return likedMovies;
+    }
+    public void setLikedMovies(List<UserMovie> likedMovies) {
+        this.likedMovies = likedMovies;
+    }
+
+    public List<UserMovie> getWatchlist() {
+        return watchlist;
+    }
+    public void setWatchlist(List<UserMovie> watchlist) {
+        this.watchlist = watchlist;
+    }
+
+    public List<UserCelebrity> getFollowedCelebrities() {
+        return followedCelebrities;
+    }
+    public void setFollowedCelebrities(List<UserCelebrity> followedCelebrities) { this.followedCelebrities = followedCelebrities; }
+
+    public Integer getFollower() {
+        return follower;
+    }
+    public void setFollower(Integer follower) {
+        this.follower = follower;
     }
 
     public void setFollowed(Integer followed) {
         this.followed = followed;
     }
-
-    public void setFollowed_celebrities(List<UserCelebrity> followed_celebrities) {
-        this.followed_celebrities = followed_celebrities;
+    public Integer getFollowed() {
+        return followed;
     }
 
-    public void setGender(GenderEnum gender) {
-        this.gender = gender;
+    public UserReview getRecentReview() {
+        return recentReview;
+    }
+    public void setRecentReview(UserReview recentReview) {
+        this.recentReview = recentReview;
     }
 
-    public void setFollower(Integer follower) {
-        this.follower = follower;
-    }
-
-    public void setLiked_movies(List<UserMovie> liked_movies) {
-        this.liked_movies = liked_movies;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
-    }
-
-    public void setRecent_review(UserReview recent_review) {
-        this.recent_review = recent_review;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public void setWatchlist(List<UserMovie> watchlist) {
-        this.watchlist = watchlist;
+    @Override
+    public String toString() {
+        return "User{" +
+                " id='" + id + '\'' +
+                ", email='" + email + '\'' +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", password='" + password + '\'' +
+                ", country='" + country + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", favoriteGenres=" + favoriteGenres +
+                ", gender='" + gender + '\'' +
+                ", birthday=" + birthday +
+                ", likedMovies=" + likedMovies +
+                ", watchlist=" + watchlist +
+                ", followedCelebrities=" + followedCelebrities +
+                ", followerCount=" + follower +
+                ", followedCount=" + followed +
+                ", recentReview=" + recentReview +
+                '}';
     }
 }

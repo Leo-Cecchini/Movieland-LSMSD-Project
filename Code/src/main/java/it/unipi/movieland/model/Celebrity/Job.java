@@ -1,41 +1,48 @@
 package it.unipi.movieland.model.Celebrity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.util.HashMap;
 import java.util.Map;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Job {
 
     private String role;
-    private String movie_id;
-    private String movie_title;
-    private String character;
-    private String job_id;
 
-    //SEPARATE COUNTER FOR EACH CELEBRATION
+    @Field("movie_id")
+    private String movieId;
+
+    @Field("movie_title")
+    private String movieTitle;
+
+    private String character;
+
+    @Field("job_id")
+    private String jobId;
+
     private static final Map<Integer, Integer> jobCounterMap = new HashMap<>();
 
-    public Job() {
-    }
+    public Job() { }
 
-    public Job(CelebrityMongoDB celebrity, String role, String movie_id, String movie_title, String character) {
+    public Job(CelebrityMongoDB celebrity, String role, String movieId, String movieTitle, String character) {
         if (celebrity == null) {
             throw new IllegalArgumentException("Celebrity cannot be null");
         }
         this.role = role;
-        this.movie_id = movie_id;
-        this.movie_title = movie_title;
+        this.movieId = movieId;
+        this.movieTitle = movieTitle;
+
         if ("Director".equals(role)) {
             this.character = null;
         } else {
             this.character = character;
         }
 
-        this.job_id = generateJobId(celebrity.getId());
+        this.jobId = generateJobId(celebrity.getId());
     }
 
-    // METHOD TO GENERATE A UNIQUE JOB ID FOR THE CELEBRITY
     private String generateJobId(int celebrityId) {
         int jobNumber = jobCounterMap.getOrDefault(celebrityId, 0) + 1;
         jobCounterMap.put(celebrityId, jobNumber);
@@ -50,18 +57,18 @@ public class Job {
         this.role = role;
     }
 
-    public String getMovie_id() {
-        return movie_id;
+    public String getMovieId() {
+        return movieId;
     }
-    public void setMovie_id(String movie_id) {
-        this.movie_id = movie_id;
+    public void setMovieId(String movieId) {
+        this.movieId = movieId;
     }
 
-    public String getMovie_title() {
-        return movie_title;
+    public String getMovieTitle() {
+        return movieTitle;
     }
-    public void setMovie_title(String movie_title) {
-        this.movie_title = movie_title;
+    public void setMovieTitle(String movieTitle) {
+        this.movieTitle = movieTitle;
     }
 
     public String getCharacter() {
@@ -71,21 +78,21 @@ public class Job {
         this.character = character;
     }
 
-    public String getJob_id() {
-        return job_id;
+    public String getJobId() {
+        return jobId;
     }
-    public void setJob_id(String job_id) {
-        this.job_id = job_id;
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
     }
 
     @Override
     public String toString() {
         return "Job{" +
                 "role='" + role + '\'' +
-                ", movieId='" + movie_id + '\'' +
-                ", movieTitle='" + movie_title + '\'' +
+                ", movieId='" + movieId + '\'' +
+                ", movieTitle='" + movieTitle + '\'' +
                 ", character='" + character + '\'' +
-                ", jobId='" + job_id + '\'' +
+                ", jobId='" + jobId + '\'' +
                 '}';
     }
 }

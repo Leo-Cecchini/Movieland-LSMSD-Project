@@ -1,4 +1,4 @@
-package it.unipi.movieland.model;
+package it.unipi.movieland.model.Enum;
 
 public enum TitleTypeEnum {
     MOVIE,

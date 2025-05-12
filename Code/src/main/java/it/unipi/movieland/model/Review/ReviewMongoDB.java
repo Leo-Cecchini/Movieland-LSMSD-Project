@@ -1,85 +1,75 @@
 package it.unipi.movieland.model.Review;
 
 import lombok.Generated;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
+import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 
 @Document(collection = "Reviews")
 public class ReviewMongoDB {
+
     @Id
+    @Field("_id")
     @Generated
-    private String _id;
+    private ObjectId id;
+
     private String review;
     private boolean sentiment;
-    private String movie_id;
+
+    @Field("movie_id")
+    private String movieId;
+
     private String username;
     private LocalDateTime timestamp;
-    private int num_likes;
 
-    public ReviewMongoDB(String review, boolean sentiment, String movie_id, String username) {
+    @Field("num_likes")
+    private int numLikes;
+
+    public String getStringId() {return id != null ? id.toString() : null; }
+
+    public ReviewMongoDB(String review, boolean sentiment, String movieId, String username) {
         this.review = review;
         this.sentiment = sentiment;
-        this.movie_id = movie_id;
+        this.movieId = movieId;
         this.username = username;
         this.timestamp = LocalDateTime.now();
-        this.num_likes = 0;
+        this.numLikes = 0;
     }
 
-    public String getUsername() {
-        return username;
-    }
+    //GETTERS AND SETTERS
+    public ObjectId getId() { return id; }
+    public void setId(ObjectId id) { this.id = id; }
 
-    public String get_id() {
-        return _id;
-    }
+    public String getReview() { return review; }
+    public void setReview(String review) { this.review = review; }
 
-    public int getNum_likes() {
-        return num_likes;
-    }
+    public boolean isSentiment() { return sentiment; }
+    public void setSentiment(boolean sentiment) { this.sentiment = sentiment; }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
+    public String getMovieId() { return movieId; }
+    public void setMovieId(String movieId) { this.movieId = movieId; }
 
-    public String getMovie_id() {
-        return movie_id;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public boolean isSentiment() {
-        return sentiment;
-    }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 
-    public String getReview() {
-        return review;
-    }
+    public int getNumLikes() { return numLikes; }
+    public void setNumLikes(int numLikes) { this.numLikes = numLikes; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setSentiment(boolean sentiment) {
-        this.sentiment = sentiment;
-    }
-
-    public void set_id(String _id) {
-        this._id = _id;
-    }
-
-    public void setMovie_id(String movie_id) {
-        this.movie_id = movie_id;
-    }
-
-    public void setReview(String review) {
-        this.review = review;
-    }
-
-    public void setNum_likes(int num_likes) {
-        this.num_likes = num_likes;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    @Override
+    public String toString() {
+        return "ReviewMongoDB{" +
+                "id= " + id + '\'' +
+                ", review= " + review + '\'' +
+                ", sentiment= " + sentiment +
+                ", movieId= " + movieId + '\'' +
+                ", username= " + username + '\'' +
+                ", timestamp= " + timestamp +
+                ", numLikes= " + numLikes +
+                '}';
     }
 }

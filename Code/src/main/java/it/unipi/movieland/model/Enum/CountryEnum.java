@@ -1,4 +1,4 @@
-package it.unipi.movieland.model;
+package it.unipi.movieland.model.Enum;
 
 public enum CountryEnum {
     AF("Afghanistan"),
@@ -164,7 +164,7 @@ public enum CountryEnum {
         this.countryName = countryName;
     }
 
-
     public String getCountryName() {
         return countryName;
-    }}
+    }
+}

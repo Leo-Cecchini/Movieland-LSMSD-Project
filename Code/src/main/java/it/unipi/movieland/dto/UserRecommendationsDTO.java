@@ -1,8 +1,6 @@
 package it.unipi.movieland.dto;
 
-import it.unipi.movieland.model.CountryEnum;
-import lombok.Getter;
-import lombok.Setter;
+import it.unipi.movieland.model.Enum.CountryEnum;
 
 public class UserRecommendationsDTO {
     private String username;

@@ -4,20 +4,19 @@ import it.unipi.movieland.dto.PostActivityDTO;
 import it.unipi.movieland.dto.PostDTO;
 import it.unipi.movieland.dto.UserInfluencerDTO;
 
-import it.unipi.movieland.model.Comment.Comment;
-import it.unipi.movieland.model.Post.Post;
+import it.unipi.movieland.exception.InvalidDateFormatException;
+import it.unipi.movieland.exception.MovieNotFoundInMongoException;
+import it.unipi.movieland.exception.PostNotFoundInMongoException;
+import it.unipi.movieland.model.Post.PostMongoDB;
 
 import it.unipi.movieland.repository.Movie.MovieMongoDBRepository;
 import it.unipi.movieland.repository.Post.PostMongoDBRepository;
 import it.unipi.movieland.repository.User.UserMongoDBRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,22 +39,24 @@ public class PostService {
     }
 
     //METHOD TO CREATE A POST
-    public Post createPost(String text, String author, String movieId) {
+    public PostMongoDB createPost(String text, String author, String movieId) {
         if (!userRepository.existsById(author)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "AUTHOR WITH ID : " + author + " NOT FOUND.");}
+            throw new PostNotFoundInMongoException("USER WITH ID : " + author + " NOT FOUND.");
+        }
 
         if(!movieMongoDBRepository.existsById(movieId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MOVIE WITH ID " + movieId + " NOT FOUND");}
+            throw new PostNotFoundInMongoException("MOVIE WITH ID " + movieId + " NOT FOUND");
+        }
 
-        Post post = new Post(text,author,movieId,null);
+        PostMongoDB post = new PostMongoDB(text,author,movieId,null);
         return postMongoDBRepository.save(post);
     }
 
     //METHOD TO UPDATE AN EXISTING POST
-    public Post updatePost(String id, String text) {
+    public PostMongoDB updatePost(String id, String text) {
 
-        Post existingPost = postMongoDBRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "POST WITH ID " + id + " NOT FOUND"));
+        PostMongoDB existingPost = postMongoDBRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundInMongoException("POST WITH ID " + id + " NOT FOUND"));
 
         existingPost.setText(text);
         existingPost.setDatetime(LocalDateTime.now());
@@ -63,64 +64,78 @@ public class PostService {
         return postMongoDBRepository.save(existingPost);
     }
 
+    //METHOD TO DELETE A POST BY ID
+    public void deletePost(String id) {
+
+        PostMongoDB existingPost = postMongoDBRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundInMongoException("POST WITH ID " + id + " NOT FOUND"));
+
+        postMongoDBRepository.delete(existingPost);
+    }
+
     //METHOD TO RETRIEVE A POST BY ID
-    public Post getPostById(String id) {
-        Optional<Post> post = postMongoDBRepository.findById(id);
+    public PostMongoDB getPostById(String id) {
+        Optional<PostMongoDB> post = postMongoDBRepository.findById(id);
 
         if (post.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "COMMENT WITH ID " + id + " NOT FOUND");
+            throw new PostNotFoundInMongoException("POST WITH ID " + id + " NOT FOUND");
         }
         return post.get();
     }
 
     //METHOD TO GET POST BY AUTHOR
-    public Page<Post> getPostByAuthor(String authorId, int page, int size) {
+    public Page<PostMongoDB> getPostByAuthor(String authorId, int page, int size) {
 
         boolean userExists = userRepository.existsById(authorId);
 
         if (!userExists) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("AUTHOR WITH ID %s NOT FOUND", authorId));
+            throw new PostNotFoundInMongoException("AUTHOR WITH ID " + authorId + " NOT FOUND");
         }
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<Post> post = postMongoDBRepository.findByAuthor(authorId, pageRequest);
+        Page<PostMongoDB> post = postMongoDBRepository.findByAuthor(authorId, pageRequest);
 
         if (post.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("NO POST FOUND FOR THE AUTHOR WITH ID %s", authorId));
+            throw new PostNotFoundInMongoException("NO POST FOUND FOR THE AUTHOR WITH ID " + authorId + ".");
         }
+
         return post;
     }
 
-    //METHOD TO DELETE A POST BY ID
-    public void deletePost(String id) {
+    //METHOD TO GET POSTS BY MOVIE ID
+    public List<PostDTO> getPostsByMovieId(String movieId) {
 
-        Post existingPost = postMongoDBRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "POST WITH ID " + id + " NOT FOUND"));
+        List<PostDTO> posts = postMongoDBRepository.findByMovieId(movieId);
 
-        postMongoDBRepository.delete(existingPost);
+        if (posts.isEmpty()) {
+            throw new MovieNotFoundInMongoException("NO POSTS FOUND FOR MOVIE ID: " + movieId);
+        }
+        return posts;
     }
 
-    //METHOD TO GET POSTS BY MOVIE ID
-    public Page<PostDTO> getPostsByMovieId(String movie_id, int page, int size) {
+    //METHOD TO GET POSTS BY DATA RANGE
+    public Page<PostDTO> getPostsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
+
+        if (startDate == null || endDate == null) {
+            throw new InvalidDateFormatException("THE DATE FORMAT ENTERED IS INVALID. USE ‘yyyy-MM-dd’T’HH:mm:ss’.");
+        }
+
+        if (startDate.isAfter(endDate)) {
+            throw new InvalidDateFormatException("THE START DATE CANNOT BE AFTER THE END DATE.");
+        }
 
         PageRequest pageRequest = PageRequest.of(page, size);
-
-        return postMongoDBRepository.findByMovieId(movie_id, pageRequest);
+        return postMongoDBRepository.findByDatetimeBetween(startDate, endDate, pageRequest);
     }
 
+    //METHOD TO GET POST ACTIVITY
     public List<PostActivityDTO> getPostActivity() {
         return postMongoDBRepository.getPostActivity();
     }
 
+    //METHOD TO GET INFLUENCERS REPORT
     public List<UserInfluencerDTO> getInfluencersReport()  {
         return postMongoDBRepository.getInfluencersReport();
-    }
-
-    public Page<PostDTO> getPostsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return postMongoDBRepository.findByDatetimeBetween(startDate, endDate, pageRequest);
     }
 }
 

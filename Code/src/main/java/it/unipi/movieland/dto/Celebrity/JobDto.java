@@ -35,10 +35,10 @@ public class JobDto {
 
     public static JobDto fromEntity(Job job) {
         return new JobDto(
-                job.getJob_id(),
+                job.getJobId(),
                 job.getRole(),
-                job.getMovie_id(),
-                job.getMovie_title(),
+                job.getMovieId(),
+                job.getMovieTitle(),
                 job.getCharacter()
         );
     }

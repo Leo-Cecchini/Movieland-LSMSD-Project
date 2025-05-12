@@ -2,30 +2,33 @@ package it.unipi.movieland.model.Celebrity;
 
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Property;
 
 @Node("Celebrity")
 public class CelebrityNeo4J {
 
     @Id
-    private String person_id;
+    @Property("person_id")
+    private String personId;
+
     private String name;
-    private String Poster;
+
+    @Property("Poster")
+    private String poster;
 
     public CelebrityNeo4J() {}
 
-    public CelebrityNeo4J(String person_id, String name, String poster) {
-        this.person_id = person_id;
+    public CelebrityNeo4J(String personId, String name, String poster) {
+        this.personId = personId;
         this.name = name;
-        this.Poster = poster;
+        this.poster = poster;
     }
 
     //GETTER AND SETTER
     public String getPersonId() {
-        return person_id;
+        return personId;
     }
-    public void setPersonId(String person_id) {
-        this.person_id = person_id;
-    }
+    public void setPersonId(String personId) { this.personId = personId; }
 
     public String getName() {
         return name;
@@ -35,16 +38,16 @@ public class CelebrityNeo4J {
     }
 
     public String getPoster() {
-        return Poster;
+        return poster;
     }
-    public void setPoster(String poster) { this.Poster = poster;}
+    public void setPoster(String poster) { this.poster = poster;}
 
     @Override
     public String toString() {
         return "CelebrityNeo4J{" +
-                "person_id=" + person_id +
-                ", name='" + name + '\'' +
-                ", poster='" + Poster + '\'' +
+                "personId= " + personId +
+                ", name= " + name + '\'' +
+                ", poster= " + poster + '\'' +
                 '}';
     }
 }

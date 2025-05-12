@@ -1,7 +1,7 @@
 package it.unipi.movieland.controller.Review;
 
+import it.unipi.movieland.exception.*;
 import it.unipi.movieland.model.Review.ReviewMongoDB;
-import it.unipi.movieland.model.User.UserMongoDB;
 import it.unipi.movieland.model.User.UserNeo4J;
 import it.unipi.movieland.service.Review.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/reviews")
@@ -20,129 +20,258 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    @GetMapping("/")
-    public ResponseEntity<?> getAllReviews(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-        try {
-            List<ReviewMongoDB> reviews = reviewService.getAllReviews(page,size);
-            if (reviews.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            } else {
-                return new ResponseEntity<>(reviews, HttpStatus.OK);
-            }
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/movie/{movieId}")
-    public ResponseEntity<?> getReviews(@PathVariable String movieId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-        try {
-            List<ReviewMongoDB> reviews = reviewService.getReviewsByMovieId(movieId,page,size);
-            if (reviews.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            } else {
-                return new ResponseEntity<>(reviews, HttpStatus.OK);
-            }
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    //CREATE A NEW REVIEW FOR A MOVIE
     @PostMapping("/movie/{movieId}")
-    public ResponseEntity<?> addReview(@PathVariable String movieId, String review, String userId, boolean sentiment) {
+    public ResponseEntity<?> createReview(
+            @PathVariable String movieId,
+            @RequestParam String review,
+            @RequestParam String userId,
+            @RequestParam boolean sentiment) {
         try {
-            return new ResponseEntity<>(reviewService.addReview(movieId,userId,review,sentiment),HttpStatus.CREATED);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            ReviewMongoDB createdReview = reviewService.addReview(movieId, userId, review, sentiment);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "REVIEW CREATED SUCCESSFULLY.");
+            response.put("review", createdReview);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (UserNotFoundInMongoException | MovieNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "RESOURCE NOT FOUND", "details", e.getMessage()));
+
         } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO CREATE REVIEW", "details", e.getMessage()));
         }
     }
 
-    @GetMapping("/id/{reviewId}")
-    public ResponseEntity<?> getReview(@PathVariable String reviewId) {
+    //GET A REVIEW BY ID
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<?> getReviewById(@PathVariable String reviewId) {
         try {
-            return new ResponseEntity<>(reviewService.getReviewById(reviewId),HttpStatus.CREATED);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            ReviewMongoDB review = reviewService.getReviewById(reviewId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "REVIEW RETRIEVED SUCCESSFULLY.");
+            response.put("review", review);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (ReviewNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "REVIEW NOT FOUND", "details", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO GET REVIEW", "details", e.getMessage()));
         }
     }
 
-    @PutMapping("/id/{reviewId}")
-    public ResponseEntity<String> updateReview(@PathVariable String reviewId, String review) {
+    //GET ALL REVIEWS WITH PAGINATION
+    @GetMapping("/")
+    public ResponseEntity<Object> getAllReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
-            reviewService.updateReview(reviewId,review);
-            return new ResponseEntity<>("Review updated",HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            List<ReviewMongoDB> reviews = reviewService.getAllReviews(page, size);
+
+            if (reviews.isEmpty()) {
+                throw new ReviewNotFoundInMongoException("NO REVIEWS FOUND.");
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "REVIEWS RETRIEVED SUCCESSFULLY.");
+            response.put("reviews", reviews);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (ReviewNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "REVIEW NOT FOUND", "details", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO GET REVIEWS", "details", e.getMessage()));
         }
     }
 
-    @DeleteMapping("/id/{reviewId}")
-    public ResponseEntity<String> deleteReview(@PathVariable String reviewId) {
+    //GET REVIEWS BY MOVIE ID WITH PAGINATION
+    @GetMapping("/movie/{movieId}")
+    public ResponseEntity<Object> getReviewsByMovie(
+            @PathVariable String movieId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        try {
+            List<ReviewMongoDB> reviews = reviewService.getReviewsByMovieId(movieId, page, size);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "REVIEWS RETRIEVED SUCCESSFULLY.");
+            response.put("reviews", reviews);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (MovieNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "MOVIE NOT FOUND", "details", e.getMessage()));
+
+        } catch (ReviewNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "REVIEW NOT FOUND", "details", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO GET REVIEWS", "details", e.getMessage()));
+        }
+    }
+
+    //GET ALL REVIEWS BY USER ID WITH PAGINATION
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getReviewsByUser(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        try {
+            List<ReviewMongoDB> reviews = reviewService.getReviewsByUsername(userId, page, size);
+            if (reviews.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body(Map.of("message", "NO REVIEWS FOUND FOR USER '" + userId + "'"));
+            } else {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(reviews);
+            }
+        } catch (UserNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "USER NOT FOUND", "details", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO RETRIEVE REVIEWS", "details", e.getMessage()));
+        }
+    }
+
+    //UPDATE AN EXISTING REVIEW BY REVIEW ID
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<?> updateReview(
+            @PathVariable String reviewId,
+            @RequestParam String textReview) {
+        try {
+            reviewService.updateReview(reviewId, textReview);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "REVIEW UPDATED SUCCESSFULLY.");
+            response.put("reviewId", reviewId);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (ReviewNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "REVIEW NOT FOUND", "details", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO UPDATE REVIEW", "details", e.getMessage()));
+        }
+    }
+
+    //DELETE A REVIEW BY ID
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<?> deleteReview(@PathVariable String reviewId) {
         try {
             reviewService.deleteReview(reviewId);
-            return new ResponseEntity<>("Review deleted",HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "REVIEW DELETED SUCCESSFULLY.");
+            response.put("reviewId", reviewId);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (ReviewNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "REVIEW NOT FOUND", "details", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO DELETE REVIEW", "details", e.getMessage()));
         }
     }
 
-    @PutMapping("/id/{reviewId}/like")
-    public ResponseEntity<String> likeReview(@PathVariable String reviewId, String userId) {
+    //LIKE A REVIEW BY ID
+    @PutMapping("/{reviewId}/like")
+    public ResponseEntity<?> likeReview(
+            @PathVariable String reviewId,
+            @RequestParam String userId) {
         try {
-            reviewService.likeReview(reviewId,userId);
-            return new ResponseEntity<>("Review liked",HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            reviewService.likeReview(reviewId, userId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "REVIEW LIKED SUCCESSFULLY.");
+            response.put("reviewId", reviewId);
+            response.put("userId", userId);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (ReviewNotFoundInMongoException | UserNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "RESOURCE NOT FOUND", "details", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO LIKE REVIEW", "details", e.getMessage()));
         }
     }
 
-    @PutMapping("/id/{reviewId}/unlike")
-    public ResponseEntity<String> unlikeReview(@PathVariable String reviewId, String userId) {
+    //UNLIKE A REVIEW BY ID
+    @PutMapping("/{reviewId}/unlike")
+    public ResponseEntity<?> unlikeReview(
+            @PathVariable String reviewId,
+            @RequestParam String userId) {
         try {
-            reviewService.unlikeReview(reviewId,userId);
-            return new ResponseEntity<>("Review unliked",HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            reviewService.unlikeReview(reviewId, userId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "REVIEW UNLIKED SUCCESSFULLY.");
+            response.put("reviewId", reviewId);
+            response.put("userId", userId);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (ReviewNotFoundInMongoException | UserNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "RESOURCE NOT FOUND", "details", e.getMessage()));
+
+        } catch (ReviewNotLikedException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "REVIEW NOT LIKED", "details", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO UNLIKE REVIEW", "details", e.getMessage()));
         }
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getUserReviews(@PathVariable String userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+    //GET ALL USERS WHO LIKED A SPECIFIC REVIEW BY ID
+    @GetMapping("/{reviewId}/likes")
+    public ResponseEntity<?> getUsersWhoLikedReview(
+            @PathVariable String reviewId) {
         try {
-            List<ReviewMongoDB> reviews = reviewService.getReviewsByUsername(userId,page,size);
-            if (reviews.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            } else {
-                return new ResponseEntity<>(reviews, HttpStatus.OK);
-            }
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+            List<UserNeo4J> users = reviewService.findUserLikeReview(reviewId);
 
-    @GetMapping("/id/{reviewId}/like")
-    public ResponseEntity<?> UserLikeReview(@PathVariable String reviewId) {
-        try {
-            List<UserNeo4J> users= reviewService.findUserLikeReview(reviewId);
-            return new ResponseEntity<>(users,HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "LIKES RETRIEVED SUCCESSFULLY.");
+            response.put("reviewId", reviewId);
+            response.put("likesCount", users.size());
+            response.put("users", users);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (ReviewNotFoundInMongoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "REVIEW NOT FOUND", "details", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "FAILED TO GET LIKES", "details", e.getMessage()));
         }
     }
 }

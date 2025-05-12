@@ -1,95 +1,221 @@
 package it.unipi.movieland.service.Movie;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import it.unipi.movieland.dto.*;
+import it.unipi.movieland.exception.*;
+
+import it.unipi.movieland.model.Enum.CountryEnum;
+import it.unipi.movieland.model.Enum.GenreEnum;
+import it.unipi.movieland.model.Enum.PlatformEnum;
+import it.unipi.movieland.model.Enum.TitleTypeEnum;
 import it.unipi.movieland.model.Movie.*;
-import it.unipi.movieland.model.*;
+
 import it.unipi.movieland.repository.Movie.*;
 import it.unipi.movieland.service.exception.BusinessException;
 import it.unipi.movieland.utils.apiMDB.APIRequest;
 import it.unipi.movieland.utils.deserializers.SearchNewTitleDTODeserializer;
 import it.unipi.movieland.utils.deserializers.TitleDeserializer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+
+import org.springframework.data.domain.*;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieService {
 
     @Autowired
-    private MovieMongoDBImplementation movieMongoDBRepo;
+    private MovieMongoDBImplementation movieMongoDBRepository;
+
     @Autowired
     private MovieMongoDBRepository movieMongoDBInterface;
 
     @Autowired
-    private MovieNeo4jRepository movieNeo4jRepository;
+    private MovieNeo4JRepository movieNeo4jRepository;
 
-    // Get all movies
-    public List<Movie> getAllMovies() {
-        return movieMongoDBInterface.findAll();
+    //METHOD TO GET ALL MOVIES
+    public Page<MovieMongoDTO> getAllMovies(Pageable pageable) {
+
+        Page<MovieMongoDB> list = movieMongoDBInterface.findAll(pageable);
+        List<MovieMongoDTO> dtoList = list.getContent().stream()
+                .map(MovieMongoDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, pageable, list.getTotalElements());
     }
 
-    // Search movie by id
-    public Optional<Movie> getMovieById(String movieId) {
-        return movieMongoDBInterface.findById(movieId);
+    // METHOD TO GET MOVIE BY ID
+    public MovieMongoDB getMovieById(String movieId) {
+        return movieMongoDBInterface.findById(movieId)
+                .orElseThrow(() -> new MovieNotFoundInMongoException("MOVIE WITH ID " + movieId + " NOT FOUND"));
     }
 
-    // Search movie by name
+    //METHOD TO SEARCH MOVIES BY TITLE OR KEYWORD
     public Page<SearchTitleDTO> getMovieByTitleOrKeyword(TitleTypeEnum type, String label, int page, int size) throws BusinessException {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return movieMongoDBRepo.getTitleByTitleOrKeyword(type, label, pageRequest);
+        return movieMongoDBRepository.getTitleByTitleOrKeyword(type, label, PageRequest.of(page, size));
     }
 
-    public Page<SearchTitleDTO> getTitleWithFilters(TitleTypeEnum type,
+    //METHOD TO SEARCH MOVIES WITH FILTERS
+    public Page<SearchTitleDTO> getMovieWithFilters(TitleTypeEnum type,
                                                     Optional<String> label,
                                                     Optional<List<GenreEnum>> genre,
-                                                    Optional<Integer> release_year,
+                                                    Optional<Integer> releaseYear,
                                                     Optional<PlatformEnum> platform,
-                                                    Optional<CountryEnum> production_countries,
-                                                    Optional<String> age_certification,
-                                                    Optional<Integer> imdb_scores,
-                                                    Optional<Integer> imdb_votes,
+                                                    Optional<CountryEnum> productionCountries,
+                                                    Optional<String> ageCertification,
+                                                    Optional<Integer> imdbScores,
+                                                    Optional<Integer> imdbVotes,
                                                     int page,
-                                                    int size
-    ) throws BusinessException {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return movieMongoDBRepo.getTitlewithFilters(type, label, genre, release_year, platform, production_countries, age_certification, imdb_scores, imdb_votes, pageRequest);
+                                                    int size) throws BusinessException {
+
+        return movieMongoDBRepository.getTitleWithFilters(
+                type, label, genre, releaseYear, platform, productionCountries,
+                ageCertification, imdbScores, imdbVotes,
+                PageRequest.of(page, size)
+        );
     }
 
-    /*public Optional <List<Review>> getReviewsByMovieId(String movieId){
-        return movieRepository.getReviewsByMovieId(movieId);
-    }*/
+    //METHOD TO ADD MOVIE BY ID
+    public int addTitleById(TitleTypeEnum typeEnum, String id) throws IOException, InterruptedException {
 
-    public Map<Integer,List<SearchNewTitleDTO>> searchNewTitleByName(TitleTypeEnum type,
-                                                                     String title,
-                                                                     Optional<Integer> year) throws IOException, InterruptedException {
+        Optional<MovieMongoDB> title = movieMongoDBInterface.findById(id);
+        if (title.isPresent()) {
+            return 1;
+        }
 
-        Map<Integer,List<SearchNewTitleDTO>> map = new HashMap<>();
-        //creating api request and getting the response
+        APIRequest api = new APIRequest();
+        String response = api.getMoviebyId(typeEnum.name(), id);
+        if (response == null || response.isEmpty()) {
+            return 2;
+        }
+
+        JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
+        JsonArray searchArray = jsonResponse.getAsJsonArray("search");
+
+        if (searchArray != null && searchArray.isEmpty()) {
+            return 2;
+        }
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(MovieMongoDB.class, new TitleDeserializer())
+                .create();
+        MovieMongoDB movie = gson.fromJson(response, MovieMongoDB.class);
+        movie.setType(movie.getType());
+
+        MovieNeo4J movieNeo4j = new MovieNeo4J(movie.getId(), movie.getTitle(), movie.getGenres());
+
+        movieMongoDBInterface.insert(movie);
+        movieNeo4jRepository.save(movieNeo4j);
+
+        return 0;
+    }
+
+    //METHOD TO UPDATE MOVIE
+    public boolean patchMovie(String movieId, Map<String, Object> updates) {
+
+        if (updates.containsKey("_id") || updates.containsKey("id")) {
+            throw new  InvalidDateFormatException("ID CANNOT BE MODIFIED.");
+        }
+
+        Optional<MovieMongoDB> movieMongo = movieMongoDBInterface.findById(movieId);
+        if (movieMongo.isEmpty()) return false;
+
+        Optional<MovieNeo4J> movieNeo4j = movieNeo4jRepository.findByImdbId(movieId);
+        if (movieNeo4j.isEmpty()) return false;
+
+        MovieMongoDB mongo = movieMongo.get();
+        MovieNeo4J neo4j = movieNeo4j.get();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "title" -> {
+                    mongo.setTitle((String) value);
+                    neo4j.setTitle((String) value);
+                }
+                case "type" -> mongo.setType(TitleTypeEnum.valueOf(((String) value).toUpperCase()));
+                case "description" -> mongo.setDescription((String) value);
+                case "release_year" -> mongo.setReleaseYear((Integer) value);
+                case "genres" -> {
+                    List<String> genres = (List<String>) value;
+                    List<GenreEnum> genreEnums = genres.stream()
+                            .map(g -> GenreEnum.valueOf(g.toUpperCase()))
+                            .toList();
+                    mongo.setGenres(genreEnums);
+                    neo4j.setGenres(genreEnums);
+                }
+                case "keywords" -> mongo.setKeywords((List<String>) value);
+                case "production_countries" -> {
+                    List<String> countries = (List<String>) value;
+                    List<CountryEnum> countryEnums = countries.stream()
+                            .map(c -> CountryEnum.valueOf(c.toUpperCase()))
+                            .toList();
+                    mongo.setProductionCountries(countryEnums);
+                }
+                case "runtime" -> mongo.setRuntime((Integer) value);
+                case "poster_path" -> mongo.setPosterPath((String) value);
+                case "platform" -> mongo.setPlatform((List<String>) value);
+                case "revenue" -> mongo.setRevenue(Double.valueOf(value.toString()));
+                case "budget" -> mongo.setBudget(Double.valueOf(value.toString()));
+                case "age_certification" -> mongo.setAgeCertification((String) value);
+                case "seasons" -> mongo.setSeasons((Integer) value);
+            }
+        });
+
+        movieMongoDBInterface.save(mongo);
+        movieNeo4jRepository.save(neo4j);
+        return true;
+    }
+
+    //METHOD TO DELETE MOVIE
+    @Transactional
+    public void deleteMovie(String movieId) {
+
+        Optional<MovieMongoDB> mongoMovie = movieMongoDBInterface.findById(movieId);
+        if (mongoMovie.isEmpty()) {
+            throw new MovieNotFoundInMongoException("MOVIE WITH ID " + movieId + " NOT FOUND.");
+        }
+
+        Optional<MovieNeo4J> neo4jMovie = movieNeo4jRepository.findById(movieId);
+        if (neo4jMovie.isEmpty()) {
+            throw new MovieNotFoundInNeo4JException("MOVIE WITH ID " + movieId + " NOT FOUND.");
+        }
+
+        movieMongoDBInterface.deleteById(movieId);
+        movieNeo4jRepository.deleteById(movieId);
+    }
+
+    //METHOD TO SEARCH FOR MOVIES BASED ON TITLE AND OPTIONAL YEAR
+    public Map<Integer, List<SearchNewTitleDTO>> searchNewTitleByName(TitleTypeEnum type,
+                                                                      String title,
+                                                                      Optional<Integer> year) throws IOException, InterruptedException {
+        Map<Integer, List<SearchNewTitleDTO>> map = new HashMap<>();
+
         APIRequest api = new APIRequest();
         String response = api.getIdByTitle(type.name(), title, year);
 
-        if(response == null){   //api error: code 2
+        if(response == null){
             map.put(2, null);
             return map;
         }
-        //parsing the response to a json object
+
         JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
-        //creating an array of json object because I can have a list of more than one title
         JsonArray searchArray = jsonResponse.getAsJsonArray("search");
 
-        if(searchArray.isEmpty()){    //no title found: code 1
+        if(searchArray.isEmpty()){
             map.put(1, null);
             return map;
         }
 
-        //gson for the deserialization of the json object
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(SearchNewTitleDTO.class, new SearchNewTitleDTODeserializer())
                 .create();
@@ -97,124 +223,16 @@ public class MovieService {
         Type listType = new TypeToken<List<SearchNewTitleDTO>>() {}.getType();
         List<SearchNewTitleDTO> movies = gson.fromJson(searchArray, listType); //converting the titles to searchNewTitleDTO
 
-        map.put(0, movies);     //no errors: code 0
+        map.put(0, movies);
         return map;
     }
 
-    public int addTitleById(TitleTypeEnum typeEnum, String id) throws IOException, InterruptedException {
-        Optional<Movie> title = movieMongoDBInterface.findById(id);
-        if(title.isPresent())   //title already in the database
-            return 1;
-
-        //creating api request and getting the response
-        APIRequest api = new APIRequest();
-        String response = api.getMoviebyId(typeEnum.name(), id);
-
-        if(response == null){ //api error
-            return 2;
-        }
-        //parsing the response to a json object
-        JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
-        //creating an array of json object because I can have a list of more than one title
-        JsonArray searchArray = jsonResponse.getAsJsonArray("search");
-
-        if( searchArray != null && searchArray.isEmpty()){  //no titles found
-            return 1;
-        }
-
-        //fetching fields of json object
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Movie.class, new TitleDeserializer())
-                .create();
-        //create movie
-        Movie movie = gson.fromJson(response, Movie.class);
-        movie.setType(movie.getType());
-
-        MovieNeo4j movieNeo4j = new MovieNeo4j(movie.get_id(), movie.getTitle(), movie.getGenre());
-
-        //add movie to mongodb
-        movieMongoDBInterface.insert(movie);
-        //add movie to neo4j
-        movieNeo4jRepository.save(movieNeo4j);
-
-        return 0;
-    }
-
-    // Update a movie
-    public boolean updateMovie(String movieId, UpdateTitleDTO movie){
-
-        Optional<Movie> movieMongo = movieMongoDBInterface.findById(movieId);
-        if(movieMongo.isEmpty()){  //no movie with _id = movie_id in MongoDB
-            return false;
-        }
-
-        Optional<MovieNeo4j> movieNeo4j = movieNeo4jRepository.findByImdbId(movieId);
-        if(movieNeo4j.isEmpty()){ //no movie with _id = movie_id in Neo4j
-            return false;
-        }
-
-        //convert movie into movieNeo4j (imdb_id, title, genres)
-        movieNeo4j.get().setImdb_id(movieId);
-        movieNeo4j.get().setTitle(movie.getTitle());
-        movieNeo4j.get().setGenres((movie.getGenres()));
-
-        movieMongo.get().set_id(movieId);
-        movieMongo.get().setTitle(movie.getTitle());
-        movieMongo.get().setType(movie.getType());
-        movieMongo.get().setDescription(movie.getDescription());
-        movieMongo.get().setrelease_year(movie.getRelease_year());
-        movieMongo.get().setGenre(movie.getGenres());
-        movieMongo.get().setKeywords(movie.getKeywords());
-        movieMongo.get().setProduction_countries(movie.getProduction_countries());
-        movieMongo.get().setRuntime(movie.getRuntime());
-        movieMongo.get().setPoster_path(movie.getPoster_path());
-        movieMongo.get().setPlatform(movie.getPlatform());
-        movieMongo.get().setRevenue(movie.getRevenue());
-        movieMongo.get().setBudget(movie.getBudget());
-        movieMongo.get().setage_certification(movie.getAge_certification());
-        movieMongo.get().setSeasons(movie.getSeasons());
-
-        //update mongoDB
-        movieMongoDBInterface.save(movieMongo.get());
-        //update neo4j
-        movieNeo4jRepository.save(movieNeo4j.get());
-        return true;
-    }
-
-    public int addRole(String movie_id, Integer actor_id, String name, String character) {
-        return movieMongoDBRepo.addRole(movie_id, actor_id, name, character);
-    }
-
-    public int updateRole(String movie_id, Integer actor_id, String name, String character) {
-        return movieMongoDBRepo.updateRole(movie_id, actor_id, name, character);
-    }
-
-    public int deleteRole(String movie_id, Integer actor_id) {
-        return movieMongoDBRepo.deleteRole(movie_id, actor_id);
-    }
-
-    public int addDirector(String movie_id, Integer director_id, String name) {
-        return movieMongoDBRepo.addDirector(movie_id, director_id, name);
-    }
-
-    public int updateDirector(String movie_id, Integer director_id, String name) {
-        return movieMongoDBRepo.updateDirector(movie_id, director_id, name);
-    }
-
-    public int deleteDirector(String movie_id, Integer director_id) {
-        return movieMongoDBRepo.deleteDirector(movie_id, director_id);
-    }
-
-    // delete movie by ID
-    public void deleteMovie(String movieId) {
-        movieMongoDBInterface.deleteById(movieId);
-        movieNeo4jRepository.deleteById(movieId);
-    }
-
+    //METHOD TO GET MOST FREQUENT ACTORS IN SPECIFIC GENRES
     public List<ActorDTO> mostFrequentActorsSpecificGenres(List<String> genres) throws BusinessException {
-            return movieMongoDBInterface.mostFrequentActorsSpecificGenres(genres);
+        return movieMongoDBInterface.mostFrequentActorsSpecificGenres(genres);
     }
 
+    //METHOD TO GET MOST VOTED MOVIES BASED ON SPECIFIED CRITERIA
     public List<StringCountDTO> mostVotedMoviesBy(String method) throws BusinessException {
         return switch (method) {
             case "genres" -> movieMongoDBInterface.mostVotedMoviesByGenres();
@@ -223,56 +241,65 @@ public class MovieService {
         };
     }
 
+    //METHOD TO GET MOST POPULAR ACTORS
     public List<ActorDTO> mostPopularActors() throws BusinessException {
-            return movieMongoDBInterface.mostPopularActors();
+        return movieMongoDBInterface.mostPopularActors();
     }
 
+    //METHOD TO GET HIGHEST AVERAGE ACTORS IN TOP 2000 MOVIES
     public List<ActorDTO> highesAverageActorsTop2000Movies() throws BusinessException {
-            return movieMongoDBInterface.highesAverageActorsTop2000Movies();
+        return movieMongoDBInterface.highesAverageActorsTop2000Movies();
     }
 
+    //METHOD TO GET TOTAL MOVIES BY PLATFORM
     public List<StringCountDTO> totalMoviesByPlatform() throws BusinessException {
-            return movieMongoDBInterface.totalMoviesByPlatform();
+        return movieMongoDBInterface.totalMoviesByPlatform();
     }
 
+    //METHOD TO GET HIGHEST PROFIT DIRECTORS
     public List<StringCountDTO> highestProfitDirectors() throws BusinessException {
-            return movieMongoDBInterface.highestProfitDirectors();
+        return movieMongoDBInterface.highestProfitDirectors();
     }
 
+    //METHOD TO GET BEST PLATFORM FOR TOP 1000 MOVIES
     public List<StringCountDTO> bestPlatformForTop1000Movies() throws BusinessException {
-            return movieMongoDBInterface.bestPlatformForTop1000Movies();
+        return movieMongoDBInterface.bestPlatformForTop1000Movies();
     }
 
+    //METHOD TO GET PERCENTAGE OF COMBINED GENRES
     public List<CombinedPercentageDTO> percentageOfCombinedGenres(List<String> genres) throws BusinessException {
-            return movieMongoDBInterface.percentageOfCombinedGenres(genres);
+        return movieMongoDBInterface.percentageOfCombinedGenres(genres);
     }
 
+    //METHOD TO GET PERCENTAGE OF COMBINED KEYWORDS
     public List<CombinedPercentageDTO> percentageOfCombinedKeywords(List<String> keywords) throws BusinessException {
-            return movieMongoDBInterface.percentageOfCombinedKeywords(keywords);
+        return movieMongoDBInterface.percentageOfCombinedKeywords(keywords);
     }
 
+    //METHOD TO FIND DIFFERENCES BETWEEN TWO LISTS
     public static List<String> findDifference(List<String> a, List<String> b) {
         Set<String> firstSet = new HashSet<>(a);
-
         List<String> result = new ArrayList<>();
-
-        for (String mongoElement : b) {
-            if (!firstSet.contains(mongoElement)) {
-                result.add(mongoElement);
+        for (String element : b) {
+            if (!firstSet.contains(element)) {
+                result.add(element);
             }
         }
-
         return result;
     }
 
+    //METHOD TO FIND INCONSISTENCIES BETWEEN NEO4J AND MONGODB
     public List<String> inconsistenciesNeo() {
         List<String> mongoDb=movieMongoDBInterface.findAllIds().getAllIds();
         List<String> neo4j=movieNeo4jRepository.findAllIds();
+
         return findDifference(neo4j, mongoDb);
     }
+
     public List<String> inconsistenciesMongo() {
         List<String> mongoDb=movieMongoDBInterface.findAllIds().getAllIds();
         List<String> neo4j=movieNeo4jRepository.findAllIds();
+
         return findDifference(mongoDb, neo4j);
     }
 }

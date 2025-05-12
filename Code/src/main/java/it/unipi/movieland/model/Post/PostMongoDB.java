@@ -1,6 +1,6 @@
 package it.unipi.movieland.model.Post;
 
-import it.unipi.movieland.model.Comment.Comment;
+import it.unipi.movieland.model.Comment.CommentMongoDB;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -8,29 +8,29 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "Posts")
-public class Post {
+public class PostMongoDB {
 
     @Id
     private String _id;
     private LocalDateTime datetime;
     private String text;
     private String author;
+
     @Field("movie_id")
     private String movieId;
 
-    public Post() {
+    public PostMongoDB() {
         this.datetime = LocalDateTime.now();
     }
 
-    // COSTRUTTORE PARAMETRIZZATO
-    public Post(String text, String author, String movieId, List<Comment> comment) {
+    public PostMongoDB(String text, String author, String movieId, List<CommentMongoDB> comment) {
         this.datetime = LocalDateTime.now();
         this.text = text;
         this.author = author;
         this.movieId = movieId;
     }
 
-    //GETTER E SETTER
+    //GETTERS E SETTERS
     public String get_id() {
         return _id;
     }
@@ -62,16 +62,14 @@ public class Post {
         this.movieId = movieId;
     }
 
-
-    // Override di toString
     @Override
     public String toString() {
         return "Post{" +
                 "_id='" + _id + '\'' +
                 ", datetime='" + datetime + '\'' +
                 ", text='" + text + '\'' +
-                ", author='" + author + '\'' +
-                ", movieId='" + movieId + '\'' +
+                ", author Id='" + author + '\'' +
+                ", movie Id='" + movieId + '\'' +
                 '}';
     }
 }

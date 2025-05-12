@@ -25,7 +25,7 @@ public interface CelebrityNeo4JRepository extends Neo4jRepository<CelebrityNeo4J
             "RETURN c")
     Optional<CelebrityNeo4J> updateCelebrity(String personId, String name, String poster);
 
-    //NEW METHOD TO GET ALL IDs OF CELEBRITIES
+    //METHOD TO GET ALL IDs OF CELEBRITIES
     @Query("MATCH (c:Celebrity) RETURN c.person_id")
     List<String> findAllIds();
 

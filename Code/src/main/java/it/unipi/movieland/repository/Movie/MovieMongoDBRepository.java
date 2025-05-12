@@ -4,7 +4,10 @@ import it.unipi.movieland.dto.ActorDTO;
 import it.unipi.movieland.dto.CombinedPercentageDTO;
 import it.unipi.movieland.dto.ListIdDTO;
 import it.unipi.movieland.dto.StringCountDTO;
-import it.unipi.movieland.model.Movie.Movie;
+import it.unipi.movieland.model.Celebrity.CelebrityMongoDB;
+import it.unipi.movieland.model.Movie.MovieMongoDB;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -13,27 +16,36 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
+public interface MovieMongoDBRepository extends MongoRepository<MovieMongoDB, String> {
 
-    List<Movie> findAll();
-    Optional<Movie> findById(String id);
+    //METHOD TO GET ALL MOVIES
+    Page<MovieMongoDB> findAll(Pageable pageable);
 
-    Movie insert(Movie movie);
-    Movie save(Movie movie);
+    //METHOD TO FIND A MOVIE BY ID
+    Optional<MovieMongoDB> findById(String id);
+
+    //METHOD TO INSERT A NEW MOVIE
+    MovieMongoDB insert(MovieMongoDB movie);
+
+    //METHOD TO UPDATE AN EXISTING MOVIE
+    MovieMongoDB save(MovieMongoDB movie);
+
+    //METHOD TO DELETE A MOVIE BY ID
     void deleteById(String id);
 
+    //METHOD TO GET THE MOST FREQUENT ACTORS BASED ON A LIST OF GENRES
     @Aggregation(pipeline = {
             "{ $match: { genres: { $all: ?0 } } }",
             "{ $unwind: '$actors' }",
             "{ $group: { " + "_id: '$actors.id', " + "name: { $first: '$actors.name' }, " + "poster: { $first: '$actors.poster' }, " +
-                    "movieCount: { $sum: 1 } " +
-                    "} }",
+                    "movieCount: { $sum: 1 } " + "} }",
             "{ $sort: { movieCount: -1 } }",
             "{ $limit: 5 }",
             "{ $project: { " + "actor_id: '$_id', " + "name: 1, " + "poster: 1, " + "movieCount: 1 " + "} }"
     })
     List<ActorDTO> mostFrequentActorsSpecificGenres(List<String> genres);
 
+    //METHOD TO GET THE MOST VOTED MOVIES BY PRODUCTION COUNTRIES
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
             "{ $limit: 1000 }",
@@ -44,6 +56,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<StringCountDTO> mostVotedMoviesByProductionCountries();
 
+    //METHOD TO GET THE MOST VOTED MOVIES BY KEYWORDS
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
             "{ $limit: 1000 }",
@@ -54,6 +67,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<StringCountDTO> mostVotedMoviesByKeywords();
 
+    //METHOD TO GET THE MOST VOTED MOVIES BY GENRES
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
             "{ $limit: 1000 }",
@@ -64,6 +78,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<StringCountDTO> mostVotedMoviesByGenres();
 
+    //METHOD TO GET THE MOST POPULAR ACTORS
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
             "{ $limit: 100 }",
@@ -80,6 +95,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<ActorDTO> mostPopularActors();
 
+    //METHOD TO GET ACTORS WITH THE HIGHEST AVERAGE IMDB SCORE FOR TOP MOVIES
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
             "{ $limit: 1000 }",
@@ -99,6 +115,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<ActorDTO> highesAverageActorsTop2000Movies();
 
+    //METHOD TO GET TOTAL MOVIES BY PLATFORM
     @Aggregation(pipeline = {
             "{ $unwind: '$platform' }",
             "{ $group: { " + "_id: '$platform', " + "count: { $sum: 1 } " + "} }",
@@ -107,6 +124,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<StringCountDTO> totalMoviesByPlatform();
 
+    //METHOD TO GET THE DIRECTORS WITH THE HIGHEST AVERAGE PROFIT
     @Aggregation(pipeline = {
             "{ $addFields: { " + "profit: { $subtract: ['$revenue', '$budget'] } " + "} }",
             "{ $match: { profit: { $ne: null } } }",
@@ -118,6 +136,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<StringCountDTO> highestProfitDirectors();
 
+    //METHOD TO GET THE BEST PLATFORM FOR TOP 1000 MOVIES
     @Aggregation(pipeline = {
             "{ $sort: { imdb_votes: -1 } }",
             "{ $limit: 1000 }",
@@ -128,6 +147,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<StringCountDTO> bestPlatformForTop1000Movies();
 
+    //METHOD TO GET PERCENTAGE OF COMBINED GENRES IN MOVIES BASED ON A LIST OF GENRES
     @Aggregation(pipeline = {
             "{ $match: { genres: { $all: ?0 } } }",
             "{ $group: { _id: null, totalMovies: { $count: {} }, genreCounts: { $push: \"$genres\" } } }",
@@ -139,6 +159,7 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<CombinedPercentageDTO> percentageOfCombinedGenres(List<String> genres);
 
+    //METHOD TO GET PERCENTAGE OF COMBINED KEYWORDS IN MOVIES BASED ON A LIST OF KEYWORDS
     @Aggregation(pipeline = {
             "{ $match: { keywords: { $all: ?0 } } }",
             "{ $group: { _id: null, totalMovies: { $count: {} }, keywordCounts: { $push: \"$keywords\" } } }",
@@ -150,12 +171,14 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
     })
     List<CombinedPercentageDTO> percentageOfCombinedKeywords(List<String> keywords);
 
+    //METHOD TO GET ALL MOVIE IDS
     @Aggregation(pipeline = {
             "{ $project: { _id: 1 } }",    // Seleziona solo il campo _id
             "{ $group: { _id: 1, allIds: { $push: '$_id' } } }" // Raggruppa e crea l'array
     })
     public ListIdDTO findAllIds();
 
+    //METHOD TO UPDATE REVIEWS FOR A MOVIE BY ID
     @Aggregation(pipeline = {
             "{ $match: { _id: ?0 } }",
             "{ $lookup: { from: 'Reviews', localField: '_id', foreignField: 'movie_id', as: 'reviews' } }",
@@ -166,5 +189,4 @@ public interface MovieMongoDBRepository extends MongoRepository<Movie, String> {
             "{ $merge: { into: 'Movies', whenMatched: 'merge', whenNotMatched: 'insert' } }"
     })
     public void updateReviews(String movieId);
-
 }
