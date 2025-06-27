@@ -29,3 +29,8 @@ The datasets have been taken from some public repository in Kaggle.
 * **IMDB Movie Reviews**: updated and realistic reviews from IMDB, published by Vishakh Patel (https://www.kaggle.com/vishakhdapat)
 * **Movies Post and Comments**: big collection of posts and related comments about movies, published by Curiel (https://www.kaggle.com/curiel)
 We performed some pre-processing on the data in order to make it suitable for our platform and our database schema (all the details can be found in the final documentation) 
+
+## FUTURE IMPLEMENTATION
+* Frontend interface
+* Machine learning-based recommendation engine
+* Notification system and real-time chat
