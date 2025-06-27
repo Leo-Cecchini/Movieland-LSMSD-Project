@@ -30,7 +30,9 @@ The datasets have been taken from some public repository in Kaggle.
 * **Movies Post and Comments**: big collection of posts and related comments about movies, published by Curiel (https://www.kaggle.com/curiel)
 We performed some pre-processing on the data in order to make it suitable for our platform and our database schema (all the details can be found in the final documentation) 
 
-## FUTURE IMPLEMENTATION
+## FUTURE IMPLEMENTATIONS
 * Frontend interface
 * Machine learning-based recommendation engine
-* Notification system and real-time chat
+* Social Feed & Notifications: a dynamic feed with updates from followed users, and notifications for likes, comments, follows, and new recommendations.
+* Private Messaging System: allow users to communicate directly with each other to share recommendations and opinions.
+* User Achievements and Gamification: introduce badges, levels, and movie challenges to increase user engagement.
